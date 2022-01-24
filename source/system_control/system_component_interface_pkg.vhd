@@ -19,7 +19,7 @@ package system_component_interface_pkg is
         component_interconnect_output : component_interconnect_data_output_group)
         return boolean;
 ------------------------------------------------------------------------
-    function fault_has_been_acknowledged (
+    function fault_is_acknowledged (
         component_interconnect_output : component_interconnect_data_output_group)
         return boolean;
 ------------------------------------------------------------------------

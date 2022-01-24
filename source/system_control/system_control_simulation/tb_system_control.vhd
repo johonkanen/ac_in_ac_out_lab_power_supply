@@ -25,7 +25,7 @@ architecture vunit_simulation of tb_system_control is
     signal simulation_counter : natural := 0;
     -----------------------------------
     -- simulation specific signals ----
-    type system_states is (wait_for_run_command, normal_operation, fault, acknowledge_fault);
+    type system_states is (wait_for_run_command, normal_operation, fault);
     signal main_state_machine : system_states := wait_for_run_command;
 
 ------------------------------------------------------------------------
@@ -50,21 +50,6 @@ architecture vunit_simulation of tb_system_control is
         end if;
     end countdown;
 
-------------------------------------------------------------------------
-    procedure change_state_to_and_assing_countdown_timer
-    (
-        signal state_machine     : inout system_states;
-        constant next_state      : system_states;
-        signal countdown_counter : inout integer;
-        state_change_is_requested : boolean
-    ) is
-    begin
-        if state_change_is_requested then
-            change_state_to(state_machine , next_state);
-            countdown_counter <= 3;
-        end if;
-        
-    end change_state_to_and_assing_countdown_timer;
 ------------------------------------------------------------------------
     signal counter : integer := 0; 
 
@@ -108,20 +93,24 @@ begin
         ) is
         begin
             CASE state_machine is
+                --------------------------
                 WHEN wait_for_run_command => 
 
                     if run_is_commanded(component_interconnect_data_out) then
                         change_state_to(state_machine, normal_operation);
                     end if;
 
+                --------------------------
                 WHEN normal_operation => 
 
+                --------------------------
                 WHEN fault => 
-                    change_state_to_and_assing_countdown_timer(state_machine , acknowledge_fault, counter, counter = 0);
 
-                WHEN acknowledge_fault => 
-                    change_state_to_and_assing_countdown_timer(state_machine , wait_for_run_command, counter, counter = 0);
+                    if fault_is_acknowledged(component_interconnect_output) then
+                        change_state_to(state_machine, wait_for_run_command);
+                    end if;
 
+                --------------------------
             end CASE; --state_machine
 
             if trip_is_detected(component_interconnect_output) then
@@ -142,7 +131,10 @@ begin
                 WHEN others => -- do nothign
             end CASE;
 
-            create_main_system_control(main_state_machine, component_interconnect_data_in, component_interconnect_data_out);
+            create_main_system_control(
+                main_state_machine             ,
+                component_interconnect_data_in ,
+                component_interconnect_data_out);
 
 
             countdown(counter);

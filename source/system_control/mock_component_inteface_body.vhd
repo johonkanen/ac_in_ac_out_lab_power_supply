@@ -32,7 +32,7 @@ package body system_component_interface_pkg is
         
     end trip_is_detected;
 ------------------------------------------------------------------------
-    function fault_has_been_acknowledged
+    function fault_is_acknowledged
     (
         component_interconnect_output : component_interconnect_data_output_group
     )
@@ -41,7 +41,7 @@ package body system_component_interface_pkg is
     begin
         return true;
 
-    end fault_has_been_acknowledged;
+    end fault_is_acknowledged;
 ------------------------------------------------------------------------
 
 end package body system_component_interface_pkg;
