@@ -12,7 +12,7 @@ package power_electronics_pkg is
     end record;
     
     type power_electronics_FPGA_output_group is record
-        leds : std_logic_vector(3 downto 0);
+        leds : std_logic_vector(2 downto 0);
     end record;
     
     type power_electronics_data_input_group is record

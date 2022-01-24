@@ -29,11 +29,15 @@ begin
 
     system_components_FPGA_out <= (power_electronics_FPGA_out => power_electronics_FPGA_out);
 
+------------------------------------------------------------------------
+    -- comm module to be added here
+------------------------------------------------------------------------
     u_power_electronics : power_electronics
     port map( system_clocks,
               system_components_FPGA_in.power_electronics_FPGA_in,
-              power_electronics_FPGA_out,
-              power_electronics_data_in,
+              power_electronics_FPGA_out ,
+              power_electronics_data_in  ,
               power_electronics_data_out);
 
+------------------------------------------------------------------------
 end rtl;

@@ -26,10 +26,10 @@ package system_components_pkg is
     
     component system_components is
         port (
-            system_clocks : in system_clocks_record;
-            system_components_FPGA_in : in system_components_FPGA_input_group;
-            system_components_FPGA_out : out system_components_FPGA_output_group; 
-            system_components_data_in : in system_components_data_input_group;
+            system_clocks              : in system_clocks_record;
+            system_components_FPGA_in  : in system_components_FPGA_input_group;
+            system_components_FPGA_out : out system_components_FPGA_output_group;
+            system_components_data_in  : in system_components_data_input_group;
             system_components_data_out : out system_components_data_output_group
         );
     end component system_components;

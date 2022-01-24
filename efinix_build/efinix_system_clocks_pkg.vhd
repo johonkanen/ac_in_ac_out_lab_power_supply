@@ -9,4 +9,3 @@ package system_clocks_pkg is
     end record;
 
 end package system_clocks_pkg;
-

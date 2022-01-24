@@ -14,6 +14,7 @@ package system_control_pkg is
     
     type system_control_FPGA_output_group is record
         system_components_FPGA_out : system_components_FPGA_output_group; 
+        leds : std_logic_vector(3 downto 3);
     end record;
     
     component system_control is
