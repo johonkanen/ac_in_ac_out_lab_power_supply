@@ -5,7 +5,7 @@ library ieee;
 library work;
     use work.system_clocks_pkg.all;
     use work.system_control_pkg.all;
-    use work.system_components_pkg.all;
+    use work.component_interconnect_pkg.all;
     use work.rtl_counter_pkg.all;
 
 entity system_control is
@@ -19,17 +19,30 @@ end entity system_control;
 architecture rtl of system_control is
 
     alias clock_120Mhz is system_control_clocks.clock_120Mhz;
-    alias leds is system_control_FPGA_out.leds;
-    signal system_components_data_in  : system_components_data_input_group;
-    signal system_components_data_out : system_components_data_output_group;
+    signal component_interconnect_data_in  : component_interconnect_data_input_group;
+    signal component_interconnect_data_out : component_interconnect_data_output_group;
 
-    type system_states is (wait_for_run_command, init, normal_operation, power_down, fault, acknowledge_fault);
 
-    signal counter : integer range 0 to 2**16-1 := 0; 
-    signal slow_counter : integer range 0 to 2**16-1 := 0; 
-    signal led_state : std_logic_vector(3 downto 3) := (others => '0');
+------------------------------------------------------------------------
+    procedure start_system
+    (
+        signal component_input_object : out component_interconnect_data_input_group
+    ) is
+    begin
+        component_input_object.power_electronics_data_in.clock <= '1';
+    end start_system;
+------------------------------------------------------------------------
+    procedure stop_system
+    (
+        signal component_input_object : out component_interconnect_data_input_group
+    ) is
+    begin
+        component_input_object.power_electronics_data_in.clock <= '0';
+        
+    end stop_system;
 ------------------------------------------------------------------------
 
+------------------------------------------------------------------------
 begin
 ------------------------------------------------------------------------
 
@@ -38,23 +51,17 @@ begin
     begin
         if rising_edge(clock_120Mhz) then
 
-            leds <= led_state;
-            count_down_from(counter, 10e3);
-            if counter = 0 then
-                count_down_from(slow_counter, 5e3);
-                blink_leds(slow_counter, led_state(3),(5.0e3/4.0*3.0));
-            end if;
-
+            start_system(component_interconnect_data_in);
 
         end if; --rising_edge
     end process main_system_controller;	
 
 ------------------------------------------------------------------------
-    u_system_components_pkg : system_components
-    port map( system_control_clocks                          ,
-    	  system_control_FPGA_in.system_components_FPGA_in   ,
-    	  system_control_FPGA_out.system_components_FPGA_out ,
-    	  system_components_data_in                          ,
-    	  system_components_data_out);
+    u_component_interconnect_pkg : component_interconnect
+    port map( system_control_clocks                               ,
+    	  system_control_FPGA_in.component_interconnect_FPGA_in   ,
+    	  system_control_FPGA_out.component_interconnect_FPGA_out ,
+    	  component_interconnect_data_in                          ,
+    	  component_interconnect_data_out);
 ------------------------------------------------------------------------
 end rtl;

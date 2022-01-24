@@ -5,20 +5,20 @@ library ieee;
 
 library work;
     use work.system_clocks_pkg.all;
-    use work.system_components_pkg.all;
+    use work.component_interconnect_pkg.all;
     use work.power_electronics_pkg.all;
 
-entity system_components is
+entity component_interconnect is
     port (
         system_clocks : in system_clocks_record;
-        system_components_FPGA_in : in system_components_FPGA_input_group;
-        system_components_FPGA_out : out system_components_FPGA_output_group; 
-        system_components_data_in : in system_components_data_input_group;
-        system_components_data_out : out system_components_data_output_group
+        component_interconnect_FPGA_in : in component_interconnect_FPGA_input_group;
+        component_interconnect_FPGA_out : out component_interconnect_FPGA_output_group; 
+        component_interconnect_data_in : in component_interconnect_data_input_group;
+        component_interconnect_data_out : out component_interconnect_data_output_group
     );
-end entity system_components;
+end entity component_interconnect;
 
-architecture rtl of system_components is
+architecture rtl of component_interconnect is
 
     signal power_electronics_FPGA_in  : power_electronics_FPGA_input_group;
     signal power_electronics_FPGA_out : power_electronics_FPGA_output_group;
@@ -27,14 +27,17 @@ architecture rtl of system_components is
 
 begin 
 
-    system_components_FPGA_out <= (power_electronics_FPGA_out => power_electronics_FPGA_out);
+    component_interconnect_FPGA_out <= (power_electronics_FPGA_out => power_electronics_FPGA_out);
+    component_interconnect_data_out <= (power_electronics_data_out => power_electronics_data_out);
 
 ------------------------------------------------------------------------
     -- comm module to be added here
 ------------------------------------------------------------------------
+    power_electronics_data_in <= component_interconnect_data_in.power_electronics_data_in;
+
     u_power_electronics : power_electronics
     port map( system_clocks,
-              system_components_FPGA_in.power_electronics_FPGA_in,
+              component_interconnect_FPGA_in.power_electronics_FPGA_in,
               power_electronics_FPGA_out ,
               power_electronics_data_in  ,
               power_electronics_data_out);

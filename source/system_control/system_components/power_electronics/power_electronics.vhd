@@ -25,23 +25,8 @@ architecture rtl of power_electronics is
 
     signal counter : integer range 0 to 2**16-1 := 0; 
     signal slow_counter : integer range 0 to 2**16-1 := 0; 
-    signal led_state : std_logic_vector(2 downto 0) := (others => '0');
+    signal led_state : std_logic_vector(3 downto 0) := (others => '0');
 
-------------------------------------------------------------------------
-    procedure blink_leds
-    (
-        led_counter : in integer;
-        signal blinking_led : inout std_logic;
-        constant blink_led_at : in real
-    ) is
-    begin
-
-        if led_counter = integer(blink_led_at) then
-            blinking_led <= not blinking_led;
-        end if;
-        
-    end blink_leds;
-------------------------------------------------------------------------
 ------------------------------------------------------------------------
 
 begin
@@ -61,6 +46,7 @@ begin
                 blink_leds(slow_counter, led_state(0),(5.0e3/4.0*0.0));
                 blink_leds(slow_counter, led_state(1),(5.0e3/4.0*1.0));
                 blink_leds(slow_counter, led_state(2),(5.0e3/4.0*2.0));
+                blink_leds(slow_counter, led_state(3),(5.0e3/4.0*3.0));
 
             end if;
 

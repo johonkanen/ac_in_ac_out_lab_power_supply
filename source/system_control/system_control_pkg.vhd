@@ -4,17 +4,16 @@ library ieee;
 
 library work;
     use work.system_clocks_pkg.all;
-    use work.system_components_pkg.all;
+    use work.component_interconnect_pkg.all;
 
 package system_control_pkg is
 
     type system_control_FPGA_input_group is record
-        system_components_FPGA_in : system_components_FPGA_input_group;
+        component_interconnect_FPGA_in : component_interconnect_FPGA_input_group;
     end record;
     
     type system_control_FPGA_output_group is record
-        system_components_FPGA_out : system_components_FPGA_output_group; 
-        leds : std_logic_vector(3 downto 3);
+        component_interconnect_FPGA_out : component_interconnect_FPGA_output_group; 
     end record;
     
     component system_control is
