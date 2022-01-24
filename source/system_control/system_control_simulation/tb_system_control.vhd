@@ -4,6 +4,7 @@ LIBRARY ieee  ;
     use ieee.math_real.all;
 
 library work;
+    use work.component_interconnect_pkg.all;
     use work.system_component_interface_pkg.all;
 
 library vunit_lib;
@@ -24,18 +25,51 @@ architecture vunit_simulation of tb_system_control is
     signal simulation_counter : natural := 0;
     -----------------------------------
     -- simulation specific signals ----
-    type system_states is (wait_for_run_command, init, normal_operation, power_down, fault, acknowledge_fault);
+    type system_states is (wait_for_run_command, normal_operation, fault, acknowledge_fault);
     signal main_state_machine : system_states := wait_for_run_command;
 
-    procedure change_state
+------------------------------------------------------------------------
+    procedure change_state_to
     (
         signal state_machine : out system_states;
-        change_state_to : system_states
+        next_state : system_states
     ) is
     begin
 
-        state_machine <= change_state_to;
-    end change_state;
+        state_machine <= next_state;
+    end change_state_to;
+
+------------------------------------------------------------------------
+    procedure countdown
+    (
+        signal countdown_counter : inout integer
+    ) is
+    begin
+        if countdown_counter > 0 then
+            countdown_counter <= countdown_counter - 1 ;
+        end if;
+    end countdown;
+
+------------------------------------------------------------------------
+    procedure change_state_to_and_assing_countdown_timer
+    (
+        signal state_machine     : inout system_states;
+        constant next_state      : system_states;
+        signal countdown_counter : inout integer;
+        state_change_is_requested : boolean
+    ) is
+    begin
+        if state_change_is_requested then
+            change_state_to(state_machine , next_state);
+            countdown_counter <= 3;
+        end if;
+        
+    end change_state_to_and_assing_countdown_timer;
+------------------------------------------------------------------------
+    signal counter : integer := 0; 
+
+    signal component_interconnect_data_in : component_interconnect_data_input_group;
+    signal component_interconnect_data_out : component_interconnect_data_output_group;
 
 begin
 
@@ -69,26 +103,37 @@ begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
 
+            component_interconnect_data_out.trigger_trip <= false;
+            CASE simulation_counter is
+                WHEN 0 => component_interconnect_data_out.start_is_requested <= true;
+                WHEN 15 => component_interconnect_data_out.trigger_trip <= true;
+                WHEN others => -- do nothign
+            end CASE;
+
             CASE main_state_machine is
                 WHEN wait_for_run_command => 
-                    change_state(main_state_machine , init);
 
-                WHEN init => 
-                    change_state(main_state_machine , normal_operation);
+                    if run_is_commanded(component_interconnect_data_out) then
+                        change_state_to(main_state_machine, normal_operation);
+                    end if;
 
                 WHEN normal_operation => 
-                    change_state(main_state_machine , power_down);
-
-                WHEN power_down => 
-                    change_state(main_state_machine , fault);
 
                 WHEN fault => 
-                    change_state(main_state_machine , acknowledge_fault);
+                    change_state_to_and_assing_countdown_timer(main_state_machine , acknowledge_fault, counter, counter = 0);
 
                 WHEN acknowledge_fault => 
-                    change_state(main_state_machine , wait_for_run_command);
+                    change_state_to_and_assing_countdown_timer(main_state_machine , wait_for_run_command, counter, counter = 0);
 
             end CASE; --main_state_machine
+
+
+            if trip_is_detected(component_interconnect_data_out) then
+                change_state_to(main_state_machine , fault);
+            end if;
+
+            countdown(counter);
+
 
         end if; -- rising_edge
     end process stimulus;	

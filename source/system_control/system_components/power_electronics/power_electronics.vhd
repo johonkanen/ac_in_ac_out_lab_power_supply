@@ -41,12 +41,12 @@ begin
 
             count_down_from(counter, 10e3);
             if counter = 0 then
-                count_down_from(slow_counter, 5e3);
+                count_down_from(slow_counter, 4e3);
 
-                blink_leds(slow_counter, led_state(0),(5.0e3/4.0*0.0));
-                blink_leds(slow_counter, led_state(1),(5.0e3/4.0*1.0));
-                blink_leds(slow_counter, led_state(2),(5.0e3/4.0*2.0));
-                blink_leds(slow_counter, led_state(3),(5.0e3/4.0*3.0));
+                blink_leds(slow_counter, led_state(0),(4.0e3/1.0));
+                blink_leds(slow_counter, led_state(1),(4.0e3/2.0));
+                blink_leds(slow_counter, led_state(2),(4.0e3/3.0));
+                blink_leds(slow_counter, led_state(3),(4.0e3/4.0));
 
             end if;
 
