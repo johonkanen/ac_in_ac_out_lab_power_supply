@@ -27,15 +27,19 @@ architecture rtl of power_electronics is
     signal led_state : std_logic_vector(3 downto 0) := (others => '0');
 
 ------------------------------------------------------------------------
-    procedure blink_led_at
+    procedure create_led_blinker
     (
-        signal ledstate : std_logic
-         
+        led_counter : in integer;
+        signal blinking_led : inout std_logic;
+        constant blink_led_at : in real
     ) is
     begin
-        
-    end blink_led_at;
 
+        if slow_counter = integer(blink_led_at) then
+            blinking_led <= not blinking_led;
+        end if;
+        
+    end create_led_blinker;
 ------------------------------------------------------------------------
     procedure count_down_from
     (
@@ -57,34 +61,22 @@ begin
 
 
     led_blinker : process(clock_120Mhz)
-
         
     begin
         if rising_edge(clock_120Mhz) then
 
             count_down_from(counter, 10e3);
+            leds <= led_state;
 
             if counter = 0 then
                 count_down_from(slow_counter, 5e3);
+
+                create_led_blinker(slow_counter, led_state(0),(5.0e3/4.0*0.0));
+                create_led_blinker(slow_counter, led_state(1),(5.0e3/4.0*1.0));
+                create_led_blinker(slow_counter, led_state(2),(5.0e3/4.0*2.0));
+                create_led_blinker(slow_counter, led_state(3),(5.0e3/4.0*3.0));
             end if;
 
-            if slow_counter = 0 then
-                led_state(0) <= not led_state(0);
-            end if;
-
-            if slow_counter = integer(5.0e3/4.0) then
-                led_state(1) <= not led_state(1);
-            end if;
-
-            if slow_counter = integer(5.0e3/4.0*2.0) then
-                led_state(2) <= not led_state(2);
-            end if;
-
-            if slow_counter = integer(5.0e3/4.0*3.0) then
-                led_state(3) <= not led_state(3);
-            end if;
-
-            leds <= led_state;
 
         end if; --rising_edge
     end process led_blinker;	
