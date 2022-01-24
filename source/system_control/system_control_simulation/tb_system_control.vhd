@@ -99,6 +99,38 @@ begin
 
     stimulus : process(simulator_clock)
 
+    --------------------------------------------------
+        procedure create_main_system_control
+        (
+            signal state_machine : inout system_states;
+            signal component_interconnect_input : out component_interconnect_data_input_group;
+            component_interconnect_output : in component_interconnect_data_output_group
+        ) is
+        begin
+            CASE state_machine is
+                WHEN wait_for_run_command => 
+
+                    if run_is_commanded(component_interconnect_data_out) then
+                        change_state_to(state_machine, normal_operation);
+                    end if;
+
+                WHEN normal_operation => 
+
+                WHEN fault => 
+                    change_state_to_and_assing_countdown_timer(state_machine , acknowledge_fault, counter, counter = 0);
+
+                WHEN acknowledge_fault => 
+                    change_state_to_and_assing_countdown_timer(state_machine , wait_for_run_command, counter, counter = 0);
+
+            end CASE; --state_machine
+
+            if trip_is_detected(component_interconnect_output) then
+                change_state_to(state_machine , fault);
+            end if;
+            
+        end create_main_system_control;
+    --------------------------------------------------
+
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
@@ -110,27 +142,8 @@ begin
                 WHEN others => -- do nothign
             end CASE;
 
-            CASE main_state_machine is
-                WHEN wait_for_run_command => 
+            create_main_system_control(main_state_machine, component_interconnect_data_in, component_interconnect_data_out);
 
-                    if run_is_commanded(component_interconnect_data_out) then
-                        change_state_to(main_state_machine, normal_operation);
-                    end if;
-
-                WHEN normal_operation => 
-
-                WHEN fault => 
-                    change_state_to_and_assing_countdown_timer(main_state_machine , acknowledge_fault, counter, counter = 0);
-
-                WHEN acknowledge_fault => 
-                    change_state_to_and_assing_countdown_timer(main_state_machine , wait_for_run_command, counter, counter = 0);
-
-            end CASE; --main_state_machine
-
-
-            if trip_is_detected(component_interconnect_data_out) then
-                change_state_to(main_state_machine , fault);
-            end if;
 
             countdown(counter);
 
