@@ -2,23 +2,23 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
+library work;
+    use work.system_clocks_pkg.all;
+    use work.system_components_pkg.all;
+
 package system_control_pkg is
 
-    type system_clock_record is record
-        clock_120Mhz : std_logic;
-    end record;
-    
     type system_control_FPGA_input_group is record
-        buttons : std_logic_vector(1 downto 0);
+        system_components_FPGA_in : system_components_FPGA_input_group;
     end record;
     
     type system_control_FPGA_output_group is record
-        leds : std_logic_vector(3 downto 0);
+        system_components_FPGA_out : system_components_FPGA_output_group; 
     end record;
     
     component system_control is
         port (
-            system_control_clocks   : in system_clock_record;
+            system_control_clocks   : in system_clocks_record;
             system_control_FPGA_in  : in system_control_FPGA_input_group;
             system_control_FPGA_out : out system_control_FPGA_output_group
         );
