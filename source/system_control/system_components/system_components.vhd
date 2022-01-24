@@ -6,6 +6,7 @@ library ieee;
 library work;
     use work.system_clocks_pkg.all;
     use work.system_components_pkg.all;
+    use work.power_electronics_pkg.all;
 
 entity system_components is
     port (
@@ -19,75 +20,20 @@ end entity system_components;
 
 architecture rtl of system_components is
 
-    alias clock_120Mhz is system_clocks.clock_120Mhz;
-    alias leds is system_components_FPGA_out.leds;
+    signal power_electronics_FPGA_in  : power_electronics_FPGA_input_group;
+    signal power_electronics_FPGA_out : power_electronics_FPGA_output_group;
+    signal power_electronics_data_in  : power_electronics_data_input_group;
+    signal power_electronics_data_out : power_electronics_data_output_group;
 
-    signal counter : integer range 0 to 2**16-1 := 0; 
-    signal slow_counter : integer range 0 to 2**16-1 := 0; 
-    signal led_state : std_logic_vector(3 downto 0) := (others => '0');
+begin 
 
-------------------------------------------------------------------------
-    procedure blink_led_at
-    (
-        signal ledstate : std_logic
-         
-    ) is
-    begin
-        
-    end blink_led_at;
+    system_components_FPGA_out <= (power_electronics_FPGA_out => power_electronics_FPGA_out);
 
-------------------------------------------------------------------------
-    procedure count_down_from
-    (
-        signal downcounter : inout integer;
-        max_value_for_counter : integer
-    ) is
-    begin
-        if downcounter > 0 then
-            downcounter <= downcounter - 1;
-        else
-            downcounter <= max_value_for_counter;
-        end if;
-        
-    end count_down_from;
-
-------------------------------------------------------------------------
-
-begin
-
-
-    led_blinker : process(clock_120Mhz)
-
-        
-    begin
-        if rising_edge(clock_120Mhz) then
-
-            count_down_from(counter, 10e3);
-
-            if counter = 0 then
-                count_down_from(slow_counter, 5e3);
-            end if;
-
-            if slow_counter = 0 then
-                led_state(0) <= not led_state(0);
-            end if;
-
-            if slow_counter = integer(5.0e3/4.0) then
-                led_state(1) <= not led_state(1);
-            end if;
-
-            if slow_counter = integer(5.0e3/4.0*2.0) then
-                led_state(2) <= not led_state(2);
-            end if;
-
-            if slow_counter = integer(5.0e3/4.0*3.0) then
-                led_state(3) <= not led_state(3);
-            end if;
-
-            leds <= led_state;
-
-        end if; --rising_edge
-    end process led_blinker;	
+    u_power_electronics : power_electronics
+    port map( system_clocks,
+              system_components_FPGA_in.power_electronics_FPGA_in,
+              power_electronics_FPGA_out,
+              power_electronics_data_in,
+              power_electronics_data_out);
 
 end rtl;
-

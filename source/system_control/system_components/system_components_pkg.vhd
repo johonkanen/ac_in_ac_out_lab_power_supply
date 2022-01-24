@@ -4,23 +4,24 @@ library ieee;
 
 library work;
     use work.system_clocks_pkg.all;
+    use work.power_electronics_pkg.all;
 
 package system_components_pkg is
 
     type system_components_FPGA_input_group is record
-        clock : std_logic;
+        power_electronics_FPGA_in  : power_electronics_FPGA_input_group;
     end record;
     
     type system_components_FPGA_output_group is record
-        leds : std_logic_vector(3 downto 0);
+        power_electronics_FPGA_out : power_electronics_FPGA_output_group;
     end record;
     
     type system_components_data_input_group is record
-        clock : std_logic;
+        power_electronics_data_in  : power_electronics_data_input_group;
     end record;
     
     type system_components_data_output_group is record
-        clock : std_logic;
+        power_electronics_data_out : power_electronics_data_output_group;
     end record;
     
     component system_components is

@@ -23,7 +23,7 @@ architecture rtl of efinix_top is
 begin
 
     system_control_clocks <= (clock_120Mhz => clock_120Mhz);
-    leds <= system_control_FPGA_out.system_components_FPGA_out.leds;
+    leds <= system_control_FPGA_out.system_components_FPGA_out.power_electronics_FPGA_out.leds;
 
     u_system_control : system_control
     port map( system_control_clocks ,

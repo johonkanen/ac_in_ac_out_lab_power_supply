@@ -24,12 +24,11 @@ architecture rtl of system_control is
 begin
 
 ------------------------------------------------------------------------
-
     u_system_components_pkg : system_components
-    port map( system_control_clocks  ,
-    	  system_control_FPGA_in.system_components_FPGA_in  ,
+    port map( system_control_clocks                          ,
+    	  system_control_FPGA_in.system_components_FPGA_in   ,
     	  system_control_FPGA_out.system_components_FPGA_out ,
-    	  system_components_data_in  ,
+    	  system_components_data_in                          ,
     	  system_components_data_out);
 ------------------------------------------------------------------------
 end rtl;
