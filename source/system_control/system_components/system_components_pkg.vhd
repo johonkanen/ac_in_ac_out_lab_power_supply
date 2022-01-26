@@ -5,15 +5,19 @@ library ieee;
 library work;
     use work.system_clocks_pkg.all;
     use work.power_electronics_pkg.all;
+    use work.uart_pkg.all;
+    use work.communications_pkg.all;
 
 package component_interconnect_pkg is
 
     type component_interconnect_FPGA_input_group is record
         power_electronics_FPGA_in  : power_electronics_FPGA_input_group;
+        communications_FPGA_in  : communications_FPGA_input_group;
     end record;
     
     type component_interconnect_FPGA_output_group is record
         power_electronics_FPGA_out : power_electronics_FPGA_output_group;
+        communications_FPGA_out    : communications_FPGA_output_group;
     end record;
     
     type component_interconnect_data_input_group is record
@@ -26,7 +30,7 @@ package component_interconnect_pkg is
     
     component component_interconnect is
         port (
-            system_clocks              : in system_clocks_record;
+            system_clocks                   : in system_clocks_record;
             component_interconnect_FPGA_in  : in component_interconnect_FPGA_input_group;
             component_interconnect_FPGA_out : out component_interconnect_FPGA_output_group;
             component_interconnect_data_in  : in component_interconnect_data_input_group;

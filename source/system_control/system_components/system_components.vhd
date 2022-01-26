@@ -6,6 +6,7 @@ library ieee;
 library work;
     use work.system_clocks_pkg.all;
     use work.component_interconnect_pkg.all;
+    use work.communications_pkg.all;
     use work.power_electronics_pkg.all;
 
 entity component_interconnect is
@@ -25,13 +26,29 @@ architecture rtl of component_interconnect is
     signal power_electronics_data_in  : power_electronics_data_input_group;
     signal power_electronics_data_out : power_electronics_data_output_group;
 
+    signal communications_clocks   : communications_clock_group;
+    signal communications_FPGA_out : communications_FPGA_output_group;
+    signal communications_data_in  : communications_data_input_group;
+    signal communications_data_out : communications_data_output_group;
+    
+
 begin 
 
-    component_interconnect_FPGA_out <= (power_electronics_FPGA_out => power_electronics_FPGA_out);
+    component_interconnect_FPGA_out <= (power_electronics_FPGA_out => power_electronics_FPGA_out,
+                                        communications_FPGA_out => communications_FPGA_out);
+
     component_interconnect_data_out <= (power_electronics_data_out => power_electronics_data_out);
 
 ------------------------------------------------------------------------
     -- comm module to be added here
+    communications_clocks <= (clock => system_clocks.clock_120Mhz);
+    u_communications : communications
+    port map( communications_clocks,
+          component_interconnect_FPGA_in.communications_FPGA_in,
+    	  communications_FPGA_out,
+    	  communications_data_in,
+    	  communications_data_out);
+
 ------------------------------------------------------------------------
     power_electronics_data_in <= component_interconnect_data_in.power_electronics_data_in;
 
