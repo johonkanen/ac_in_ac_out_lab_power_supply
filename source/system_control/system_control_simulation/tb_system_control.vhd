@@ -136,10 +136,6 @@ begin
                 component_interconnect_data_in ,
                 component_interconnect_data_out);
 
-
-            countdown(counter);
-
-
         end if; -- rising_edge
     end process stimulus;	
 ------------------------------------------------------------------------

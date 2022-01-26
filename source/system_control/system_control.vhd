@@ -6,7 +6,6 @@ library work;
     use work.system_clocks_pkg.all;
     use work.system_control_pkg.all;
     use work.component_interconnect_pkg.all;
-    use work.rtl_counter_pkg.all;
 
 entity system_control is
     port (
@@ -24,25 +23,6 @@ architecture rtl of system_control is
 
 
 ------------------------------------------------------------------------
-    procedure start_system
-    (
-        signal component_input_object : out component_interconnect_data_input_group
-    ) is
-    begin
-        component_input_object.power_electronics_data_in.clock <= '1';
-    end start_system;
-------------------------------------------------------------------------
-    procedure stop_system
-    (
-        signal component_input_object : out component_interconnect_data_input_group
-    ) is
-    begin
-        component_input_object.power_electronics_data_in.clock <= '0';
-        
-    end stop_system;
-------------------------------------------------------------------------
-
-------------------------------------------------------------------------
 begin
 ------------------------------------------------------------------------
 
@@ -51,7 +31,6 @@ begin
     begin
         if rising_edge(clock_120Mhz) then
 
-            start_system(component_interconnect_data_in);
 
         end if; --rising_edge
     end process main_system_controller;	
