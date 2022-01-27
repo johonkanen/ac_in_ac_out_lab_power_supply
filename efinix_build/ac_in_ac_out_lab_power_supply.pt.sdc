@@ -31,6 +31,3 @@ create_clock -period 8.33 clock_120Mhz
 
 # LVDS Rx Constraints
 ####################
-
-
-set_false_path –from [get_port *leds*] –to *

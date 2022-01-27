@@ -1,0 +1,3 @@
+[submodule "source/fpga_interconnect"]
+	path = source/fpga_interconnect
+	url = https://github.com/johonkanen/fpga_interconnect.git

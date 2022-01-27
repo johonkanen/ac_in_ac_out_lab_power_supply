@@ -4,6 +4,7 @@ library ieee;
 
 library work;
     use work.system_clocks_pkg.all;
+    use work.fpga_interconnect_pkg.all;
 
 package power_electronics_pkg is
 
@@ -16,11 +17,11 @@ package power_electronics_pkg is
     end record;
     
     type power_electronics_data_input_group is record
-        clock : std_logic;
+        bus_in : fpga_interconnect_record;
     end record;
     
     type power_electronics_data_output_group is record
-        clock : std_logic;
+        bus_out : fpga_interconnect_record;
     end record;
     
     component power_electronics is

@@ -7,6 +7,7 @@ library work;
     use work.power_electronics_pkg.all;
     use work.uart_pkg.all;
     use work.communications_pkg.all;
+    use work.fpga_interconnect_pkg.all;
 
 package component_interconnect_pkg is
 
@@ -22,10 +23,13 @@ package component_interconnect_pkg is
     
     type component_interconnect_data_input_group is record
         power_electronics_data_in  : power_electronics_data_input_group;
+        bus_in : fpga_interconnect_record;
+
     end record;
     
     type component_interconnect_data_output_group is record
         power_electronics_data_out : power_electronics_data_output_group;
+        bus_out : fpga_interconnect_record;
     end record;
     
     component component_interconnect is

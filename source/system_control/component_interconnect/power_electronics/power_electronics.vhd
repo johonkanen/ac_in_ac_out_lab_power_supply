@@ -6,6 +6,8 @@ library work;
     use work.system_clocks_pkg.all;
     use work.power_electronics_pkg.all;
     use work.rtl_counter_pkg.all;
+    use work.fpga_interconnect_pkg.all;
+    use work.system_register_addresses_pkg.all;
 
 entity power_electronics is
     port (
@@ -22,22 +24,41 @@ architecture rtl of power_electronics is
 
     alias clock_120Mhz is system_clocks.clock_120Mhz;
     alias leds is power_electronics_FPGA_out.leds;
+    alias bus_in is power_electronics_data_in.bus_in;
+    alias bus_out is power_electronics_data_out.bus_out;
 
     signal counter : integer range 0 to 2**16-1 := 0; 
     signal slow_counter : integer range 0 to 2**16-1 := 0; 
     signal led_state : std_logic_vector(3 downto 0) := (others => '0');
 
+    signal data_from_power_electronics : integer range 0 to 2**16-1 := 0;
 ------------------------------------------------------------------------
+    signal system_is_started : boolean := false;
 
 begin
 
 ------------------------------------------------------------------------
     led_blinker : process(clock_120Mhz)
-        
+
     begin
         if rising_edge(clock_120Mhz) then
 
-            leds <= led_state;
+            init_bus(bus_out);
+            connect_data_to_address(bus_in, bus_out, power_electronics_data_address, data_from_power_electronics);
+
+            if write_to_address_is_requested(bus_in, power_electronics_data_address) and get_data(bus_in) = 1 then
+                system_is_started <= true;
+            end if;
+
+            if write_to_address_is_requested(bus_in, power_electronics_data_address) and get_data(bus_in) = 0 then
+                system_is_started <= false;
+            end if;
+
+            if system_is_started then
+                leds <= led_state;
+            else
+                leds <= (others => '0');
+            end if;
 
             count_down_from(counter, 10e3);
             if counter = 0 then

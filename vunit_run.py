@@ -21,4 +21,6 @@ lib.add_source_files(ROOT / "source/system_control/system_component_interface_pk
 lib.add_source_files(ROOT / "source/system_control/mock_component_inteface_body.vhd")
 lib.add_source_files(ROOT / "source/system_control/system_control_simulation" / "*.vhd")
 
+lib.add_source_files(ROOT / "source/testi" / "*.vhd")
+
 VU.main()

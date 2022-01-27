@@ -4,6 +4,7 @@ library ieee;
 
 library work;
     use work.uart_pkg.all;
+    use work.fpga_interconnect_pkg.all;
 
 package communications_pkg is
 
@@ -20,11 +21,11 @@ package communications_pkg is
     end record;
     
     type communications_data_input_group is record
-        clock : std_logic;
+        bus_in : fpga_interconnect_record;
     end record;
     
     type communications_data_output_group is record
-        clock : std_logic;
+        bus_out : fpga_interconnect_record;
     end record;
     
     component communications is
