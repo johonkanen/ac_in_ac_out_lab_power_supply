@@ -21,17 +21,32 @@ architecture vunit_simulation of tb_boxed_multiplier is
     signal simulation_counter : natural := 0;
     -----------------------------------
     -- simulation specific signals ----
-    signal testi1  : unsigned(31 downto 0) := x"abcdef01";
-    signal testi2  : unsigned(31 downto 0) := x"07f1_1111";
+    signal testi1  : unsigned(31 downto 0) := x"ffff_ffff";
+    signal testi2  : unsigned(31 downto 0) := x"ffff_ffff";
     signal result  : unsigned(63 downto 0) := (others => '0');
-    signal result2 : unsigned(63 downto 0) := (others => '0');
+    signal atest : unsigned(63 downto 0) := (others => '0');
 
-    signal process_counter : integer := 0;
+    type long_multiplier_record is record
+        process_counter            : integer;
+        multiplier_process_counter : integer;
+        left                       : unsigned(31 downto 0);
+        right                      : unsigned(31 downto 0);
+    end record;
+
+    constant init_long_multiplier : long_multiplier_record := (0,0, (others => '0'), (others => '0'));
+    signal multiplier_object : long_multiplier_record := init_long_multiplier;
+
+    alias process_counter is multiplier_object.process_counter;
+    alias multiplier_process_counter is multiplier_object.multiplier_process_counter;
 
     signal var1 : unsigned(31 downto 0) := (others => '0');
     signal var2 : unsigned(31 downto 0) := (others => '0');
     signal var3 : unsigned(31 downto 0) := (others => '0');
     signal var4 : unsigned(31 downto 0) := (others => '0');
+
+    signal multiplier_result : unsigned(31 downto 0) := (others => '0');
+    signal multiplier_is_ready : boolean := false;
+
 
     procedure increment
     (
@@ -87,25 +102,50 @@ begin
 
             result  <= testi1 * testi2;
 
+                    var4 <= a1*b1;
+                    var3 <= a1*b0;
+                    var2 <= a0*b1;
+                    var1 <= a0*b0;
+
             -- result2 <= resize(var1*2**16*2**16, 64) + var3*2**16 + var2*2**16 + var4;
+            multiplier_is_ready <= false;
+            CASE multiplier_process_counter is
+                WHEN 0 =>
+                    multiplier_result <= a1*b1;
+                    multiplier_is_ready <= true;
+                    increment(multiplier_process_counter);
+                WHEN 1 =>
+                    multiplier_result <= a1*b0;
+                    multiplier_is_ready <= true;
+                    increment(multiplier_process_counter);
+                WHEN 2 =>
+                    multiplier_result <= a0*b1;
+                    multiplier_is_ready <= true;
+                    increment(multiplier_process_counter);
+                WHEN 3 =>
+                    multiplier_result <= a0*b0;
+                    multiplier_is_ready <= true;
+                    increment(multiplier_process_counter);
+                WHEN others => -- do nothing
+            end CASE; --multiplier_process_counter
+
             CASE process_counter is
                 WHEN 0 => 
-                    var1 <= a0*b0;
-                    var2 <= a0*b1;
-                    var3 <= a1*b0;
-                    var4 <= a1*b1;
-                    increment(process_counter);
+                    if multiplier_is_ready then
+                        atest(31 downto 0)   <= multiplier_result;
+                        increment(process_counter);
+                    end if;
 
                 WHEN 1 => 
-                    result2(63 downto 32) <= var1;
+                    atest(31+16 downto 16) <= multiplier_result+atest(31 downto 16);
                     increment(process_counter);
 
                 WHEN 2 => 
-                    result2 <= result2 + (var2 + var3)*2**16;
+                    atest(31+16 downto 16) <= multiplier_result+atest(31+16 downto 16);
                     increment(process_counter);
 
                 WHEN 3 => 
-                    result2 <= result2 + var4;
+                    atest(63 downto 32) <= multiplier_result+atest(31+16 downto 32);
                     increment(process_counter);
 
                 WHEN others =>
