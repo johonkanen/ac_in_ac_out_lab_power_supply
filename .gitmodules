@@ -1,3 +1,6 @@
 [submodule "source/fpga_interconnect"]
 	path = source/fpga_interconnect
 	url = https://github.com/johonkanen/fpga_interconnect.git
+[submodule "source/math_library"]
+	path = source/math_library
+	url = https://github.com/johonkanen/math_library.git
