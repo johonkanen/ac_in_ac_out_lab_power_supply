@@ -89,7 +89,6 @@ begin
                 CASE get_address(get_uart_rx_data(uart_data_out)) is
                     WHEN 0      => write_data_to_address(bus_out , power_electronics_data_address , get_data(get_uart_rx_data(uart_data_out)));
                     WHEN 1      => write_data_to_address(bus_out , system_control_data_address    , get_data(get_uart_rx_data(uart_data_out)));
-                    WHEN 15     => write_data_to_address(bus_out , power_electronics_data_address , get_data(get_uart_rx_data(uart_data_out)));
                     WHEN others => -- do nothing
                 end CASE;
             end if;

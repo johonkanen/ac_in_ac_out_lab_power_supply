@@ -216,7 +216,7 @@ package body multiplier_pkg is
         end "+";
     --------------------------------------------------         
         variable bit_vector_slice : signed(multiplier_output'length/2 downto 0);
-        constant output_word_bit_width : natural := multiplier_output'length/2;
+        constant output_word_bit_width : natural := multiplier_output'length/2-1;
         alias multiplier_raw_result is multiplier_output;
     begin
         bit_vector_slice := multiplier_raw_result((multiplier_raw_result'left-output_word_bit_width + radix) downto radix); 
