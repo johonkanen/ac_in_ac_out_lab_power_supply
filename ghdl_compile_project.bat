@@ -10,12 +10,15 @@ ghdl -a --ieee=synopsys --std=08 efinix_build/efinix_system_clocks_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 --work=math_library_18x18 source/math_library/multiplier/multiplier_base_types_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 --work=math_library_18x18 source/math_library/multiplier/multiplier_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 --work=math_library_18x18 source/math_library/first_order_filter/first_order_filter_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 --work=math_library_22x22 source/math_library/multiplier/multiplier_base_types_22bit_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 --work=math_library_22x22 source/math_library/multiplier/multiplier_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 --work=math_library_22x22 source/math_library/first_order_filter/first_order_filter_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 --work=math_library_26x26 source/math_library/multiplier/multiplier_base_types_26bit_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 --work=math_library_26x26 source/math_library/multiplier/multiplier_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 --work=math_library_26x26 source/math_library/first_order_filter/first_order_filter_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 source/testi/test_multiplier_pkg.vhd
 

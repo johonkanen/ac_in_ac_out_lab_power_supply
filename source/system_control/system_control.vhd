@@ -11,13 +11,16 @@ library ieee;
     use work.rtl_counter_pkg.all;
 
 library math_library_18x18;
-    use math_library_18x18.multiplier_pkg;
+    use math_library_18x18.multiplier_pkg.all;
+    use math_library_18x18.first_order_filter_pkg.all;
 
 library math_library_22x22;
-    use math_library_22x22.multiplier_pkg;
+    use math_library_22x22.multiplier_pkg.all;
+    use math_library_22x22.first_order_filter_pkg.all;
 
 library math_library_26x26;
-    use math_library_26x26.multiplier_pkg;
+    use math_library_26x26.multiplier_pkg.all;
+    use math_library_26x26.first_order_filter_pkg.all;
 
 entity system_control is
     port (
@@ -40,14 +43,18 @@ architecture rtl of system_control is
     alias bus_in is component_interconnect_data_out.bus_out;
 
     signal register_in_system_control : integer range 0 to 2**16-1 := 44252;
-    signal testi : int18 := 0;
+    signal testi : math_library_18x18.multiplier_pkg.int18 := 0;
     signal counter : integer range 0 to 2**16-1 := 0; 
 
     signal multiplier_18x18  : math_library_18x18.multiplier_pkg.multiplier_record := math_library_18x18.multiplier_pkg.init_multiplier;
     signal multiplier_22x22  : math_library_22x22.multiplier_pkg.multiplier_record := math_library_22x22.multiplier_pkg.init_multiplier;
     signal multiplier_26x26  : math_library_26x26.multiplier_pkg.multiplier_record := math_library_26x26.multiplier_pkg.init_multiplier;
-    -- signal multiplier2 : multiplier_record_21x21 := multiplier_init_values_21x21;
 
+    signal filter18 : math_library_18x18.first_order_filter_pkg.first_order_filter_record := math_library_18x18.first_order_filter_pkg.init_first_order_filter;
+    signal filter22 : math_library_22x22.first_order_filter_pkg.first_order_filter_record := math_library_22x22.first_order_filter_pkg.init_first_order_filter;
+    signal filter26 : math_library_26x26.first_order_filter_pkg.first_order_filter_record := math_library_26x26.first_order_filter_pkg.init_first_order_filter;
+
+    signal filter_input : math_library_18x18.multiplier_pkg.int18 := 0;
 
 ------------------------------------------------------------------------
 begin
@@ -63,20 +70,27 @@ begin
         if rising_edge(clock_120Mhz) then
 
             init_bus(bus_out);
-            math_library_18x18.multiplier_pkg.create_multiplier(multiplier_18x18);
-            math_library_22x22.multiplier_pkg.create_multiplier(multiplier_22x22);
-            math_library_26x26.multiplier_pkg.create_multiplier(multiplier_26x26);
+            create_multiplier(multiplier_18x18);
+            create_multiplier(multiplier_22x22);
+            create_multiplier(multiplier_26x26);
+
+            create_first_order_filter(filter18, multiplier_18x18, 5, 5);
+            create_first_order_filter(filter22, multiplier_22x22, 5, 5);
+            create_first_order_filter(filter26, multiplier_26x26, 5, 5);
+
             connect_read_only_data_to_address(bus_in , bus_out , system_control_data_address , register_in_system_control);
-            connect_read_only_data_to_address(bus_in , bus_out , 5589                        , math_library_18x18.multiplier_pkg.get_multiplier_result(multiplier_18x18 , 15));
-            connect_read_only_data_to_address(bus_in , bus_out , 5590                        , math_library_22x22.multiplier_pkg.get_multiplier_result(multiplier_22x22 , 15)+32768);
-            connect_read_only_data_to_address(bus_in , bus_out , 5591                        , math_library_26x26.multiplier_pkg.get_multiplier_result(multiplier_26x26 , 15)+32768);
+            connect_read_only_data_to_address(bus_in , bus_out , 5588                        , filter_input);
+            connect_read_only_data_to_address(bus_in , bus_out , 5589                        , get_filter_output(filter18)/2);
+            connect_read_only_data_to_address(bus_in , bus_out , 5590                        , get_filter_output(filter22)/32);
+            connect_read_only_data_to_address(bus_in , bus_out , 5591                        , get_filter_output(filter26)/512);
 
             count_down_from(counter, 1199);
             if counter = 0 then
                 testi <= testi + 1;
-                math_library_18x18.multiplier_pkg.multiply(multiplier_18x18 , abs(testi) , testi);
-                math_library_22x22.multiplier_pkg.multiply(multiplier_22x22 , abs(testi) , testi);
-                math_library_26x26.multiplier_pkg.multiply(multiplier_26x26 , abs(testi) , testi);
+                filter_input <= (testi mod 16384);
+                filter_data(filter18, filter_input*256/32);
+                filter_data(filter22, filter_input*4096/32);
+                filter_data(filter26, filter_input*65536/32);
             end if;
 
         end if; --rising_edge
