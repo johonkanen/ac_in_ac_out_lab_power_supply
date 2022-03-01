@@ -20,6 +20,9 @@ ghdl -a --ieee=synopsys --std=08 --work=math_library_26x26 source/math_library/m
 ghdl -a --ieee=synopsys --std=08 --work=math_library_26x26 source/math_library/multiplier/multiplier_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 --work=math_library_26x26 source/math_library/first_order_filter/first_order_filter_pkg.vhd
 
+ghdl -a --ieee=synopsys --std=08 --work=math_library_22x22 source/dynamic_simulation_library/state_variable/state_variable_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 --work=math_library_22x22 source/dynamic_simulation_library/lcr_filter_model/lcr_filter_model_pkg.vhd
+
 ghdl -a --ieee=synopsys --std=08 source/testi/test_multiplier_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 source/system_register_addresses_pkg.vhd
