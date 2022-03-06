@@ -74,9 +74,9 @@ begin
             create_multiplier(multiplier_22x22);
             create_multiplier(multiplier_26x26);
 
-            create_first_order_filter(filter18, multiplier_18x18, 5, 5);
-            create_first_order_filter(filter22, multiplier_22x22, 5, 5);
-            create_first_order_filter(filter26, multiplier_26x26, 5, 5);
+            create_first_order_filter(filter18, multiplier_18x18, 0.0002);
+            create_first_order_filter(filter22, multiplier_22x22, 0.0002);
+            create_first_order_filter(filter26, multiplier_26x26, 0.0002);
 
             connect_read_only_data_to_address(bus_in , bus_out , system_control_data_address , register_in_system_control);
             connect_read_only_data_to_address(bus_in , bus_out , 5588                        , filter_input);
