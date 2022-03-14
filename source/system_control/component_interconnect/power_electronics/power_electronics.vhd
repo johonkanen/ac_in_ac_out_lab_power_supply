@@ -9,9 +9,9 @@ library work;
     use work.fpga_interconnect_pkg.all;
     use work.system_register_addresses_pkg.all;
 
-library math_library_22x22;
-    use math_library_22x22.multiplier_pkg.all;
-    use math_library_22x22.lcr_filter_model_pkg.all;
+library math_library_26x26;
+    use math_library_26x26.multiplier_pkg.all;
+    use math_library_26x26.lcr_filter_model_pkg.all;
 
 
 entity power_electronics is
@@ -41,7 +41,7 @@ architecture rtl of power_electronics is
 ------------------------------------------------------------------------
     signal system_is_started : boolean := false;
     signal multiplier22x22 : multiplier_record := init_multiplier;
-    signal lcr_model : lcr_model_record := init_lcr_model_integrator_gains(25e3, 2e3);
+    signal lcr_model : lcr_model_record := init_lcr_model_integrator_gains(300, 2e3);
 
     signal stimulus_counter : integer range 0 to 2**15-1 := 20e3;
     signal uin : integer range 0 to 2**16-1 := 1500;
@@ -57,8 +57,8 @@ begin
             init_bus(bus_out);
             connect_data_to_address(bus_in, bus_out, power_electronics_data_address, data_from_power_electronics);
 
-            connect_read_only_data_to_address(bus_in , bus_out , capacitor_voltage_address   , get_capacitor_voltage(lcr_model)/4 + 32768);
-            connect_read_only_data_to_address(bus_in , bus_out , capacitor_voltage_address+1 , get_inductor_current(lcr_model)/8 + 32768);
+            connect_read_only_data_to_address(bus_in , bus_out , capacitor_voltage_address   , get_capacitor_voltage(lcr_model)/64 + 32768);
+            connect_read_only_data_to_address(bus_in , bus_out , capacitor_voltage_address+1 , get_inductor_current(lcr_model)/16 + 32768);
 
             if write_to_address_is_requested(bus_in, power_electronics_data_address) and get_data(bus_in) = 1 then
                 system_is_started <= true;
@@ -87,7 +87,7 @@ begin
 
             ---
             create_multiplier(multiplier22x22);
-            create_test_lcr_filter(multiplier22x22, lcr_model, 0, uin);
+            create_test_lcr_filter(multiplier22x22, lcr_model, get_capacitor_voltage(lcr_model)/128, uin*8);
             count_down_from(model_calculation_counter, 1199);
             if model_calculation_counter = 0 then
                 request_lcr_filter_calculation(lcr_model);

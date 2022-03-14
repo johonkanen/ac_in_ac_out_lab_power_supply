@@ -74,9 +74,9 @@ begin
             create_multiplier(multiplier_22x22);
             create_multiplier(multiplier_26x26);
 
-            create_first_order_filter(filter18, multiplier_18x18, 0.0002);
-            create_first_order_filter(filter22, multiplier_22x22, 0.0002);
-            create_first_order_filter(filter26, multiplier_26x26, 0.0002);
+            create_first_order_filter( filter => filter18, multiplier => multiplier_18x18, time_constant => 0.0002);
+            create_first_order_filter( filter => filter22, multiplier => multiplier_22x22, time_constant => 0.0002);
+            create_first_order_filter( filter => filter26, multiplier => multiplier_26x26, time_constant => 0.0002);
 
             connect_read_only_data_to_address(bus_in , bus_out , system_control_data_address , register_in_system_control);
             connect_read_only_data_to_address(bus_in , bus_out , 5588                        , filter_input);
@@ -87,10 +87,10 @@ begin
             count_down_from(counter, 1199);
             if counter = 0 then
                 testi <= testi + 1;
-                filter_input <= (testi mod 16384);
-                filter_data(filter18, filter_input*256/32);
-                filter_data(filter22, filter_input*4096/32);
-                filter_data(filter26, filter_input*65536/32);
+                filter_input <= (testi mod 16384)*8;
+                filter_data(filter18, filter_input);
+                filter_data(filter22, filter_input*16);
+                filter_data(filter26, filter_input*256);
             end if;
 
         end if; --rising_edge

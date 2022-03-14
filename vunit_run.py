@@ -21,6 +21,13 @@ lib.add_source_files(ROOT / "source/system_control/system_component_interface_pk
 lib.add_source_files(ROOT / "source/system_control/mock_component_inteface_body.vhd")
 lib.add_source_files(ROOT / "source/system_control/system_control_simulation" / "*.vhd")
 
-lib.add_source_files(ROOT / "source/testi" / "*.vhd")
+mult = VU.add_library("mult");
+mult.add_source_files(ROOT / "source/math_library/multiplier" / "multiplier_base_types_pkg.vhd")
+mult.add_source_files(ROOT / "source/math_library/multiplier" / "multiplier_pkg.vhd")
+mult.add_source_files(ROOT / "source/math_library/sincos" / "sincos_pkg.vhd")
+mult.add_source_files(ROOT / "source/testi/example_pkg.vhd")
+
+example = VU.add_library("example");
+example.add_source_files(ROOT /"source/testi/tb_example.vhd")
 
 VU.main()
