@@ -7,3 +7,6 @@
 [submodule "source/dynamic_simulation_library"]
 	path = source/dynamic_simulation_library
 	url = https://github.com/johonkanen/dynamic_simulation_library.git
+[submodule "source/vhdl_float"]
+	path = source/vhdl_float
+	url = https://github.com/johonkanen/vhdl_float.git
