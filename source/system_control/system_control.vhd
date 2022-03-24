@@ -37,28 +37,6 @@ end entity system_control;
 
 architecture rtl of system_control is
 
-    procedure test_nested_procedure
-    (
-        signal multiplier : inout math_library_22x22.multiplier_pkg.multiplier_record;
-        signal filter : inout math_library_22x22.first_order_filter_pkg.first_order_filter_record;
-        constant time_const : real
-    ) is
-    begin
-        create_first_order_filter( filter => filter, multiplier => multiplier, time_constant => time_const);
-        
-    end test_nested_procedure;
-
-    procedure test_nested_procedure
-    (
-        signal multiplier : inout math_library_22x22.multiplier_pkg.multiplier_record;
-        signal filter : inout math_library_22x22.first_order_filter_pkg.first_order_filter_record
-    ) is
-        constant filter_time_constant : real := 0.0002;
-    begin
-        create_first_order_filter( filter => filter, multiplier => multiplier, time_constant => filter_time_constant);
-        
-    end test_nested_procedure;
-
     alias clock_120Mhz is system_control_clocks.clock_120Mhz;
     signal component_interconnect_FPGA_in  : component_interconnect_FPGA_input_group;
     signal component_interconnect_FPGA_out : component_interconnect_FPGA_output_group;
@@ -109,8 +87,7 @@ begin
             create_float_multiplier(float_multiplier);
 
             create_first_order_filter( filter => filter18, multiplier => multiplier_18x18, time_constant => 0.0002);
-            -- create_first_order_filter( filter => filter22, multiplier => multiplier_22x22, time_constant => 0.0002);
-            test_nested_procedure( filter => filter22, multiplier => multiplier_22x22);
+            create_first_order_filter( filter => filter22, multiplier => multiplier_22x22, time_constant => 0.0002);
             create_first_order_filter( filter => filter26, multiplier => multiplier_26x26, time_constant => 0.0002);
 
             connect_read_only_data_to_address(bus_in , bus_out , system_control_data_address , register_in_system_control);
