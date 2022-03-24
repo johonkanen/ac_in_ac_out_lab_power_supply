@@ -7,7 +7,6 @@ library ieee;
     use work.component_interconnect_pkg.all;
     use work.fpga_interconnect_pkg.all;
     use work.system_register_addresses_pkg.all;
-    use work.multiplier_pkg.all;
     use work.rtl_counter_pkg.all;
 
 library float;
