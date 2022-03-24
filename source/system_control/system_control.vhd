@@ -119,8 +119,8 @@ begin
             connect_read_only_data_to_address(bus_in , bus_out , 5589                        , get_filter_output(filter18)/2);
             connect_read_only_data_to_address(bus_in , bus_out , 5590                        , get_filter_output(filter22)/32);
             connect_read_only_data_to_address(bus_in , bus_out , 5591                        , get_filter_output(filter26)/512);
-            connect_read_only_data_to_address(bus_in , bus_out , 5592                        , to_integer(test_float.mantissa(test_float.mantissa'left downto 22-16)));
-            connect_read_only_data_to_address(bus_in , bus_out , 5593                        , to_integer(test_float.exponent) + 256);
+            connect_read_only_data_to_address(bus_in , bus_out , 5592                        , to_integer(test_float.mantissa(test_float.mantissa'left downto test_float.mantissa'left-15)));
+            connect_read_only_data_to_address(bus_in , bus_out , 5593                        , to_integer(test_float.exponent));
 
             count_down_from(counter, 1199);
             if counter = 0 then

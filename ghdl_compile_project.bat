@@ -4,7 +4,17 @@ echo %project_root%
 FOR /F "tokens=* USEBACKQ" %%F IN (`git rev-parse --show-toplevel`) DO (
 SET project_root=%%F
 )
-SET source=%project_root%/source
+SET source=%project_root%/source/vhdl_float
+
+ghdl -a --ieee=synopsys --std=08 --work=float %source%/float_type_definitions/float_type_definitions_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 --work=float %source%/normalizer/normalizer_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 --work=float %source%/denormalizer/denormalizer_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 --work=float %source%/float_to_real_conversions/float_to_real_conversions_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 --work=float %source%/float_arithmetic_operations/float_arithmetic_operations_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 --work=float %source%/float_adder/float_adder_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 --work=float %source%/float_multiplier/float_multiplier_pkg.vhd
+
+SET source=%project_root%/source/
 
 ghdl -a --ieee=synopsys --std=08 efinix_build/efinix_system_clocks_pkg.vhd
 
