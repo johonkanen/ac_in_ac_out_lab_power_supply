@@ -14,6 +14,7 @@ library float;
     use float.float_to_real_conversions_pkg.all;
     use float.float_multiplier_pkg.all;
     use float.float_adder_pkg.all;
+    use float.float_first_order_filter_pkg.all;
 
 library math_library_18x18;
     use math_library_18x18.multiplier_pkg.all;
@@ -65,6 +66,7 @@ architecture rtl of system_control is
 
     signal test_float : float_record := to_float(1.23525);
 
+    signal first_order_filter : float.float_first_order_filter_pkg.first_order_filter_record := float.float_first_order_filter_pkg.init_first_order_filter;
 ------------------------------------------------------------------------
 begin
 
@@ -85,6 +87,7 @@ begin
 
             create_adder(adder);
             create_float_multiplier(float_multiplier);
+            create_first_order_filter(first_order_filter, float_multiplier, adder);
 
             create_first_order_filter( filter => filter18, multiplier => multiplier_18x18, time_constant => 0.0002);
             create_first_order_filter( filter => filter22, multiplier => multiplier_22x22, time_constant => 0.0002);
@@ -95,7 +98,7 @@ begin
             connect_read_only_data_to_address(bus_in , bus_out , 5589                        , get_filter_output(filter18)/2);
             connect_read_only_data_to_address(bus_in , bus_out , 5590                        , get_filter_output(filter22)/32);
             connect_read_only_data_to_address(bus_in , bus_out , 5591                        , get_filter_output(filter26)/512);
-            connect_read_only_data_to_address(bus_in , bus_out , 5592                        , to_integer(test_float.mantissa(test_float.mantissa'left downto test_float.mantissa'left-15)));
+            connect_read_only_data_to_address(bus_in , bus_out , 5592                        , to_integer(test_float.mantissa(test_float.mantissa'left downto test_float.mantissa'left-16)));
             connect_read_only_data_to_address(bus_in , bus_out , 5593                        , to_integer(test_float.exponent));
 
             count_down_from(counter, 1199);
@@ -107,15 +110,15 @@ begin
                 filter_data(filter22, filter_input*16);
                 filter_data(filter26, filter_input*256);
 
-                if filter_input /= 0 then
-                    request_float_multiplier(float_multiplier, to_float(1.00135843568), test_float);
+                if filter_input < 16384*4 then
+                    request_float_filter(first_order_filter, to_float(0.0));
                 else
-                    request_float_multiplier(float_multiplier, to_float(1.1), to_float(3.346));
+                    request_float_filter(first_order_filter, to_float(1.0));
                 end if;
             end if;
 
-            if float_multiplier_is_ready(float_multiplier) then
-                test_float <= get_multiplier_result(float_multiplier);
+            if float_filter_is_ready(first_order_filter) then
+                test_float <= get_filter_output(first_order_filter);
             end if;
 
         end if; --rising_edge

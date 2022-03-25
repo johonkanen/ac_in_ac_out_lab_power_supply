@@ -13,6 +13,7 @@ ghdl -a --ieee=synopsys --std=08 --work=float %source%/float_to_real_conversions
 ghdl -a --ieee=synopsys --std=08 --work=float %source%/float_arithmetic_operations/float_arithmetic_operations_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 --work=float %source%/float_adder/float_adder_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 --work=float %source%/float_multiplier/float_multiplier_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 --work=float %source%/float_first_order_filter/float_first_order_filter_pkg.vhd
 
 SET source=%project_root%/source/
 
