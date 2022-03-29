@@ -61,12 +61,11 @@ architecture rtl of system_control is
 
     signal filter_input : math_library_18x18.multiplier_pkg.int18 := 0;
 
-    signal float_multiplier : float_multiplier_record := init_float_multiplier;
-    signal adder : float_adder_record := init_adder;
+    signal float_multiplier   : float_multiplier_record := init_float_multiplier;
+    signal adder              : float_adder_record := init_adder;
+    signal first_order_filter : float.float_first_order_filter_pkg.first_order_filter_record := float.float_first_order_filter_pkg.init_first_order_filter;
 
     signal test_float : float_record := to_float(1.23525);
-
-    signal first_order_filter : float.float_first_order_filter_pkg.first_order_filter_record := float.float_first_order_filter_pkg.init_first_order_filter;
 ------------------------------------------------------------------------
 begin
 
@@ -94,12 +93,12 @@ begin
             create_first_order_filter( filter => filter26, multiplier => multiplier_26x26, time_constant => 0.0002);
 
             connect_read_only_data_to_address(bus_in , bus_out , system_control_data_address , register_in_system_control);
-            connect_read_only_data_to_address(bus_in , bus_out , 5588                        , filter_input);
-            connect_read_only_data_to_address(bus_in , bus_out , 5589                        , get_filter_output(filter18)/2);
-            connect_read_only_data_to_address(bus_in , bus_out , 5590                        , get_filter_output(filter22)/32);
-            connect_read_only_data_to_address(bus_in , bus_out , 5591                        , get_filter_output(filter26)/512);
-            connect_read_only_data_to_address(bus_in , bus_out , 5592                        , to_integer(test_float.mantissa));
-            connect_read_only_data_to_address(bus_in , bus_out , 5593                        , to_integer(test_float.exponent));
+            connect_read_only_data_to_address(bus_in , bus_out , 5588 , filter_input);
+            connect_read_only_data_to_address(bus_in , bus_out , 5589 , get_filter_output(filter18)/2);
+            connect_read_only_data_to_address(bus_in , bus_out , 5590 , get_filter_output(filter22)/32);
+            connect_read_only_data_to_address(bus_in , bus_out , 5591 , get_filter_output(filter26)/512);
+            connect_read_only_data_to_address(bus_in , bus_out , 5592 , get_mantissa(test_float));
+            connect_read_only_data_to_address(bus_in , bus_out , 5593 , get_exponent(test_float) + 1000);
 
             count_down_from(counter, 1199);
             if counter = 0 then
