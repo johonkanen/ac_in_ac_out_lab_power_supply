@@ -86,7 +86,7 @@ begin
 
             create_adder(adder);
             create_float_multiplier(float_multiplier);
-            create_first_order_filter(first_order_filter, float_multiplier, adder);
+            create_first_order_filter(first_order_filter, float_multiplier, adder, to_float(0.0002));
 
             create_first_order_filter( filter => filter18, multiplier => multiplier_18x18, time_constant => 0.0002);
             create_first_order_filter( filter => filter22, multiplier => multiplier_22x22, time_constant => 0.0002);
