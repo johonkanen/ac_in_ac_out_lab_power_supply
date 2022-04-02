@@ -12,8 +12,7 @@ library ieee;
 library float;
     use float.float_type_definitions_pkg.all;
     use float.float_to_real_conversions_pkg.all;
-    use float.float_multiplier_pkg.all;
-    use float.float_adder_pkg.all;
+    use float.float_alu_pkg.all;
     use float.float_first_order_filter_pkg.all;
 
 library math_library_18x18;
@@ -61,9 +60,8 @@ architecture rtl of system_control is
 
     signal filter_input : math_library_18x18.multiplier_pkg.int18 := 0;
 
-    signal float_multiplier   : float_multiplier_record := init_float_multiplier;
-    signal adder              : float_adder_record := init_adder;
     signal first_order_filter : float.float_first_order_filter_pkg.first_order_filter_record := float.float_first_order_filter_pkg.init_first_order_filter;
+    signal float_alu : float_alu_record := init_float_alu;
 
     signal test_float : float_record := to_float(1.23525);
 ------------------------------------------------------------------------
@@ -84,9 +82,8 @@ begin
             create_multiplier(multiplier_22x22);
             create_multiplier(multiplier_26x26);
 
-            create_adder(adder);
-            create_float_multiplier(float_multiplier);
-            create_first_order_filter(first_order_filter, float_multiplier, adder, to_float(0.0002));
+            create_float_alu(float_alu);
+            create_first_order_filter(first_order_filter, float_alu, to_float(0.04));
 
             create_first_order_filter( filter => filter18, multiplier => multiplier_18x18, time_constant => 0.0002);
             create_first_order_filter( filter => filter22, multiplier => multiplier_22x22, time_constant => 0.0002);
@@ -98,7 +95,7 @@ begin
             connect_read_only_data_to_address(bus_in , bus_out , 5590 , get_filter_output(filter22)/32);
             connect_read_only_data_to_address(bus_in , bus_out , 5591 , get_filter_output(filter26)/512);
             connect_read_only_data_to_address(bus_in , bus_out , 5592 , get_mantissa(test_float));
-            connect_read_only_data_to_address(bus_in , bus_out , 5593 , get_exponent(test_float) + 1000);
+            connect_read_only_data_to_address(bus_in , bus_out , 5593 , get_exponent(test_float) + 100);
 
             count_down_from(counter, 1199);
             if counter = 0 then
@@ -112,7 +109,7 @@ begin
                 if filter_input < 16384*4 then
                     request_float_filter(first_order_filter, to_float(0.0));
                 else
-                    request_float_filter(first_order_filter, to_float(22.1346836));
+                    request_float_filter(first_order_filter, to_float(8.0));
                 end if;
             end if;
 

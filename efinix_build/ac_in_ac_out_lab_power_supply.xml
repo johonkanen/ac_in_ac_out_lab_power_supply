@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<efx:project name="ac_in_ac_out_lab_power_supply" description="" last_change_date="Sat April 2 2022 13:26:10" location="C:/Users/Jari/mycodeprojects/ac_in_ac_out_lab_power_supply/efinix_build" sw_version="2021.2.323.2.18" last_run_state="pass" last_run_tool="efx_pgm" last_run_flow="bitstream" config_result_in_sync="sync" design_ood="sync" place_ood="sync" route_ood="sync" xmlns:efx="http://www.efinixinc.com/enf_proj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/enf_proj enf_proj.xsd">
+<efx:project name="ac_in_ac_out_lab_power_supply" description="" last_change_date="Sat April 2 2022 21:01:26" location="C:/Users/Jari/mycodeprojects/ac_in_ac_out_lab_power_supply/efinix_build" sw_version="2021.2.323.2.18" last_run_state="fail" last_run_tool="efx_map" last_run_flow="syn" config_result_in_sync="sync" design_ood="" place_ood="sync" route_ood="sync" xmlns:efx="http://www.efinixinc.com/enf_proj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/enf_proj enf_proj.xsd">
     <efx:device_info>
         <efx:family name="Trion"/>
         <efx:device name="T120F324"/>
@@ -34,12 +34,16 @@
         <efx:design_file name="../source/math_library/multiplier/multiplier_base_types_22bit_pkg.vhd" version="default" library="math_library_22x22"/>
         <efx:design_file name="../source/math_library/multiplier/multiplier_pkg.vhd" version="default" library="math_library_22x22"/>
         <efx:design_file name="../source/math_library/first_order_filter/first_order_filter_pkg.vhd" version="default" library="math_library_22x22"/>
+        <efx:design_file name="../source/dynamic_simulation_library/state_variable/state_variable_pkg.vhd" version="default" library="math_library_22x22"/>
+        <efx:design_file name="../source/dynamic_simulation_library/lcr_filter_model/lcr_filter_model_pkg.vhd" version="default" library="math_library_22x22"/>
         <efx:design_file name="../source/math_library/multiplier/multiplier_base_types_26bit_pkg.vhd" version="default" library="math_library_26x26"/>
         <efx:design_file name="../source/math_library/multiplier/multiplier_pkg.vhd" version="default" library="math_library_26x26"/>
         <efx:design_file name="../source/math_library/first_order_filter/first_order_filter_pkg.vhd" version="default" library="math_library_26x26"/>
         <efx:design_file name="../source/dynamic_simulation_library/state_variable/state_variable_pkg.vhd" version="default" library="math_library_26x26"/>
         <efx:design_file name="../source/dynamic_simulation_library/lcr_filter_model/lcr_filter_model_pkg.vhd" version="default" library="math_library_26x26"/>
+        <efx:design_file name="../source/vhdl_float/float_type_definitions/float_word_length_16_bit_pkg.vhd" version="default" library="float"/>
         <efx:design_file name="../source/vhdl_float/float_type_definitions/float_type_definitions_pkg.vhd" version="default" library="float"/>
+        <efx:design_file name="../source/vhdl_float/float_alu/float_alu_pkg.vhd" version="default" library="float"/>
         <efx:design_file name="../source/vhdl_float/normalizer/normalizer_pkg.vhd" version="default" library="float"/>
         <efx:design_file name="../source/vhdl_float/denormalizer/denormalizer_pkg.vhd" version="default" library="float"/>
         <efx:design_file name="../source/vhdl_float/float_to_real_conversions/float_to_real_functions_pkg.vhd" version="default" library="float"/>
