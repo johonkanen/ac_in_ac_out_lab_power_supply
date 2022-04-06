@@ -10,3 +10,6 @@
 [submodule "source/vhdl_float"]
 	path = source/vhdl_float
 	url = https://github.com/johonkanen/vhdl_float.git
+[submodule "source/uart"]
+	path = source/uart
+	url = https://github.com/johonkanen/uart.git

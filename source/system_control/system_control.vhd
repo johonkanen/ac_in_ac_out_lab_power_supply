@@ -61,9 +61,11 @@ architecture rtl of system_control is
     signal filter_input : math_library_18x18.multiplier_pkg.int18 := 0;
 
     signal first_order_filter : float.float_first_order_filter_pkg.first_order_filter_record := float.float_first_order_filter_pkg.init_first_order_filter;
+    signal first_order_filter2 : float.float_first_order_filter_pkg.first_order_filter_record := float.float_first_order_filter_pkg.init_first_order_filter;
     signal float_alu : float_alu_record := init_float_alu;
 
     signal test_float : float_record := to_float(1.23525);
+    signal filter_counter : integer range 0 to 7 := 0;
 ------------------------------------------------------------------------
 begin
 
@@ -83,7 +85,8 @@ begin
             create_multiplier(multiplier_26x26);
 
             create_float_alu(float_alu);
-            create_first_order_filter(first_order_filter, float_alu, to_float(0.0002));
+            create_first_order_filter(first_order_filter, float_alu, to_float(0.02));
+            create_first_order_filter(first_order_filter2, float_alu, to_float(0.02));
 
             create_first_order_filter( filter => filter18, multiplier => multiplier_18x18, time_constant => 0.0002);
             create_first_order_filter( filter => filter22, multiplier => multiplier_22x22, time_constant => 0.0002);
@@ -114,8 +117,13 @@ begin
             end if;
 
             if float_filter_is_ready(first_order_filter) then
-                test_float <= get_filter_output(first_order_filter);
+                request_float_filter(first_order_filter2, get_filter_output(first_order_filter));
             end if;
+
+            if float_filter_is_ready(first_order_filter2) then
+                test_float <= get_filter_output(first_order_filter2);
+            end if;
+
 
         end if; --rising_edge
     end process main_system_controller;	
