@@ -16,18 +16,10 @@ lib.add_source_files(ROOT / "source/uart/uart_transreceiver/uart_rx" / "*.vhd")
 lib.add_source_files(ROOT / "source/uart/uart_transreceiver/uart_tx" / "*.vhd")
 
 # lib.add_source_files(ROOT / "source/system_control" / "*.vhd")
-lib.add_source_files(ROOT / "source/system_control/mock_component_interconnect_pkg.vhd")
-lib.add_source_files(ROOT / "source/system_control/system_component_interface_pkg.vhd")
-lib.add_source_files(ROOT / "source/system_control/mock_component_inteface_body.vhd")
-lib.add_source_files(ROOT / "source/system_control/system_control_simulation" / "*.vhd")
 
 mult = VU.add_library("mult");
-mult.add_source_files(ROOT / "source/math_library/multiplier" / "multiplier_base_types_pkg.vhd")
+mult.add_source_files(ROOT / "source/math_library/multiplier" / "multiplier_base_types_18bit_pkg.vhd")
 mult.add_source_files(ROOT / "source/math_library/multiplier" / "multiplier_pkg.vhd")
 mult.add_source_files(ROOT / "source/math_library/sincos" / "sincos_pkg.vhd")
-mult.add_source_files(ROOT / "source/testi/example_pkg.vhd")
-
-example = VU.add_library("example");
-example.add_source_files(ROOT /"source/testi/tb_example.vhd")
 
 VU.main()
