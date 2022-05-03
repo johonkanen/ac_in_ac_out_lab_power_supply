@@ -85,8 +85,8 @@ begin
             create_multiplier(multiplier_26x26);
 
             create_float_alu(float_alu);
-            create_first_order_filter(first_order_filter, float_alu, to_float(0.02));
-            create_first_order_filter(first_order_filter2, float_alu, to_float(0.02));
+            -- create_first_order_filter(first_order_filter, float_alu, to_float(0.02));
+            -- create_first_order_filter(first_order_filter2, float_alu, to_float(0.02));
 
             create_first_order_filter( filter => filter18, multiplier => multiplier_18x18, time_constant => 0.0002);
             create_first_order_filter( filter => filter22, multiplier => multiplier_22x22, time_constant => 0.0002);
