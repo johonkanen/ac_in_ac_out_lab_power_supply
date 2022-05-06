@@ -12,8 +12,11 @@ library ieee;
 library float;
     use float.float_type_definitions_pkg.all;
     use float.float_to_real_conversions_pkg.all;
-    use float.float_alu_pkg.all;
     use float.float_first_order_filter_pkg.all;
+    use float.float_alu_pkg.all;
+    use float.float_adder_pkg.all;
+    use float.denormalizer_pkg.all;
+    use float.float_arithmetic_operations_pkg.all;
 
 library math_library_18x18;
     use math_library_18x18.multiplier_pkg.all;
@@ -61,11 +64,11 @@ architecture rtl of system_control is
     signal filter_input : math_library_18x18.multiplier_pkg.int18 := 0;
 
     signal first_order_filter : float.float_first_order_filter_pkg.first_order_filter_record := float.float_first_order_filter_pkg.init_first_order_filter;
-    signal first_order_filter2 : float.float_first_order_filter_pkg.first_order_filter_record := float.float_first_order_filter_pkg.init_first_order_filter;
     signal float_alu : float_alu_record := init_float_alu;
 
     signal test_float : float_record := to_float(1.23525);
-    signal filter_counter : integer range 0 to 7 := 0;
+------------------------------------------------------------------------
+    signal denormalizer : denormalizer_record := init_denormalizer;
 ------------------------------------------------------------------------
 begin
 
@@ -75,6 +78,10 @@ begin
 
 ------------------------------------------------------------------------
     main_system_controller : process(clock_120Mhz)
+        alias denormalizer_pipeline is denormalizer.denormalizer_pipeline;
+        alias feedthrough_pipeline is denormalizer.feedthrough_pipeline;
+        alias shift_register is denormalizer.shift_register;
+        alias target_scale_pipeline is denormalizer.target_scale_pipeline;
         
     begin
         if rising_edge(clock_120Mhz) then
@@ -85,8 +92,20 @@ begin
             create_multiplier(multiplier_26x26);
 
             create_float_alu(float_alu);
-            -- create_first_order_filter(first_order_filter, float_alu, to_float(0.02));
-            -- create_first_order_filter(first_order_filter2, float_alu, to_float(0.02));
+            denormalizer_pipeline(1) <= denormalize_float(denormalizer_pipeline(0), target_scale_pipeline(0), mantissa_length/2);
+            denormalizer_pipeline(2) <= denormalize_float(denormalizer_pipeline(1), target_scale_pipeline(1), mantissa_length/2);
+            
+            feedthrough_pipeline(1) <= feedthrough_pipeline(0);
+            feedthrough_pipeline(2) <= feedthrough_pipeline(1);
+
+            target_scale_pipeline(1) <= target_scale_pipeline(0);
+            target_scale_pipeline(2) <= target_scale_pipeline(1);
+
+            shift_register(0) <= '0';
+            shift_register(1) <= shift_register(0);
+            shift_register(2) <= shift_register(1);
+
+            create_first_order_filter(first_order_filter, float_alu, to_float(0.0002));
 
             create_first_order_filter( filter => filter18, multiplier => multiplier_18x18, time_constant => 0.0002);
             create_first_order_filter( filter => filter22, multiplier => multiplier_22x22, time_constant => 0.0002);
@@ -110,20 +129,13 @@ begin
                 filter_data(filter26, filter_input*256);
 
                 if filter_input < 16384*4 then
-                    request_float_filter(first_order_filter, to_float(0.0));
+                    request_scaling(denormalizer, test_float, test_float);
                 else
-                    request_float_filter(first_order_filter, to_float(8.0));
+                    test_float <= to_float(3.14);
                 end if;
             end if;
 
-            if float_filter_is_ready(first_order_filter) then
-                request_float_filter(first_order_filter2, get_filter_output(first_order_filter));
-            end if;
-
-            if float_filter_is_ready(first_order_filter2) then
-                test_float <= get_filter_output(first_order_filter2);
-            end if;
-
+            test_float <= normalize(denormalizer.denormalizer_pipeline(2) + denormalizer.feedthrough_pipeline(2));
 
         end if; --rising_edge
     end process main_system_controller;	
