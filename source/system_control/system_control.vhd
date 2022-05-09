@@ -66,10 +66,11 @@ architecture rtl of system_control is
 
     signal test_float : float_record := to_float(0.0);
 
-    signal filter_counter   : integer range 0 to 7 := 7;
-    signal u                : float_record := to_float(1.0);
-    signal y                : float_record := to_float(1.0);
-    signal filter_is_ready : boolean := false;
+------------------------------------------------------------------------
+    alias  filter_counter  is first_order_filter.filter_counter;
+    alias  u               is first_order_filter.u             ;
+    alias  y               is first_order_filter.y             ;
+    alias  filter_is_ready is first_order_filter.filter_is_ready;
 ------------------------------------------------------------------------
 begin
 
@@ -89,10 +90,11 @@ begin
             create_multiplier(multiplier_26x26);
 
             create_float_alu(float_alu);
+            -- create_first_order_filter(first_order_filter, float_alu, to_float(0.01));
             filter_is_ready <= false;
             CASE filter_counter is
                 WHEN 0 => 
-                    add(float_alu, u, -y);
+                    subtract(float_alu, u, y);
                     filter_counter <= filter_counter + 1;
                 WHEN 1 =>
                     if add_is_ready(float_alu) then
@@ -113,7 +115,6 @@ begin
                     end if;
                 WHEN others =>  -- filter is ready
             end CASE;
-            -- create_first_order_filter(first_order_filter2, float_alu, to_float(0.02));
 
             create_first_order_filter( filter => filter18, multiplier => multiplier_18x18, time_constant => 0.0002);
             create_first_order_filter( filter => filter22, multiplier => multiplier_22x22, time_constant => 0.0002);
@@ -137,15 +138,15 @@ begin
                 filter_data(filter26, filter_input*256);
 
                 if filter_input < 16384*4 then
-                    filter_counter <= 0;
-                    u <= to_float(0.0);
+                    request_float_filter(first_order_filter, to_float(0.0));
                 else
-                    filter_counter <= 0;
-                    u <= to_float(-1.5e5);
+                    request_float_filter(first_order_filter, to_float(-1.5e5));
                 end if;
             end if;
 
-            test_float <= y;
+            if float_filter_is_ready(first_order_filter) then
+                test_float <= get_filter_output(first_order_filter);
+            end if;
 
         end if; --rising_edge
     end process main_system_controller;	

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<efx:project name="ac_in_ac_out_lab_power_supply" description="" last_change_date="Tue May 10 2022 00:44:27" location="C:/Users/Jari/mycodeprojects/ac_in_ac_out_lab_power_supply/efinix_build" sw_version="2021.2.323.2.18" last_run_state="pass" last_run_tool="efx_pgm" last_run_flow="bitstream" config_result_in_sync="sync" design_ood="sync" place_ood="sync" route_ood="sync" xmlns:efx="http://www.efinixinc.com/enf_proj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/enf_proj enf_proj.xsd">
+<efx:project name="ac_in_ac_out_lab_power_supply" description="" last_change_date="Tue May 10 2022 02:12:58" location="C:/Users/Jari/mycodeprojects/ac_in_ac_out_lab_power_supply/efinix_build" sw_version="2021.2.323.2.18" last_run_state="pass" last_run_tool="efx_pgm" last_run_flow="bitstream" config_result_in_sync="sync" design_ood="change" place_ood="sync" route_ood="sync" xmlns:efx="http://www.efinixinc.com/enf_proj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/enf_proj enf_proj.xsd">
     <efx:device_info>
         <efx:family name="Trion"/>
         <efx:device name="T120F324"/>
         <efx:timing_model name="C4"/>
     </efx:device_info>
     <efx:design_info def_veri_version="verilog_2k" def_vhdl_version="vhdl_2008">
-        <efx:top_module name=""/>
+        <efx:top_module name="efinix_top"/>
         <efx:design_file name="efinix_top.vhd" version="default" library="default"/>
         <efx:design_file name="../source/system_control/system_control.vhd" version="default" library="default"/>
         <efx:design_file name="../source/system_control/system_control_pkg.vhd" version="default" library="default"/>
@@ -41,7 +41,7 @@
         <efx:design_file name="../source/math_library/first_order_filter/first_order_filter_pkg.vhd" version="default" library="math_library_26x26"/>
         <efx:design_file name="../source/dynamic_simulation_library/state_variable/state_variable_pkg.vhd" version="default" library="math_library_26x26"/>
         <efx:design_file name="../source/dynamic_simulation_library/lcr_filter_model/lcr_filter_model_pkg.vhd" version="default" library="math_library_26x26"/>
-        <efx:design_file name="../source/vhdl_float/float_type_definitions/float_word_length_16_bit_pkg.vhd" version="default" library="float"/>
+        <efx:design_file name="../source/vhdl_float/float_type_definitions/float_word_length_24_bit_pkg.vhd" version="default" library="float"/>
         <efx:design_file name="../source/vhdl_float/float_type_definitions/float_type_definitions_pkg.vhd" version="default" library="float"/>
         <efx:design_file name="../source/vhdl_float/normalizer/normalizer_pkg.vhd" version="default" library="float"/>
         <efx:design_file name="../source/vhdl_float/denormalizer/denormalizer_pkg.vhd" version="default" library="float"/>
@@ -52,7 +52,7 @@
         <efx:design_file name="../source/vhdl_float/float_multiplier/float_multiplier_pkg.vhd" version="default" library="float"/>
         <efx:design_file name="../source/vhdl_float/float_alu/float_alu_pkg.vhd" version="default" library="float"/>
         <efx:design_file name="../source/vhdl_float/float_first_order_filter/float_first_order_filter_pkg.vhd" version="default" library="float"/>
-        <efx:top_vhdl_arch name=""/>
+        <efx:top_vhdl_arch name="rtl"/>
     </efx:design_info>
     <efx:constraint_info>
         <efx:sdc_file name="ac_in_ac_out_lab_power_supply.pt.sdc"/>
@@ -63,7 +63,7 @@
     <efx:ip_info/>
     <efx:synthesis tool_name="efx_map">
         <efx:param name="work_dir" value="work_syn" value_type="e_string"/>
-        <efx:param name="write_efx_verilog" value="on" value_type="e_bool"/>
+        <efx:param name="write_efx_verilog" value="off" value_type="e_bool"/>
         <efx:param name="mode" value="speed" value_type="e_option"/>
         <efx:param name="max_ram" value="-1" value_type="e_integer"/>
         <efx:param name="max_mult" value="-1" value_type="e_integer"/>
@@ -83,7 +83,7 @@
         <efx:param name="work_dir" value="work_pnr" value_type="e_string"/>
         <efx:param name="verbose" value="off" value_type="e_bool"/>
         <efx:param name="load_delaym" value="on" value_type="e_bool"/>
-        <efx:param name="optimization_level" value="TIMING_3" value_type="e_option"/>
+        <efx:param name="optimization_level" value="TIMING_2" value_type="e_option"/>
         <efx:param name="seed" value="1" value_type="e_integer"/>
     </efx:place_and_route>
     <efx:bitstream_generation tool_name="efx_pgm">
