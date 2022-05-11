@@ -37,6 +37,9 @@ ghdl -a --ieee=synopsys --std=08 --work=math_library_26x26 source/math_library/f
 ghdl -a --ieee=synopsys --std=08 --work=math_library_22x22 source/dynamic_simulation_library/state_variable/state_variable_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 --work=math_library_22x22 source/dynamic_simulation_library/lcr_filter_model/lcr_filter_model_pkg.vhd
 
+ghdl -a --ieee=synopsys --std=08 --work=math_library_26x26 source/dynamic_simulation_library/state_variable/state_variable_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 --work=math_library_26x26 source/dynamic_simulation_library/lcr_filter_model/lcr_filter_model_pkg.vhd
+
 
 ghdl -a --ieee=synopsys --std=08 source/system_register_addresses_pkg.vhd
 
@@ -52,6 +55,7 @@ rem ghdl -a --ieee=synopsys --std=08 source/system_control/mock_component_interc
         ghdl -a --ieee=synopsys --std=08 source/system_control/component_interconnect/communications/communications_pkg.vhd
 
         ghdl -a --ieee=synopsys --std=08 source/system_control/component_interconnect/power_electronics/power_electronics_pkg.vhd
+        ghdl -a --ieee=synopsys --std=08 source/system_control/component_interconnect/test_module/test_module_pkg.vhd
     ghdl -a --ieee=synopsys --std=08 source/system_control/component_interconnect/component_interconnect_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 source/system_control/system_control_pkg.vhd
