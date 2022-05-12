@@ -20,6 +20,10 @@ package main_state_machine_pkg is
         trip_has_been_detected      : boolean;
     end record;
 ------------------------------------------------------------------------
+    type list_of_actions is record
+        command_start : boolean;
+    end record;
+------------------------------------------------------------------------
     procedure create_main_state_machine (
         signal main_state_machine_object : inout main_state_machine_record;
         events                           : in list_of_events);
@@ -37,10 +41,17 @@ package body main_state_machine_pkg is
         alias system_state is main_state_machine_object.system_states;
     begin
 
+        CASE system_state is
+            WHEN idle  =>
+            WHEN init  =>
+            WHEN run   =>
+            WHEN fault =>
+        end CASE;
+
         if events.trip_has_been_detected then
             system_state <= fault;
         end if;
-    end procedure;
 
+    end procedure;
 ------------------------------------------------------------------------
 end package body main_state_machine_pkg;
