@@ -10,8 +10,6 @@ VU = VUnit.from_argv()
 main = VU.add_library("main")
 main.add_source_files(ROOT / "source/fpga_interconnect/fpga_interconnect_pkg.vhd")
 main.add_source_files(ROOT / "source/fpga_interconnect/fpga_interconnect_simulation" / "*.vhd")
-main.add_source_files(ROOT / "source/system_control/main_state_machine/main_state_machine_pkg.vhd")
-# main.add_source_files(ROOT / "source/system_control/main_state_machine/simulate_main_state_machine/main_state_machine_tb.vhd")
 
 main.add_source_files(ROOT / "source/system_control/main_state_machine/main_state_machine_pkg.vhd")
 main.add_source_files(ROOT / "source/system_control/main_state_machine/simulate_main_state_machine" / "*.vhd")
