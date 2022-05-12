@@ -60,7 +60,14 @@ begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
 
-            create_main_state_machine(main_state_machine, bus_to_main_state_machine, bus_from_main_state_machine);
+            create_main_state_machine( main_state_machine,
+                (start_has_been_commanded   => false,
+                dc_link_is_ready            => false,
+                system_is_running           => false,
+                system_is_stopped           => false,
+                fault_has_been_acknowledged => false,
+                trip_has_been_detected      => false)
+            );
 
 
         end if; -- rising_edge
