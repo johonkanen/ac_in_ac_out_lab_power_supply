@@ -41,7 +41,7 @@ package body main_state_machine_pkg is
     is
         alias system_state is main_state_machine_object.system_states;
     begin
-
+    --------------------------------------------------
         CASE system_state is
             WHEN idle  =>
                 if received_event_is.start_has_been_commanded then
@@ -67,10 +67,12 @@ package body main_state_machine_pkg is
 
         end CASE;
 
+    --------------------------------------------------
         if system_state /= fault and received_event_is.system_is_stopped then
             system_state <= idle;
         end if;
 
+    --------------------------------------------------
         if received_event_is.trip_has_been_detected then
             system_state <= fault;
         end if;
