@@ -3,12 +3,12 @@ library ieee;
     use ieee.numeric_std.all;
     use ieee.math_real.all;
 
-library work;
     use work.system_clocks_pkg.all;
     use work.component_interconnect_pkg.all;
     use work.communications_pkg.all;
     use work.power_electronics_pkg.all;
     use work.fpga_interconnect_pkg.all;
+    use work.test_module_pkg.all;
 
 entity component_interconnect is
     port (
@@ -33,6 +33,12 @@ architecture rtl of component_interconnect is
     signal communications_data_in  : communications_data_input_group;
     signal communications_data_out : communications_data_output_group;
 
+
+    signal test_module_FPGA_in  : test_module_FPGA_input_group;
+    signal test_module_FPGA_out : test_module_FPGA_output_group;
+    signal test_module_data_in  : test_module_data_input_group;
+    signal test_module_data_out : test_module_data_output_group;
+
     alias bus_out is communications_data_out.bus_out;
     signal bus_in : fpga_interconnect_record := init_fpga_interconnect;
 
@@ -53,8 +59,9 @@ begin
     begin
         if rising_edge(system_clocks.clock_120Mhz) then
 
-            bus_in <= component_interconnect_data_in.bus_in and 
-                      power_electronics_data_out.bus_out;
+            bus_in <= component_interconnect_data_in.bus_in and
+                      power_electronics_data_out.bus_out    and
+                      test_module_data_out.bus_out;
 
         end if;
     end process combine_buses;	
@@ -80,5 +87,14 @@ begin
     	  communications_data_in    ,
     	  communications_data_out);
 
+------------------------------------------------------------------------
+    test_module_data_in <= (bus_in => bus_out);
+
+    u_test_module : test_module
+    port map( system_clocks        ,
+              test_module_FPGA_in  ,
+              test_module_FPGA_out ,
+              test_module_data_in  ,
+              test_module_data_out);
 ------------------------------------------------------------------------
 end rtl;

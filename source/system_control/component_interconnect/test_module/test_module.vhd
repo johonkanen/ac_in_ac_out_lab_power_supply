@@ -44,7 +44,7 @@ architecture rtl of test_module is
     alias bus_in is test_module_data_in.bus_in;
     alias bus_out is test_module_data_out.bus_out;
 
-    signal register_in_system_control : integer range 0 to 2**16-1 := 44252;
+    signal register_in_test_module : integer range 0 to 2**16-1 := 259;
     signal testi : math_library_18x18.multiplier_pkg.int18 := 0;
     signal counter : integer range 0 to 2**16-1 := 0; 
 
@@ -113,7 +113,7 @@ begin
             create_first_order_filter( filter => filter22, multiplier => multiplier_22x22, time_constant => 0.0002);
             create_first_order_filter( filter => filter26, multiplier => multiplier_26x26, time_constant => 0.0002);
 
-            connect_read_only_data_to_address(bus_in , bus_out , system_control_data_address , register_in_system_control);
+            connect_read_only_data_to_address(bus_in , bus_out , system_control_data_address , register_in_test_module);
             connect_read_only_data_to_address(bus_in , bus_out , 5588 , filter_input);
             connect_read_only_data_to_address(bus_in , bus_out , 5589 , get_filter_output(filter18)/2);
             connect_read_only_data_to_address(bus_in , bus_out , 5590 , get_filter_output(filter22)/32);
