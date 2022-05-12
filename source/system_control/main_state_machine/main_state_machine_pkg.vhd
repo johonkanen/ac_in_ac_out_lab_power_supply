@@ -16,6 +16,7 @@ package main_state_machine_pkg is
         start_has_been_commanded    : boolean;
         dc_link_is_ready            : boolean;
         system_is_running           : boolean;
+        system_is_stopped           : boolean;
         fault_has_been_acknowledged : boolean;
         trip_has_been_detected      : boolean;
     end record;
@@ -46,21 +47,29 @@ package body main_state_machine_pkg is
                 if received_event_is.start_has_been_commanded then
                     system_state <= init;
                 end if;
+
             WHEN init  =>
                 if received_event_is.dc_link_is_ready then
                     system_state <= run;
                 end if;
+
             WHEN run   =>
                 if received_event_is.system_is_running then
                     system_state <= run;
                 else
                     system_state <= idle;
                 end if;
+
             WHEN fault =>
                 if received_event_is.fault_has_been_acknowledged then
                     system_state <= idle;
                 end if;
+
         end CASE;
+
+        if system_state /= fault and received_event_is.system_is_stopped then
+            system_state <= idle;
+        end if;
 
         if received_event_is.trip_has_been_detected then
             system_state <= fault;
