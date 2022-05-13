@@ -22,12 +22,15 @@ package main_state_machine_pkg is
     end record;
 ------------------------------------------------------------------------
     type list_of_actions is record
+        idle          : boolean;
         command_start : boolean;
     end record;
+    constant init_actions : list_of_actions := (false, false);
 ------------------------------------------------------------------------
     procedure create_main_state_machine (
         signal main_state_machine_object : inout main_state_machine_record;
-        received_event_is                : in list_of_events);
+        received_event_is                : in list_of_events;
+        requested_action_is              : out list_of_actions);
 ------------------------------------------------------------------------
 end package main_state_machine_pkg;
 
@@ -36,11 +39,14 @@ package body main_state_machine_pkg is
     procedure create_main_state_machine 
     (
         signal main_state_machine_object : inout main_state_machine_record;
-        received_event_is                : in list_of_events
+        received_event_is                : in list_of_events;
+        requested_action_is              : out list_of_actions
     ) 
     is
         alias system_state is main_state_machine_object.system_states;
     begin
+
+        requested_action_is := init_actions;
     --------------------------------------------------
         CASE system_state is
             WHEN idle  =>
