@@ -44,6 +44,7 @@ ghdl -a --ieee=synopsys --std=08 --work=math_library_26x26 source/dynamic_simula
 ghdl -a --ieee=synopsys --std=08 source/system_register_addresses_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 source/rtl_counters/rtl_counter_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 source/fpga_interconnect/interconnect_configuration/data_15_address_15_bit_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 source/fpga_interconnect/fpga_interconnect_pkg.vhd
 
             ghdl -a --ieee=synopsys --std=08 %source%/uart/uart_transreceiver/uart_tx/uart_tx_pkg.vhd
