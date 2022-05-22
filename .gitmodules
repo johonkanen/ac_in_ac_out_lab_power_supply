@@ -1,15 +1,20 @@
 [submodule "source/fpga_interconnect"]
 	path = source/fpga_interconnect
 	url = https://github.com/johonkanen/fpga_interconnect.git
+	main = origin/main
 [submodule "source/math_library"]
 	path = source/math_library
 	url = https://github.com/johonkanen/math_library.git
+	main = origin/main
 [submodule "source/dynamic_simulation_library"]
 	path = source/dynamic_simulation_library
 	url = https://github.com/johonkanen/dynamic_simulation_library.git
+	main = origin/main
 [submodule "source/vhdl_float"]
 	path = source/vhdl_float
 	url = https://github.com/johonkanen/vhdl_float.git
+	main = origin/main
 [submodule "source/uart"]
 	path = source/uart
 	url = https://github.com/johonkanen/uart.git
+	main = origin/main
