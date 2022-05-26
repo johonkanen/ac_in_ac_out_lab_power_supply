@@ -17,6 +17,7 @@ library float;
 library math_library_18x18;
     use math_library_18x18.multiplier_pkg.all;
     use math_library_18x18.first_order_filter_pkg.all;
+    use math_library_18x18.lut_sine_pkg.all;
 
 library math_library_22x22;
     use math_library_22x22.multiplier_pkg.all;
@@ -71,6 +72,8 @@ architecture rtl of test_module is
     alias  filter_is_ready is first_order_filter.filter_is_ready;
 ------------------------------------------------------------------------
 
+    signal sine_lut : ram_record;
+
 begin
 
     test : process(clock_120Mhz)
@@ -82,23 +85,22 @@ begin
             create_multiplier(multiplier_22x22);
             create_multiplier(multiplier_26x26);
 
+            create_lut_sine(sine_lut);
+
             create_float_alu(float_alu);
-            -- create_first_order_filter(first_order_filter, float_alu, to_float(0.01));
+            ------------------------------------------------------------------------
             filter_is_ready <= false;
             CASE filter_counter is
                 WHEN 0 => 
-                    subtract(float_alu, u, y);
-                    filter_counter <= filter_counter + 1;
+                    subtract_and_increment_counter(float_alu, filter_counter, u, y);
                 WHEN 1 =>
                     if add_is_ready(float_alu) then
-                        multiply(float_alu  , get_add_result(float_alu) , to_float(0.01));
-                        filter_counter <= filter_counter + 1;
+                        multiply_and_increment_counter(float_alu, filter_counter  , get_add_result(float_alu) , to_float(0.01));
                     end if;
 
                 WHEN 2 =>
                     if multiplier_is_ready(float_alu) then
-                        add(float_alu, get_multiplier_result(float_alu), y);
-                        filter_counter <= filter_counter + 1;
+                        add_and_increment_counter(float_alu, filter_counter, get_multiplier_result(float_alu), y);
                     end if;
                 WHEN 3 => 
                     if add_is_ready(float_alu) then
@@ -108,6 +110,7 @@ begin
                     end if;
                 WHEN others =>  -- filter is ready
             end CASE;
+            ------------------------------------------------------------------------
 
             create_first_order_filter( filter => filter18, multiplier => multiplier_18x18, time_constant => 0.0002);
             create_first_order_filter( filter => filter22, multiplier => multiplier_22x22, time_constant => 0.0002);
@@ -120,11 +123,14 @@ begin
             connect_read_only_data_to_address(bus_in , bus_out , 5591 , get_filter_output(filter26)/512);
             connect_read_only_data_to_address(bus_in , bus_out , 5592 , get_mantissa(test_float));
             connect_read_only_data_to_address(bus_in , bus_out , 5593 , get_exponent(test_float) + 100);
+            connect_read_only_data_to_address(bus_in , bus_out , 5594 , get_sine_from_lut(sine_lut)/2 + 32768);
 
             count_down_from(counter, 1199);
             if counter = 0 then
                 testi <= testi + 1;
                 filter_input <= (testi mod 16384)*8;
+
+                request_sine_from_lut(sine_lut, testi mod lookup_table_bits);
 
                 filter_data(filter18, filter_input);
                 filter_data(filter22, filter_input*16);

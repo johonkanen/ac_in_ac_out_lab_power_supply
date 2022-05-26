@@ -25,6 +25,7 @@ ghdl -a --ieee=synopsys --std=08 efinix_build/efinix_system_clocks_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 --work=math_library_18x18 source/math_library/multiplier/multiplier_base_types_18bit_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 --work=math_library_18x18 source/math_library/multiplier/multiplier_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 --work=math_library_18x18 source/math_library/first_order_filter/first_order_filter_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 --work=math_library_18x18 source/math_library/sincos/lut_sine_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 --work=math_library_22x22 source/math_library/multiplier/multiplier_base_types_22bit_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 --work=math_library_22x22 source/math_library/multiplier/multiplier_pkg.vhd
