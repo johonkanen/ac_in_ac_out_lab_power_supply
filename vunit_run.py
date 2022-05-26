@@ -8,11 +8,14 @@ ROOT = Path(__file__).resolve().parent
 VU = VUnit.from_argv()
 
 main = VU.add_library("main")
+main.add_source_files(ROOT / "source/fpga_interconnect" / "bus_controller" / "*.vhd")
+main.add_source_files(ROOT / "source/fpga_interconnect" / "*.vhd")
+main.add_source_files(ROOT / "source/fpga_interconnect/interconnect_configuration" / "*.vhd")
 main.add_source_files(ROOT / "source/fpga_interconnect/fpga_interconnect_pkg.vhd")
 main.add_source_files(ROOT / "source/fpga_interconnect/fpga_interconnect_simulation" / "*.vhd")
 
 main.add_source_files(ROOT / "source/system_control/main_state_machine/main_state_machine_pkg.vhd")
-main.add_source_files(ROOT / "source/system_control/main_state_machine/simulate_main_state_machine" / "*.vhd")
+# main.add_source_files(ROOT / "source/system_control/main_state_machine/simulate_main_state_machine" / "*.vhd")
 
 uart = VU.add_library("uart")
 uart.add_source_files(ROOT / "source/uart" / "*.vhd")
