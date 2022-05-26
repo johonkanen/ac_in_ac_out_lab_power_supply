@@ -18,3 +18,6 @@
 	path = source/uart
 	url = https://github.com/johonkanen/uart.git
 	main = origin/main
+[submodule "source/memory_library"]
+	path = source/memory_library
+	url = https://github.com/johonkanen/memory_library.git
