@@ -21,3 +21,8 @@
 [submodule "source/memory_library"]
 	path = source/memory_library
 	url = https://github.com/hVHDL/hVHDL_memory_library.git 
+	main = origin/main
+[submodule "source/analog_to_digital_drivers"]
+	path = source/analog_to_digital_drivers
+	url = https://github.com/hVHDL/analog_to_digital_drivers.git
+	main = origin/main
