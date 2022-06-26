@@ -33,6 +33,7 @@
         <efx:design_file name="../source/fpga_interconnect/fpga_interconnect_pkg.vhd" version="default" library="default"/>
         <efx:design_file name="../source/system_register_addresses_pkg.vhd" version="default" library="default"/>
         <efx:design_file name="../source/math_library/hVHDL_memory_library/fpga_ram/ram_read_port_pkg.vhd" version="default" library="math_library_18x18"/>
+        <efx:design_file name="../source/math_library/hVHDL_memory_library/fpga_ram/ram_write_port_pkg.vhd" version="default" library="math_library_18x18"/>
         <efx:design_file name="../source/math_library/multiplier/multiplier_base_types_18bit_pkg.vhd" version="default" library="math_library_18x18"/>
         <efx:design_file name="../source/math_library/sincos/lut_generator_functions/sine_harmonics_lut_generator_pkg.vhd" version="default" library="math_library_18x18"/>
         <efx:design_file name="../source/math_library/sincos/lut_sine_pkg.vhd" version="default" library="math_library_18x18"/>

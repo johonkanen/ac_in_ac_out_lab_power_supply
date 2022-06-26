@@ -26,6 +26,7 @@ ghdl -a --ieee=synopsys --std=08 --work=math_library_18x18 source/math_library/m
 ghdl -a --ieee=synopsys --std=08 --work=math_library_18x18 source/math_library/multiplier/multiplier_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 --work=math_library_18x18 source/math_library/first_order_filter/first_order_filter_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 --work=math_library_18x18 source/math_library/hVHDL_memory_library/fpga_ram/ram_read_port_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 --work=math_library_18x18 source/math_library/hVHDL_memory_library/fpga_ram/ram_write_port_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 --work=math_library_18x18 source/math_library/sincos/lut_generator_functions/sine_lut_generator_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 --work=math_library_18x18 source/math_library/sincos/lut_sine_pkg.vhd
