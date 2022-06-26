@@ -130,7 +130,7 @@ begin
                 testi <= testi + 1;
                 filter_input <= (testi mod 16384)*8;
 
-                request_sine_from_lut(sine_lut, testi mod lookup_table_bits);
+                request_sine_from_lut(sine_lut, testi mod 2**10);
 
                 filter_data(filter18, filter_input);
                 filter_data(filter22, filter_input*16);
