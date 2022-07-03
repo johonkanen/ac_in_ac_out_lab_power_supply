@@ -25,6 +25,7 @@ set fpga_device 10CL025YU256I7G
 set output_dir ./output
 
 variable tcl_path [ file dirname [ file normalize [ info script ] ] ] 
+puts $tcl_path
 set source_path $tcl_path/../source
 
 if {[project_exists cl10_ac_in_ac_out_power_supply]} \

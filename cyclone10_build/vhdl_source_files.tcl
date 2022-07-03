@@ -26,6 +26,7 @@ set_global_assignment -name VHDL_FILE $tcl_path/../efinix_build/efinix_system_cl
     set_global_assignment -name VHDL_FILE $tcl_path/../source/fpga_interconnect/fpga_interconnect_pkg.vhd                                       
     set_global_assignment -name VHDL_FILE $tcl_path/../source/system_register_addresses_pkg.vhd                                                 
 
+    set_global_assignment -name VHDL_FILE $tcl_path/../source/math_library/hVHDL_memory_library/fpga_ram/ram_configuration/ram_configuration_16x1024_pkg.vhd -library math_library_18x18
     set_global_assignment -name VHDL_FILE $tcl_path/../source/math_library/hVHDL_memory_library/fpga_ram/ram_read_port_pkg.vhd                 -library math_library_18x18
     set_global_assignment -name VHDL_FILE $tcl_path/../source/math_library/hVHDL_memory_library/fpga_ram/ram_write_port_pkg.vhd                -library math_library_18x18
     set_global_assignment -name VHDL_FILE $tcl_path/../source/math_library/multiplier/multiplier_base_types_18bit_pkg.vhd                      -library math_library_18x18
