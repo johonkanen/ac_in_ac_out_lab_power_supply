@@ -67,3 +67,5 @@ rem ghdl -a --ieee=synopsys --std=08 source/system_control/mock_component_interc
 
 ghdl -a --ieee=synopsys --std=08 source/system_control/main_state_machine/main_state_machine_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 source/system_control/system_control_pkg.vhd
+
+ghdl -a --ieee=synopsys --std=08 efinix_build/efinix_top.vhd

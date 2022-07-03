@@ -31,8 +31,6 @@ library math_library_26x26;
 entity test_module is
     port (
         system_clocks        : in system_clocks_record;
-        test_module_FPGA_in  : in test_module_FPGA_input_group;
-        test_module_FPGA_out : out test_module_FPGA_output_group;
         test_module_data_in  : in test_module_data_input_group;
         test_module_data_out : out test_module_data_output_group
     );

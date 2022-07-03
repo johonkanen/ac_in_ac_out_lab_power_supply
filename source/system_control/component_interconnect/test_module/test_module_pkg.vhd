@@ -23,16 +23,6 @@ package test_module_pkg is
         bus_out : fpga_interconnect_record;
     end record;
     
-    component test_module is
-        port (
-            system_clocks        : in system_clocks_record;
-            test_module_FPGA_in  : in test_module_FPGA_input_group;
-            test_module_FPGA_out : out test_module_FPGA_output_group;
-            test_module_data_in  : in test_module_data_input_group;
-            test_module_data_out : out test_module_data_output_group
-        );
-    end component test_module;
-    
     -- signal test_module_FPGA_in  : test_module_FPGA_input_group;
     -- signal test_module_FPGA_out : test_module_FPGA_output_group;
     -- signal test_module_data_in  : test_module_data_input_group;

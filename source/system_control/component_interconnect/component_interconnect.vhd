@@ -34,8 +34,6 @@ architecture rtl of component_interconnect is
     signal communications_data_out : communications_data_output_group;
 
 
-    signal test_module_FPGA_in  : test_module_FPGA_input_group;
-    signal test_module_FPGA_out : test_module_FPGA_output_group;
     signal test_module_data_in  : test_module_data_input_group;
     signal test_module_data_out : test_module_data_output_group;
 
@@ -90,10 +88,8 @@ begin
 ------------------------------------------------------------------------
     test_module_data_in <= (bus_in => bus_out);
 
-    u_test_module : test_module
+    u_test_module : entity work.test_module
     port map( system_clocks        ,
-              test_module_FPGA_in  ,
-              test_module_FPGA_out ,
               test_module_data_in  ,
               test_module_data_out);
 ------------------------------------------------------------------------
