@@ -62,10 +62,10 @@ rem ghdl -a --ieee=synopsys --std=08 source/system_control/mock_component_interc
 
         ghdl -a --ieee=synopsys --std=08 source/system_control/main_state_machine/main_state_machine_pkg.vhd
         ghdl -a --ieee=synopsys --std=08 source/system_control/component_interconnect/power_electronics/power_electronics_pkg.vhd
-        ghdl -a --ieee=synopsys --std=08 source/system_control/component_interconnect/test_module/test_module_pkg.vhd
+        rem ghdl -a --ieee=synopsys --std=08 source/system_control/component_interconnect/test_module/test_module_pkg.vhd
     ghdl -a --ieee=synopsys --std=08 source/system_control/component_interconnect/component_interconnect_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 source/system_control/main_state_machine/main_state_machine_pkg.vhd
-ghdl -a --ieee=synopsys --std=08 source/system_control/system_control_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 source/system_control/system_control.vhd
 
 ghdl -a --ieee=synopsys --std=08 efinix_build/efinix_top.vhd

@@ -1,6 +1,43 @@
 library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
+
+library work;
+    use work.system_clocks_pkg.all;
+    use work.power_electronics_pkg.all;
+    use work.uart_pkg.all;
+    use work.communications_pkg.all;
+    use work.fpga_interconnect_pkg.all;
+
+package component_interconnect_pkg is
+
+    type component_interconnect_FPGA_input_group is record
+        power_electronics_FPGA_in  : power_electronics_FPGA_input_group;
+        communications_FPGA_in  : communications_FPGA_input_group;
+    end record;
+    
+    type component_interconnect_FPGA_output_group is record
+        power_electronics_FPGA_out : power_electronics_FPGA_output_group;
+        communications_FPGA_out    : communications_FPGA_output_group;
+    end record;
+    
+    type component_interconnect_data_input_group is record
+        power_electronics_data_in  : power_electronics_data_input_group;
+        bus_in : fpga_interconnect_record;
+
+    end record;
+    
+    type component_interconnect_data_output_group is record
+        power_electronics_data_out : power_electronics_data_output_group;
+        bus_out : fpga_interconnect_record;
+    end record;
+
+end package component_interconnect_pkg;
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+library ieee;
+    use ieee.std_logic_1164.all;
+    use ieee.numeric_std.all;
     use ieee.math_real.all;
 
     use work.system_clocks_pkg.all;
@@ -22,17 +59,12 @@ end entity component_interconnect;
 
 architecture rtl of component_interconnect is
 
-    signal power_electronics_FPGA_in  : power_electronics_FPGA_input_group;
-    signal power_electronics_FPGA_out : power_electronics_FPGA_output_group;
     signal power_electronics_data_in  : power_electronics_data_input_group;
     signal power_electronics_data_out : power_electronics_data_output_group;
 
     signal communications_clocks   : communications_clock_group;
-    signal communications_FPGA_in  : communications_FPGA_input_group;
-    signal communications_FPGA_out : communications_FPGA_output_group;
     signal communications_data_in  : communications_data_input_group;
     signal communications_data_out : communications_data_output_group;
-
 
     signal test_module_data_in  : test_module_data_input_group;
     signal test_module_data_out : test_module_data_output_group;
@@ -43,12 +75,6 @@ architecture rtl of component_interconnect is
 begin 
 
 ------------------------------------------------------------------------
-    power_electronics_FPGA_in <= component_interconnect_FPGA_in.power_electronics_FPGA_in;
-    communications_FPGA_in    <= component_interconnect_FPGA_in.communications_FPGA_in;
-
-    component_interconnect_FPGA_out <= (power_electronics_FPGA_out => power_electronics_FPGA_out,
-                                        communications_FPGA_out    => communications_FPGA_out);
-
     component_interconnect_data_out <= (power_electronics_data_out => power_electronics_data_out,
                                         bus_out                    => bus_out);
 
@@ -67,10 +93,10 @@ begin
 ------------------------------------------------------------------------
     power_electronics_data_in <= (bus_in => bus_out);
 
-    u_power_electronics : power_electronics
+    u_power_electronics : entity work.power_electronics
     port map( system_clocks              ,
-              power_electronics_FPGA_in  ,
-              power_electronics_FPGA_out ,
+              component_interconnect_FPGA_in.power_electronics_FPGA_in  ,
+              component_interconnect_FPGA_out.power_electronics_FPGA_out ,
               power_electronics_data_in  ,
               power_electronics_data_out);
 
@@ -78,11 +104,11 @@ begin
     communications_clocks  <= (clock => system_clocks.clock_120Mhz);
     communications_data_in <= (bus_in => bus_in);
 
-    u_communications : communications
-    port map( communications_clocks ,
-          communications_FPGA_in    ,
-    	  communications_FPGA_out   ,
-    	  communications_data_in    ,
+    u_communications : entity work.communications
+    port map( communications_clocks                               ,
+          component_interconnect_FPGA_in.communications_FPGA_in   ,
+          component_interconnect_FPGA_out.communications_FPGA_out ,
+    	  communications_data_in                                  ,
     	  communications_data_out);
 
 ------------------------------------------------------------------------

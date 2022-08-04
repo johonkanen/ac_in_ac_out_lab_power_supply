@@ -3,7 +3,6 @@ library ieee;
     use ieee.numeric_std.all;
 
 library work;
-    use work.system_control_pkg.all;
     use work.system_clocks_pkg.all;
 
 entity efinix_top is
@@ -18,21 +17,13 @@ end entity efinix_top;
 
 architecture rtl of efinix_top is
 
-    signal system_control_clocks   : system_clocks_record;
-    signal system_control_FPGA_in  : system_control_FPGA_input_group;
-    signal system_control_FPGA_out : system_control_FPGA_output_group;
-
 begin
 
-    system_control_clocks <= (clock_120Mhz => clock_120Mhz);
-    leds                  <= system_control_FPGA_out.component_interconnect_FPGA_out.power_electronics_FPGA_out.leds;
-    uart_tx               <= system_control_FPGA_out.component_interconnect_FPGA_out.communications_FPGA_out.uart_FPGA_out.uart_transreceiver_FPGA_out.uart_tx_fpga_out.uart_tx;
-
-    system_control_FPGA_in.component_interconnect_FPGA_in.communications_FPGA_in.uart_FPGA_in.uart_transreceiver_FPGA_in.uart_rx_fpga_in.uart_rx <= uart_rx ;
-
-    u_system_control : system_control
-    port map( system_control_clocks ,
-    	  system_control_FPGA_in    ,
-    	  system_control_FPGA_out);
+    u_system_control : entity work.system_control
+    port map( 
+          system_control_clocks.clock_120mhz => clock_120mhz ,
+          system_control_FPGA_in.component_interconnect_FPGA_in.communications_FPGA_in.uart_FPGA_in.uart_transreceiver_FPGA_in.uart_rx_fpga_in.uart_rx => uart_rx,
+          system_control_FPGA_out.component_interconnect_FPGA_out.power_electronics_FPGA_out.leds => leds,
+          system_control_FPGA_out.component_interconnect_FPGA_out.communications_FPGA_out.uart_FPGA_out.uart_transreceiver_FPGA_out.uart_tx_fpga_out.uart_tx => uart_tx);
 
 end rtl;

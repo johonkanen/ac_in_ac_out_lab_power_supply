@@ -8,3 +8,6 @@ outflow/
 */work_pt/
 */work_syn/
 *.cf
+*.log
+*.raw
+*.net

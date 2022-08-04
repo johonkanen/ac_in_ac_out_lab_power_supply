@@ -4,6 +4,35 @@ library ieee;
 
 library work;
     use work.system_clocks_pkg.all;
+    use work.fpga_interconnect_pkg.all;
+
+package power_electronics_pkg is
+
+    type power_electronics_FPGA_input_group is record
+        clock : std_logic;
+    end record;
+    
+    type power_electronics_FPGA_output_group is record
+        leds : std_logic_vector(3 downto 0);
+    end record;
+    
+    type power_electronics_data_input_group is record
+        bus_in : fpga_interconnect_record;
+    end record;
+    
+    type power_electronics_data_output_group is record
+        bus_out : fpga_interconnect_record;
+    end record;
+    
+end package power_electronics_pkg;
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+library ieee;
+    use ieee.std_logic_1164.all;
+    use ieee.numeric_std.all;
+
+library work;
+    use work.system_clocks_pkg.all;
     use work.power_electronics_pkg.all;
     use work.rtl_counter_pkg.all;
     use work.fpga_interconnect_pkg.all;

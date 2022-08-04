@@ -37,9 +37,23 @@ else \
     project_new -revision top cl10_ac_in_ac_out_power_supply
 }
 
+    proc add_vhdl_file_to_project {vhdl_file} {
+        set_global_assignment -name VHDL_FILE $vhdl_file
+    }
+
+    proc add_vhdl_file_to_library {vhdl_file library} {
+        set_global_assignment -name VHDL_FILE $vhdl_file -library $library
+    }
+
+
 	set_global_assignment -name QIP_FILE $tcl_path/cyclone_IP/main_clocks.qip
 
     source $tcl_path/make_assignments.tcl
+
+    set_global_assignment -name VHDL_FILE $tcl_path/../efinix_build/efinix_top.vhd
+    set_global_assignment -name VHDL_FILE $tcl_path/cyclone_10_top.vhd
+    set_global_assignment -name VHDL_FILE $tcl_path/../efinix_build/efinix_system_clocks_pkg.vhd
+
     source $tcl_path/vhdl_source_files.tcl
     set_global_assignment -name TOP_LEVEL_ENTITY cyclone_top
 

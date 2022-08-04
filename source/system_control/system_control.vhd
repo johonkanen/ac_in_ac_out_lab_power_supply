@@ -2,6 +2,28 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
+library work;
+    use work.system_clocks_pkg.all;
+    use work.component_interconnect_pkg.all;
+
+package system_control_pkg is
+
+    type system_control_FPGA_input_group is record
+        component_interconnect_FPGA_in : component_interconnect_FPGA_input_group;
+    end record;
+    
+    type system_control_FPGA_output_group is record
+        component_interconnect_FPGA_out : component_interconnect_FPGA_output_group; 
+    end record;
+    
+end package system_control_pkg;
+
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+library ieee;
+    use ieee.std_logic_1164.all;
+    use ieee.numeric_std.all;
+
     use work.system_clocks_pkg.all;
     use work.system_control_pkg.all;
     use work.component_interconnect_pkg.all;
@@ -21,8 +43,6 @@ end entity system_control;
 architecture rtl of system_control is
 
     alias clock_120Mhz is system_control_clocks.clock_120Mhz;
-    signal component_interconnect_FPGA_in  : component_interconnect_FPGA_input_group;
-    signal component_interconnect_FPGA_out : component_interconnect_FPGA_output_group;
     signal component_interconnect_data_in  : component_interconnect_data_input_group;
     signal component_interconnect_data_out : component_interconnect_data_output_group;
 
@@ -35,10 +55,6 @@ architecture rtl of system_control is
     signal command_from_bus : integer range 0 to 2**16-1 := 0;
 ------------------------------------------------------------------------
 begin
-
-
-    component_interconnect_FPGA_in <= system_control_FPGA_in.component_interconnect_FPGA_in;
-    system_control_FPGA_out        <= (component_interconnect_FPGA_out => component_interconnect_FPGA_out);
 
 ------------------------------------------------------------------------
     main_system_controller : process(clock_120Mhz)
@@ -65,10 +81,10 @@ begin
     end process main_system_controller;	
 
 ------------------------------------------------------------------------
-    u_component_interconnect : component_interconnect
+    u_component_interconnect : entity work.component_interconnect
     port map( system_control_clocks       ,
-          component_interconnect_FPGA_in  ,
-          component_interconnect_FPGA_out ,
+          system_control_FPGA_in.component_interconnect_FPGA_in  ,
+          system_control_FPGA_out.component_interconnect_FPGA_out ,
     	  component_interconnect_data_in  ,
     	  component_interconnect_data_out);
 
