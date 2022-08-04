@@ -2,7 +2,6 @@
     add_vhdl_file_to_project $tcl_path/../source/system_control/main_state_machine/main_state_machine_pkg.vhd                      
     add_vhdl_file_to_project $tcl_path/../source/system_control/system_control.vhd                                                 
     add_vhdl_file_to_project $tcl_path/../source/system_control/component_interconnect/component_interconnect.vhd                  
-    add_vhdl_file_to_project $tcl_path/../source/system_control/component_interconnect/test_module/test_module_pkg.vhd             
     add_vhdl_file_to_project $tcl_path/../source/system_control/component_interconnect/test_module/test_module.vhd                 
     add_vhdl_file_to_project $tcl_path/../source/system_control/component_interconnect/power_electronics/power_electronics.vhd     
     add_vhdl_file_to_project $tcl_path/../source/system_control/component_interconnect/power_electronics/power_electronics_pkg.vhd 

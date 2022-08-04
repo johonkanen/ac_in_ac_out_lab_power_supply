@@ -46,7 +46,7 @@ library math_library_26x26;
 entity power_electronics is
     port (
         system_clocks              : in system_clocks_record;
-        power_electronics_FPGA_in  : in power_electronics_FPGA_input_group;
+        -- power_electronics_FPGA_in  : in power_electronics_FPGA_input_group;
         power_electronics_FPGA_out : out power_electronics_FPGA_output_group;
         power_electronics_data_in  : in power_electronics_data_input_group;
         power_electronics_data_out : out power_electronics_data_output_group

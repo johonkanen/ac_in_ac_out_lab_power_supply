@@ -12,7 +12,7 @@ library work;
 package component_interconnect_pkg is
 
     type component_interconnect_FPGA_input_group is record
-        power_electronics_FPGA_in  : power_electronics_FPGA_input_group;
+        -- power_electronics_FPGA_in  : power_electronics_FPGA_input_group;
         communications_FPGA_in  : communications_FPGA_input_group;
     end record;
     
@@ -95,7 +95,7 @@ begin
 
     u_power_electronics : entity work.power_electronics
     port map( system_clocks              ,
-              component_interconnect_FPGA_in.power_electronics_FPGA_in  ,
+              -- component_interconnect_FPGA_in.power_electronics_FPGA_in  ,
               component_interconnect_FPGA_out.power_electronics_FPGA_out ,
               power_electronics_data_in  ,
               power_electronics_data_out);

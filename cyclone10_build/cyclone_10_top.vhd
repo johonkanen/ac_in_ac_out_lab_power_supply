@@ -2,7 +2,6 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
-
 entity cyclone_top is
     port (
         xclk : in std_logic;
