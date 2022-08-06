@@ -77,6 +77,7 @@ begin
             init_bus(bus_from_system_control);
             connect_read_only_data_to_address(bus_from_master , bus_from_system_control , system_control_data_address , register_in_system_control);
             connect_data_to_address(bus_from_master , bus_from_system_control , system_control_data_address+1 , command_from_bus);
+            connect_read_only_data_to_address(bus_from_master , bus_from_system_control , 0 , 44252);
 
             create_main_state_machine( 
                 main_state_machine                                  ,

@@ -51,6 +51,32 @@ architecture rtl of cyclone_top is
 
 begin
 
+    grid_inu_leg1_hi  <= '0';
+    grid_inu_leg1_low <= '0';
+    grid_inu_leg2_hi  <= '0';
+    grid_inu_leg2_low <= '0';
+
+    dab_primary_hi    <= '0';
+    dab_primary_low   <= '0';
+    dab_secondary_hi  <= '0';
+    dab_secondary_low <= '0';
+
+    output_inu_leg1_hi  <= '0';
+    output_inu_leg1_low <= '0';
+    output_inu_leg2_hi  <= '0';
+    output_inu_leg2_low <= '0';
+
+    primary_bypass_relay   <= '0';
+    secondary_bypass_relay <= '0';
+
+    gate_power1_pwm <= '0';
+    gate_power2_pwm <= '0';
+    gate_power3_pwm <= '0';
+    gate_power4_pwm <= '1';
+    gate_power5_pwm <= '0';
+    gate_power6_pwm <= '0';
+
+
     u_main_clocks : main_clocks
     port map(xclk, clock_120Mhz);
 

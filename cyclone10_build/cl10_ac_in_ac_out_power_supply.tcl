@@ -57,13 +57,38 @@ else \
     source $tcl_path/vhdl_source_files.tcl
     set_global_assignment -name TOP_LEVEL_ENTITY cyclone_top
 
-    set_location_assignment PIN_M15 -to xclk
-	set_location_assignment PIN_N16 -to uart_rx
-	set_location_assignment PIN_N15 -to uart_tx
-	set_location_assignment PIN_L16 -to leds[0]
-	set_location_assignment PIN_K16 -to leds[1]
-	set_location_assignment PIN_J16 -to leds[2]
-	set_location_assignment PIN_G16 -to leds[3]
+    set_location_assignment PIN_M2 -to xclk
+	set_location_assignment PIN_T6 -to uart_rx
+	set_location_assignment PIN_R6 -to uart_tx
+	set_location_assignment PIN_N5 -to leds[0]
+	set_location_assignment PIN_N6 -to leds[1]
+	set_location_assignment PIN_M6 -to leds[2]
+	set_location_assignment PIN_P6 -to leds[3]
+
+    set_location_assignment PIN_R11 -to grid_inu_leg1_hi  
+    set_location_assignment PIN_T10 -to grid_inu_leg1_low
+    set_location_assignment PIN_N8 -to grid_inu_leg2_hi
+    set_location_assignment PIN_R12 -to grid_inu_leg2_low
+
+    set_location_assignment PIN_R10 -to dab_primary_hi
+    set_location_assignment PIN_T7 -to dab_primary_low
+    set_location_assignment PIN_R4 -to dab_secondary_hi
+    set_location_assignment PIN_R3 -to dab_secondary_low
+
+    set_location_assignment PIN_T3 -to output_inu_leg1_hi
+    set_location_assignment PIN_N2 -to output_inu_leg1_low
+    set_location_assignment PIN_M7 -to output_inu_leg2_hi
+    set_location_assignment PIN_N3 -to output_inu_leg2_low
+    
+    set_location_assignment PIN_L1 -to primary_bypass_relay
+    set_location_assignment PIN_N14 -to secondary_bypass_relay
+
+    set_location_assignment PIN_T12 -to gate_power1_pwm
+    set_location_assignment PIN_R13 -to gate_power2_pwm
+    set_location_assignment PIN_T11 -to gate_power3_pwm
+    set_location_assignment PIN_R5 -to gate_power4_pwm
+    set_location_assignment PIN_L2 -to gate_power5_pwm
+    set_location_assignment PIN_T4 -to gate_power6_pwm
 
 	export_assignments
     set_global_assignment -name SDC_FILE $tcl_path/cl10_ac_in_ac_out_power_supply.sdc
