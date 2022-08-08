@@ -44,7 +44,8 @@ ENTITY main_clocks IS
 	PORT
 	(
 		inclk0		: IN STD_LOGIC  := '0';
-		c0		: OUT STD_LOGIC 
+		c0		: OUT STD_LOGIC ;
+		locked		: OUT STD_LOGIC 
 	);
 END main_clocks;
 
@@ -57,6 +58,7 @@ ARCHITECTURE SYN OF main_clocks IS
 	SIGNAL sub_wire2	: STD_LOGIC_VECTOR (0 DOWNTO 0);
 	SIGNAL sub_wire3	: STD_LOGIC_VECTOR (4 DOWNTO 0);
 	SIGNAL sub_wire4	: STD_LOGIC ;
+	SIGNAL sub_wire5	: STD_LOGIC ;
 
 
 
@@ -115,11 +117,13 @@ ARCHITECTURE SYN OF main_clocks IS
 		port_extclk1		: STRING;
 		port_extclk2		: STRING;
 		port_extclk3		: STRING;
+		self_reset_on_loss_lock		: STRING;
 		width_clock		: NATURAL
 	);
 	PORT (
 			inclk	: IN STD_LOGIC_VECTOR (1 DOWNTO 0);
-			clk	: OUT STD_LOGIC_VECTOR (4 DOWNTO 0)
+			clk	: OUT STD_LOGIC_VECTOR (4 DOWNTO 0);
+			locked	: OUT STD_LOGIC 
 	);
 	END COMPONENT;
 
@@ -130,6 +134,7 @@ BEGIN
 	sub_wire1    <= sub_wire2(0 DOWNTO 0) & sub_wire0;
 	sub_wire4    <= sub_wire3(0);
 	c0    <= sub_wire4;
+	locked    <= sub_wire5;
 
 	altpll_component : altpll
 	GENERIC MAP (
@@ -155,7 +160,7 @@ BEGIN
 		port_fbin => "PORT_UNUSED",
 		port_inclk0 => "PORT_USED",
 		port_inclk1 => "PORT_UNUSED",
-		port_locked => "PORT_UNUSED",
+		port_locked => "PORT_USED",
 		port_pfdena => "PORT_UNUSED",
 		port_phasecounterselect => "PORT_UNUSED",
 		port_phasedone => "PORT_UNUSED",
@@ -186,11 +191,13 @@ BEGIN
 		port_extclk1 => "PORT_UNUSED",
 		port_extclk2 => "PORT_UNUSED",
 		port_extclk3 => "PORT_UNUSED",
+		self_reset_on_loss_lock => "OFF",
 		width_clock => 5
 	)
 	PORT MAP (
 		inclk => sub_wire1,
-		clk => sub_wire3
+		clk => sub_wire3,
+		locked => sub_wire5
 	);
 
 
@@ -234,7 +241,7 @@ END SYN;
 -- Retrieval info: PRIVATE: INCLK1_FREQ_UNIT_COMBO STRING "MHz"
 -- Retrieval info: PRIVATE: INTENDED_DEVICE_FAMILY STRING "Cyclone 10 LP"
 -- Retrieval info: PRIVATE: INT_FEEDBACK__MODE_RADIO STRING "1"
--- Retrieval info: PRIVATE: LOCKED_OUTPUT_CHECK STRING "0"
+-- Retrieval info: PRIVATE: LOCKED_OUTPUT_CHECK STRING "1"
 -- Retrieval info: PRIVATE: LONG_SCAN_RADIO STRING "1"
 -- Retrieval info: PRIVATE: LVDS_MODE_DATA_RATE STRING "Not Available"
 -- Retrieval info: PRIVATE: LVDS_MODE_DATA_RATE_DIRTY NUMERIC "0"
@@ -302,7 +309,7 @@ END SYN;
 -- Retrieval info: CONSTANT: PORT_FBIN STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_INCLK0 STRING "PORT_USED"
 -- Retrieval info: CONSTANT: PORT_INCLK1 STRING "PORT_UNUSED"
--- Retrieval info: CONSTANT: PORT_LOCKED STRING "PORT_UNUSED"
+-- Retrieval info: CONSTANT: PORT_LOCKED STRING "PORT_USED"
 -- Retrieval info: CONSTANT: PORT_PFDENA STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_PHASECOUNTERSELECT STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_PHASEDONE STRING "PORT_UNUSED"
@@ -333,14 +340,17 @@ END SYN;
 -- Retrieval info: CONSTANT: PORT_extclk1 STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_extclk2 STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_extclk3 STRING "PORT_UNUSED"
+-- Retrieval info: CONSTANT: SELF_RESET_ON_LOSS_LOCK STRING "OFF"
 -- Retrieval info: CONSTANT: WIDTH_CLOCK NUMERIC "5"
 -- Retrieval info: USED_PORT: @clk 0 0 5 0 OUTPUT_CLK_EXT VCC "@clk[4..0]"
 -- Retrieval info: USED_PORT: @inclk 0 0 2 0 INPUT_CLK_EXT VCC "@inclk[1..0]"
 -- Retrieval info: USED_PORT: c0 0 0 0 0 OUTPUT_CLK_EXT VCC "c0"
 -- Retrieval info: USED_PORT: inclk0 0 0 0 0 INPUT_CLK_EXT GND "inclk0"
+-- Retrieval info: USED_PORT: locked 0 0 0 0 OUTPUT GND "locked"
 -- Retrieval info: CONNECT: @inclk 0 0 1 1 GND 0 0 0 0
 -- Retrieval info: CONNECT: @inclk 0 0 1 0 inclk0 0 0 0 0
 -- Retrieval info: CONNECT: c0 0 0 0 0 @clk 0 0 1 0
+-- Retrieval info: CONNECT: locked 0 0 0 0 @locked 0 0 0 0
 -- Retrieval info: GEN_FILE: TYPE_NORMAL main_clocks.vhd TRUE
 -- Retrieval info: GEN_FILE: TYPE_NORMAL main_clocks.ppf TRUE
 -- Retrieval info: GEN_FILE: TYPE_NORMAL main_clocks.inc FALSE

@@ -22,6 +22,8 @@ ghdl -a --ieee=synopsys --std=08 --work=float %source%/float_first_order_filter/
 
 SET source=%project_root%/source/
 
+ghdl -a --ieee=synopsys --std=08 %source%/aux_pwm/aux_pwm_pkg.vhd
+
 ghdl -a --ieee=synopsys --std=08 efinix_build/efinix_system_clocks_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 --work=math_library_18x18 source/math_library/multiplier/multiplier_base_types_18bit_pkg.vhd

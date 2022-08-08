@@ -44,8 +44,9 @@ architecture rtl of cyclone_top is
     component main_clocks IS
 	PORT
 	(
-		inclk0 : IN STD_LOGIC    := '0';
-		c0     : OUT STD_LOGIC 
+		inclk0 : IN STD_LOGIC  := '0';
+		c0     : OUT STD_LOGIC;
+		locked : OUT STD_LOGIC
 	);
     END component;
 
@@ -72,13 +73,13 @@ begin
     gate_power1_pwm <= '0';
     gate_power2_pwm <= '0';
     gate_power3_pwm <= '0';
-    gate_power4_pwm <= '1';
+    gate_power4_pwm <= '0';
     gate_power5_pwm <= '0';
     gate_power6_pwm <= '0';
 
 
     u_main_clocks : main_clocks
-    port map(xclk, clock_120Mhz);
+    port map(xclk, clock_120Mhz, open);
 
     u_efinix : entity work.efinix_top
     port map (
