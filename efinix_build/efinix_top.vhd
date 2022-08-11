@@ -10,6 +10,7 @@ entity efinix_top is
         clock_120Mhz : in std_logic;
         uart_rx      : in std_logic;
         uart_tx      : out std_logic;
+        aux_pwm_out  : out std_logic;
         leds         : out std_logic_vector(3 downto 0)
     );
 end entity efinix_top;
@@ -24,6 +25,7 @@ begin
           system_clocks.clock_120mhz => clock_120mhz ,
           system_control_FPGA_in.communications_FPGA_in.uart_FPGA_in.uart_transreceiver_FPGA_in.uart_rx_fpga_in.uart_rx => uart_rx,
           system_control_FPGA_out.power_electronics_FPGA_out.leds => leds,
+          system_control_FPGA_out.power_electronics_FPGA_out.aux_pwm_out => aux_pwm_out,
           system_control_FPGA_out.communications_FPGA_out.uart_FPGA_out.uart_transreceiver_FPGA_out.uart_tx_fpga_out.uart_tx => uart_tx);
 
 end rtl;

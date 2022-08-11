@@ -2,7 +2,6 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
-library work;
     use work.system_clocks_pkg.all;
     use work.communications_pkg.all;
     use work.power_electronics_pkg.all;
@@ -65,6 +64,7 @@ architecture rtl of system_control is
     signal bus_from_master : fpga_interconnect_record := init_fpga_interconnect;
     signal bus_to_master : fpga_interconnect_record   := init_fpga_interconnect;
 ------------------------------------------------------------------------
+------------------------------------------------------------------------
 begin
 
 ------------------------------------------------------------------------
@@ -78,6 +78,7 @@ begin
             connect_read_only_data_to_address(bus_from_master , bus_from_system_control , system_control_data_address , register_in_system_control);
             connect_data_to_address(bus_from_master , bus_from_system_control , system_control_data_address+1 , command_from_bus);
             connect_read_only_data_to_address(bus_from_master , bus_from_system_control , 0 , 44252);
+
 
             create_main_state_machine( 
                 main_state_machine                                  ,

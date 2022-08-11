@@ -74,7 +74,7 @@ begin
     gate_power2_pwm <= '0';
     gate_power3_pwm <= '0';
     gate_power4_pwm <= '0';
-    gate_power5_pwm <= '0';
+    -- gate_power5_pwm <= '0';
     gate_power6_pwm <= '0';
 
 
@@ -86,6 +86,7 @@ begin
         clock_120Mhz => clock_120Mhz,
         uart_rx      => uart_rx,
         uart_tx      => uart_tx,
+        aux_pwm_out  => gate_power5_pwm,
         leds         => leds
     );
 

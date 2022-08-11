@@ -14,6 +14,7 @@ package power_electronics_pkg is
     
     type power_electronics_FPGA_output_group is record
         leds : std_logic_vector(3 downto 0);
+        aux_pwm_out : std_logic;
     end record;
     
     type power_electronics_data_input_group is record
@@ -31,12 +32,12 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
-library work;
     use work.system_clocks_pkg.all;
     use work.power_electronics_pkg.all;
     use work.rtl_counter_pkg.all;
     use work.fpga_interconnect_pkg.all;
     use work.system_register_addresses_pkg.all;
+    use work.aux_pwm_pkg.all;
 
 library math_library_26x26;
     use math_library_26x26.multiplier_pkg.all;
@@ -75,7 +76,11 @@ architecture rtl of power_electronics is
     signal stimulus_counter : integer range 0 to 2**15-1 := 20e3;
     signal uin : integer range 0 to 2**16-1 := 1500;
 
+    signal aux_pwm : aux_pwm_record := init_aux_pwm;
+
 begin
+
+    power_electronics_FPGA_out.aux_pwm_out <= aux_pwm.pwm_out;
 
 ------------------------------------------------------------------------
     led_blinker : process(clock_120Mhz)
@@ -88,6 +93,20 @@ begin
 
             connect_read_only_data_to_address(bus_in , bus_out , capacitor_voltage_address   , get_capacitor_voltage(lcr_model)/64 + 32768);
             connect_read_only_data_to_address(bus_in , bus_out , capacitor_voltage_address+1 , get_inductor_current(lcr_model)/16 + 32768);
+
+            create_aux_pwm(aux_pwm);
+
+            if data_from_power_electronics = 999 then
+                start_aux_pwm(aux_pwm);
+            end if;
+
+            if data_from_power_electronics = 0 then
+                stop_aux_pwm(aux_pwm);
+            end if;
+
+            if data_from_power_electronics > 50 and data_from_power_electronics < 400 then
+                aux_pwm.duty_ratio <= data_from_power_electronics;
+            end if;
 
             if write_to_address_is_requested(bus_in, power_electronics_data_address) and get_data(bus_in) = 1 then
                 system_is_started <= true;

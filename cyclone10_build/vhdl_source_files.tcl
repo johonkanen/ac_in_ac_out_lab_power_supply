@@ -1,4 +1,7 @@
     add_vhdl_file_to_project $tcl_path/../source/rtl_counters/rtl_counter_pkg.vhd                                                  
+
+    add_vhdl_file_to_project $tcl_path/../source/aux_pwm/aux_pwm_pkg.vhd
+
     add_vhdl_file_to_project $tcl_path/../source/system_control/main_state_machine/main_state_machine_pkg.vhd                      
     add_vhdl_file_to_project $tcl_path/../source/system_control/system_control.vhd                                                 
     add_vhdl_file_to_project $tcl_path/../source/system_control/power_electronics/power_electronics.vhd     
