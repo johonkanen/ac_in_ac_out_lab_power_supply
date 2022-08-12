@@ -9,12 +9,17 @@ library work;
 package power_electronics_pkg is
 
     type power_electronics_FPGA_input_group is record
-        clock : std_logic;
+        dab_sdm_data    : std_logic;
+        grid_sdm_data   : std_logic;
+        output_sdm_data : std_logic;
     end record;
     
     type power_electronics_FPGA_output_group is record
-        leds : std_logic_vector(3 downto 0);
-        aux_pwm_out : std_logic;
+        leds                 : std_logic_vector(3 downto 0);
+        aux_pwm_out          : std_logic;
+        dab_sdm_clock        : std_logic;
+        grid_inu_sdm_clock   : std_logic;
+        output_inu_sdm_clock : std_logic;
     end record;
     
     type power_electronics_data_input_group is record
@@ -44,10 +49,13 @@ library math_library_26x26;
     use math_library_26x26.lcr_filter_model_pkg.all;
 
 
+    use work.sigma_delta_cic_filter_pkg.all;
+
+
 entity power_electronics is
     port (
         system_clocks              : in system_clocks_record;
-        -- power_electronics_FPGA_in  : in power_electronics_FPGA_input_group;
+        power_electronics_FPGA_in  : in power_electronics_FPGA_input_group;
         power_electronics_FPGA_out : out power_electronics_FPGA_output_group;
         power_electronics_data_in  : in power_electronics_data_input_group;
         power_electronics_data_out : out power_electronics_data_output_group
@@ -79,6 +87,17 @@ architecture rtl of power_electronics is
     signal aux_pwm : aux_pwm_record := init_aux_pwm;
     signal aux_pwm_ch3 : aux_pwm_record := init_aux_pwm_with_duty_cycle(220);
 
+    signal sdm_clock_counter : integer range 0 to 2**4-1 := 0;
+    signal sdm_io_clock : std_logic := '0';
+
+    signal dab_io_data        : std_logic := '0';
+    signal output_sdm_io_data : std_logic := '0';
+    signal grid_sdm_io_data   : std_logic := '0';
+
+    signal dab_cic_filter        : cic_filter_record := init_cic_filter;
+    signal grid_inu_cic_filter   : cic_filter_record := init_cic_filter;
+    signal output_inu_cic_filter : cic_filter_record := init_cic_filter;
+
 begin
 
     power_electronics_FPGA_out.aux_pwm_out <= aux_pwm.pwm_out;
@@ -94,6 +113,9 @@ begin
 
             connect_read_only_data_to_address(bus_in , bus_out , capacitor_voltage_address   , get_capacitor_voltage(lcr_model)/64 + 32768);
             connect_read_only_data_to_address(bus_in , bus_out , capacitor_voltage_address+1 , get_inductor_current(lcr_model)/16 + 32768);
+            connect_read_only_data_to_address(bus_in , bus_out , 5000 , get_cic_filter_output(dab_cic_filter));
+            connect_read_only_data_to_address(bus_in , bus_out , 5001 , get_cic_filter_output(output_inu_cic_filter));
+            connect_read_only_data_to_address(bus_in , bus_out , 5002 , get_cic_filter_output(grid_inu_cic_filter));
 
             create_aux_pwm(aux_pwm);
 
@@ -152,5 +174,40 @@ begin
 
         end if; --rising_edge
     end process led_blinker;	
+
 ------------------------------------------------------------------------
+    test_sdm_clocks : process(clock_120Mhz)
+        
+    begin
+        if rising_edge(clock_120Mhz) then
+            if sdm_clock_counter > 0 then
+                sdm_clock_counter <= sdm_clock_counter - 1;
+            else
+                sdm_clock_counter <= 5;
+            end if;
+
+            if sdm_clock_counter > 2 then
+                sdm_io_clock <= '1';
+            else
+                sdm_io_clock <= '0';
+            end if;
+
+            if sdm_clock_counter = 3 then
+                dab_io_data        <= power_electronics_FPGA_in.dab_sdm_data   ;
+                grid_sdm_io_data   <= power_electronics_FPGA_in.grid_sdm_data  ;
+                output_sdm_io_data <= power_electronics_FPGA_in.output_sdm_data  ;
+
+                calculate_cic_filter(dab_cic_filter        , dab_io_data);
+                calculate_cic_filter(grid_inu_cic_filter   , grid_sdm_io_data);
+                calculate_cic_filter(output_inu_cic_filter , output_sdm_io_data);
+            end if;
+
+            power_electronics_FPGA_out.grid_inu_sdm_clock   <= sdm_io_clock;
+            power_electronics_FPGA_out.output_inu_sdm_clock <= sdm_io_clock;
+            power_electronics_FPGA_out.dab_sdm_clock        <= sdm_io_clock;
+
+        end if; --rising_edge
+    end process test_sdm_clocks;	
+------------------------------------------------------------------------
+
 end rtl;

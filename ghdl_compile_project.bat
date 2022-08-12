@@ -22,6 +22,8 @@ ghdl -a --ieee=synopsys --std=08 --work=float %source%/float_first_order_filter/
 
 SET source=%project_root%/source/
 
+ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_analog_to_digital_drivers/sigma_delta/sigma_delta_cic_filter_pkg.vhd
+
 ghdl -a --ieee=synopsys --std=08 %source%/aux_pwm/aux_pwm_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 efinix_build/efinix_system_clocks_pkg.vhd

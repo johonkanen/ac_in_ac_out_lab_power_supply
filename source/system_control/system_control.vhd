@@ -9,7 +9,7 @@ library ieee;
 package system_control_pkg is
 
     type system_control_FPGA_input_group is record
-        -- power_electronics_FPGA_in  : power_electronics_FPGA_input_group;
+        power_electronics_FPGA_in  : power_electronics_FPGA_input_group;
         communications_FPGA_in  : communications_FPGA_input_group;
     end record;
     
@@ -107,10 +107,10 @@ begin
     power_electronics_data_in <= (bus_in => bus_from_master);
 
     u_power_electronics : entity work.power_electronics
-    port map( system_clocks              ,
-              -- component_interconnect_FPGA_in.power_electronics_FPGA_in  ,
-              system_control_FPGA_out.power_electronics_FPGA_out ,
-              power_electronics_data_in  ,
+    port map( system_clocks ,
+              system_control_FPGA_in.power_electronics_FPGA_in ,
+              system_control_FPGA_out.power_electronics_FPGA_out       ,
+              power_electronics_data_in                                ,
               power_electronics_data_out);
 
 ------------------------------------------------------------------------

@@ -37,6 +37,10 @@ entity cyclone_top is
         output_inu_sdm_clock : out std_logic;
         dab_sdm_clock        : out std_logic;
 
+        grid_inu_sdm_data   : in std_logic;
+        output_inu_sdm_data : in std_logic;
+        dab_sdm_data        : in std_logic;
+
         leds         : out std_logic_vector(3 downto 0)
     );
 end entity cyclone_top;
@@ -56,8 +60,6 @@ architecture rtl of cyclone_top is
 
     signal aux_pwm : std_logic := '0';
 
-    signal sdm_clock_counter : integer range 0 to 2**4-1 := 0;
-    signal sdm_io_clock : std_logic := '0';
 
 begin
 
@@ -91,24 +93,6 @@ begin
     port map(xclk, clock_120Mhz, open);
 ------------------------------------------------------------------------
 
-    test_sdm_clocks : process(clock_120Mhz)
-        
-    begin
-        if rising_edge(clock_120Mhz) then
-            if sdm_clock_counter > 0 then
-                sdm_clock_counter <= sdm_clock_counter - 1;
-            else
-                sdm_clock_counter <= 2;
-                sdm_io_clock <= not sdm_io_clock;
-            end if;
-
-            grid_inu_sdm_clock   <= sdm_io_clock;
-            output_inu_sdm_clock <= sdm_io_clock;
-            dab_sdm_clock        <= sdm_io_clock;
-
-        end if; --rising_edge
-    end process test_sdm_clocks;	
-
 ------------------------------------------------------------------------
     u_efinix : entity work.efinix_top
     port map (
@@ -116,6 +100,15 @@ begin
         uart_rx      => uart_rx,
         uart_tx      => uart_tx,
         aux_pwm_out  => aux_pwm,
+
+        grid_inu_sdm_clock   => grid_inu_sdm_clock   ,
+        output_inu_sdm_clock => output_inu_sdm_clock ,
+        dab_sdm_clock        => dab_sdm_clock        ,
+
+        grid_inu_sdm_data    => grid_inu_sdm_data    ,
+        output_inu_sdm_data  => output_inu_sdm_data  ,
+        dab_sdm_data         => dab_sdm_data         ,
+
         leds         => leds
     );
 

@@ -1,6 +1,7 @@
     add_vhdl_file_to_project $tcl_path/../source/rtl_counters/rtl_counter_pkg.vhd                                                  
-
     add_vhdl_file_to_project $tcl_path/../source/aux_pwm/aux_pwm_pkg.vhd
+
+    add_vhdl_file_to_project $tcl_path/../source/hvhdl_analog_to_digital_drivers/sigma_delta/sigma_delta_cic_filter_pkg.vhd
 
     add_vhdl_file_to_project $tcl_path/../source/system_control/main_state_machine/main_state_machine_pkg.vhd                      
     add_vhdl_file_to_project $tcl_path/../source/system_control/system_control.vhd                                                 
