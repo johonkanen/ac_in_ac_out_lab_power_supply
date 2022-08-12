@@ -90,6 +90,10 @@ else \
     set_location_assignment PIN_L2 -to gate_power5_pwm
     set_location_assignment PIN_T4 -to gate_power6_pwm
 
+    set_location_assignment PIN_P16 -to grid_inu_sdm_clock
+    set_location_assignment PIN_P1 -to output_inu_sdm_clock
+    set_location_assignment PIN_P8 -to grid_inu_sdm_clock
+
 	export_assignments
     set_global_assignment -name SDC_FILE $tcl_path/cl10_ac_in_ac_out_power_supply.sdc
 

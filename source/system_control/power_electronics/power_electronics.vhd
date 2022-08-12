@@ -67,7 +67,7 @@ architecture rtl of power_electronics is
     signal slow_counter : integer range 0 to 2**16-1 := 0; 
     signal led_state : std_logic_vector(3 downto 0) := (others => '0');
 
-    signal data_from_power_electronics : integer range 0 to 2**16-1 := 0;
+    signal data_from_power_electronics : integer range 0 to 2**16-1 := 220;
 ------------------------------------------------------------------------
     signal system_is_started : boolean := false;
     signal multiplier22x22 : multiplier_record := init_multiplier;
@@ -77,6 +77,7 @@ architecture rtl of power_electronics is
     signal uin : integer range 0 to 2**16-1 := 1500;
 
     signal aux_pwm : aux_pwm_record := init_aux_pwm;
+    signal aux_pwm_ch3 : aux_pwm_record := init_aux_pwm_with_duty_cycle(220);
 
 begin
 
@@ -98,6 +99,7 @@ begin
 
             if data_from_power_electronics = 999 then
                 start_aux_pwm(aux_pwm);
+                -- start_aux_pwm(aux_pwm_ch3);
             end if;
 
             if data_from_power_electronics = 0 then
