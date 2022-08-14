@@ -29,7 +29,7 @@ mult.add_source_files(ROOT / "source/math_library/multiplier" / "multiplier_base
 mult.add_source_files(ROOT / "source/math_library/multiplier" / "multiplier_pkg.vhd")
 mult.add_source_files(ROOT / "source/math_library/sincos" / "sincos_pkg.vhd")
 
-aux = VU.add_library("aux")
+aux = VU.add_library("auxiliary_pwm")
 aux.add_source_files(ROOT / "source/aux_pwm" / "*.vhd")
 
 VU.main()
