@@ -17,6 +17,11 @@ package aux_pwm_pkg is
     function init_aux_pwm_with_duty_cycle ( duty_cycle : integer)
         return aux_pwm_record;
 
+    function init_aux_period_and_duty (
+        period : integer;
+        duty_cycle : integer)
+    return aux_pwm_record;
+
     procedure create_aux_pwm (
         signal aux_pwm_object : inout aux_pwm_record);
 
@@ -82,5 +87,18 @@ package body aux_pwm_pkg is
         returned_value.duty_ratio := duty_cycle;
         return returned_value;
     end init_aux_pwm_with_duty_cycle;
+
+    function init_aux_period_and_duty
+    (
+        period : integer;
+        duty_cycle : integer
+    )
+    return aux_pwm_record
+    is
+        variable returned_value : aux_pwm_record := init_aux_pwm_with_duty_cycle(duty_cycle);
+    begin
+        returned_value.period := period;
+        return returned_value;
+    end init_aux_period_and_duty;
 
 end package body aux_pwm_pkg;

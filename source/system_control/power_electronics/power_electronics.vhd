@@ -84,8 +84,7 @@ architecture rtl of power_electronics is
     signal stimulus_counter : integer range 0 to 2**15-1 := 20e3;
     signal uin : integer range 0 to 2**16-1 := 1500;
 
-    signal aux_pwm : aux_pwm_record := init_aux_pwm;
-    signal aux_pwm_ch3 : aux_pwm_record := init_aux_pwm_with_duty_cycle(220);
+    signal aux_pwm : aux_pwm_record := init_aux_period_and_duty(period => 500, duty_cycle => 220);
 
     signal sdm_clock_counter : integer range 0 to 2**4-1 := 0;
     signal sdm_io_clock : std_logic := '0';
@@ -121,15 +120,10 @@ begin
 
             if data_from_power_electronics = 999 then
                 start_aux_pwm(aux_pwm);
-                -- start_aux_pwm(aux_pwm_ch3);
             end if;
 
             if data_from_power_electronics = 0 then
                 stop_aux_pwm(aux_pwm);
-            end if;
-
-            if data_from_power_electronics > 50 and data_from_power_electronics < 400 then
-                aux_pwm.duty_ratio <= data_from_power_electronics;
             end if;
 
             if write_to_address_is_requested(bus_in, power_electronics_data_address) and get_data(bus_in) = 1 then
