@@ -37,6 +37,14 @@ entity cyclone_top is
         output_inu_sdm_clock : out std_logic;
         dab_sdm_clock        : out std_logic;
 
+        ads_7056_clock       : out std_logic;
+        ads_7056_chip_select : out std_logic;
+        ads_7056_input_data  : in std_logic;
+
+        ads_7056_clock_pri       : out std_logic;
+        ads_7056_chip_select_pri : out std_logic;
+        ads_7056_input_data_pri  : in std_logic;
+
         grid_inu_sdm_data   : in std_logic;
         output_inu_sdm_data : in std_logic;
         dab_sdm_data        : in std_logic;
@@ -104,6 +112,15 @@ begin
         grid_inu_sdm_clock   => grid_inu_sdm_clock   ,
         output_inu_sdm_clock => output_inu_sdm_clock ,
         dab_sdm_clock        => dab_sdm_clock        ,
+
+        ads_7056_clock       => ads_7056_clock       ,
+        ads_7056_chip_select => ads_7056_chip_select ,
+        ads_7056_input_data  => ads_7056_input_data  ,
+
+        ads_7056_clock_pri       => ads_7056_clock_pri       ,
+        ads_7056_chip_select_pri => ads_7056_chip_select_pri ,
+        ads_7056_input_data_pri  => ads_7056_input_data_pri  ,
+
 
         grid_inu_sdm_data    => grid_inu_sdm_data    ,
         output_inu_sdm_data  => output_inu_sdm_data  ,

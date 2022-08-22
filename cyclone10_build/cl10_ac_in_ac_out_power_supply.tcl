@@ -98,6 +98,15 @@ else \
     set_location_assignment PIN_N1  -to output_inu_sdm_data
     set_location_assignment PIN_T5  -to dab_sdm_data
 
+    set_location_assignment PIN_P2 -to ads_7056_clock      
+    set_location_assignment PIN_R1  -to ads_7056_chip_select
+    set_location_assignment PIN_T2  -to ads_7056_input_data 
+
+    set_location_assignment PIN_R14 -to ads_7056_clock_pri      
+    set_location_assignment PIN_T13 -to ads_7056_chip_select_pri
+    set_location_assignment PIN_T15 -to ads_7056_input_data_pri 
+
+
 	export_assignments
     set_global_assignment -name SDC_FILE $tcl_path/cl10_ac_in_ac_out_power_supply.sdc
 

@@ -2,16 +2,18 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
-library work;
     use work.system_clocks_pkg.all;
+    use work.spi_sar_adc_pkg.all;
     use work.fpga_interconnect_pkg.all;
 
 package power_electronics_pkg is
 
     type power_electronics_FPGA_input_group is record
-        dab_sdm_data    : std_logic;
-        grid_sdm_data   : std_logic;
-        output_sdm_data : std_logic;
+        dab_sdm_data        : std_logic;
+        grid_sdm_data       : std_logic;
+        output_sdm_data     : std_logic;
+        spi_sar_adc_FPGA_in : spi_sar_adc_FPGA_input_group;
+        spi_sar_adc_FPGA_in2 : spi_sar_adc_FPGA_input_group;
     end record;
     
     type power_electronics_FPGA_output_group is record
@@ -20,6 +22,9 @@ package power_electronics_pkg is
         dab_sdm_clock        : std_logic;
         grid_inu_sdm_clock   : std_logic;
         output_inu_sdm_clock : std_logic;
+
+        spi_sar_adc_FPGA_out : spi_sar_adc_FPGA_output_group;
+        spi_sar_adc_FPGA_out2 : spi_sar_adc_FPGA_output_group;
     end record;
     
     type power_electronics_data_input_group is record
@@ -48,9 +53,8 @@ library math_library_26x26;
     use math_library_26x26.multiplier_pkg.all;
     use math_library_26x26.lcr_filter_model_pkg.all;
 
-
     use work.sigma_delta_cic_filter_pkg.all;
-
+    use work.spi_sar_adc_pkg.all;
 
 entity power_electronics is
     port (
@@ -97,6 +101,15 @@ architecture rtl of power_electronics is
     signal grid_inu_cic_filter   : cic_filter_record := init_cic_filter;
     signal output_inu_cic_filter : cic_filter_record := init_cic_filter;
 
+    signal startup_delay_counter : natural := 25e4;
+    signal reset_n : std_logic := '0';
+
+    signal spi_sar_adc_data_in  : spi_sar_adc_data_input_group;
+    signal spi_sar_adc_data_out : spi_sar_adc_data_output_group;
+
+    signal spi_sar_adc_data_in2  : spi_sar_adc_data_input_group;
+    signal spi_sar_adc_data_out2 : spi_sar_adc_data_output_group;
+
 begin
 
     power_electronics_FPGA_out.aux_pwm_out <= aux_pwm.pwm_out;
@@ -106,15 +119,20 @@ begin
 
     begin
         if rising_edge(clock_120Mhz) then
+            idle_adc(spi_sar_adc_data_in);
+            idle_adc(spi_sar_adc_data_in2);
 
             init_bus(bus_out);
             connect_data_to_address(bus_in, bus_out, power_electronics_data_address, data_from_power_electronics);
 
             connect_read_only_data_to_address(bus_in , bus_out , capacitor_voltage_address   , get_capacitor_voltage(lcr_model)/64 + 32768);
             connect_read_only_data_to_address(bus_in , bus_out , capacitor_voltage_address+1 , get_inductor_current(lcr_model)/16 + 32768);
+
             connect_read_only_data_to_address(bus_in , bus_out , 5000 , get_cic_filter_output(dab_cic_filter));
             connect_read_only_data_to_address(bus_in , bus_out , 5001 , get_cic_filter_output(output_inu_cic_filter));
             connect_read_only_data_to_address(bus_in , bus_out , 5002 , get_cic_filter_output(grid_inu_cic_filter));
+            connect_read_only_data_to_address(bus_in , bus_out , 5003 , get_adc_data(spi_sar_adc_data_out));
+            connect_read_only_data_to_address(bus_in , bus_out , 5004 , get_adc_data(spi_sar_adc_data_out2));
 
             create_aux_pwm(aux_pwm);
 
@@ -157,6 +175,8 @@ begin
             count_down_from(model_calculation_counter, 1199);
             if model_calculation_counter = 0 then
                 request_lcr_filter_calculation(lcr_model);
+                start_ad_conversion(spi_sar_adc_data_in);
+                start_ad_conversion(spi_sar_adc_data_in2);
 
                 if stimulus_counter > 0 then
                     stimulus_counter <= stimulus_counter - 1;
@@ -164,6 +184,13 @@ begin
                     stimulus_counter <= 20e3;
                     uin <= -uin;
                 end if;
+            end if;
+
+            reset_n <= '0';
+            if startup_delay_counter > 0 then
+                startup_delay_counter <= startup_delay_counter - 1;
+            else
+                reset_n <= '1';
             end if;
 
         end if; --rising_edge
@@ -204,4 +231,20 @@ begin
     end process test_sdm_clocks;	
 ------------------------------------------------------------------------
 
+------------------------------------------------------------------------ 
+    u_spi_sar_adc : entity work.spi_sar_adc
+    port map( (clock => clock_120Mhz, reset_n => reset_n) ,
+          power_electronics_FPGA_in.spi_sar_adc_FPGA_in   ,
+    	  power_electronics_FPGA_out.spi_sar_adc_FPGA_out ,
+    	  spi_sar_adc_data_in                             ,
+    	  spi_sar_adc_data_out);
+
+------------------------------------------------------------------------ 
+    u_spi_sar_adc2 : entity work.spi_sar_adc
+    port map( (clock => clock_120Mhz, reset_n => reset_n) ,
+          power_electronics_FPGA_in.spi_sar_adc_FPGA_in2   ,
+    	  power_electronics_FPGA_out.spi_sar_adc_FPGA_out2 ,
+    	  spi_sar_adc_data_in2                             ,
+    	  spi_sar_adc_data_out2);
+------------------------------------------------------------------------ 
 end rtl;
