@@ -125,8 +125,8 @@ begin
             init_bus(bus_out);
             connect_data_to_address(bus_in, bus_out, power_electronics_data_address, data_from_power_electronics);
 
-            connect_read_only_data_to_address(bus_in , bus_out , capacitor_voltage_address   , get_capacitor_voltage(lcr_model)/64 + 32768);
-            connect_read_only_data_to_address(bus_in , bus_out , capacitor_voltage_address+1 , get_inductor_current(lcr_model)/16 + 32768);
+            connect_read_only_data_to_address(bus_in , bus_out , capacitor_voltage_address , get_capacitor_voltage(lcr_model)/64 + 32768);
+            connect_read_only_data_to_address(bus_in , bus_out , capacitor_voltage_address+1  , get_inductor_current(lcr_model)/16 + 32768);
 
             connect_read_only_data_to_address(bus_in , bus_out , 5000 , get_cic_filter_output(dab_cic_filter));
             connect_read_only_data_to_address(bus_in , bus_out , 5001 , get_cic_filter_output(output_inu_cic_filter));
@@ -135,7 +135,6 @@ begin
             connect_read_only_data_to_address(bus_in , bus_out , 5004 , get_adc_data(spi_sar_adc_data_out2));
 
             create_aux_pwm(aux_pwm);
-
             if data_from_power_electronics = 999 then
                 start_aux_pwm(aux_pwm);
             end if;

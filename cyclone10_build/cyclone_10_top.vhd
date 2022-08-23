@@ -66,35 +66,8 @@ architecture rtl of cyclone_top is
 	);
     END component;
 
-    signal aux_pwm : std_logic := '0';
-
-
 begin
 
-    grid_inu_leg1_hi  <= '0';
-    grid_inu_leg1_low <= '0';
-    grid_inu_leg2_hi  <= '0';
-    grid_inu_leg2_low <= '0';
-
-    dab_primary_hi    <= '0';
-    dab_primary_low   <= '0';
-    dab_secondary_hi  <= '0';
-    dab_secondary_low <= '0';
-
-    output_inu_leg1_hi  <= '0';
-    output_inu_leg1_low <= '0';
-    output_inu_leg2_hi  <= '0';
-    output_inu_leg2_low <= '0';
-
-    primary_bypass_relay   <= '0';
-    secondary_bypass_relay <= '0';
-
-    gate_power6_pwm <= aux_pwm;
-    gate_power5_pwm <= aux_pwm;
-    gate_power4_pwm <= aux_pwm;
-    gate_power3_pwm <= aux_pwm;
-    gate_power2_pwm <= aux_pwm;
-    gate_power1_pwm <= aux_pwm;
 
 ------------------------------------------------------------------------
     u_main_clocks : main_clocks
@@ -107,24 +80,47 @@ begin
         clock_120Mhz => clock_120Mhz,
         uart_rx      => uart_rx,
         uart_tx      => uart_tx,
-        aux_pwm_out  => aux_pwm,
 
-        grid_inu_sdm_clock   => grid_inu_sdm_clock   ,
-        output_inu_sdm_clock => output_inu_sdm_clock ,
-        dab_sdm_clock        => dab_sdm_clock        ,
+        grid_inu_leg1_hi  => grid_inu_leg1_hi,
+        grid_inu_leg1_low => grid_inu_leg1_low,
+        grid_inu_leg2_hi  => grid_inu_leg2_hi,
+        grid_inu_leg2_low => grid_inu_leg2_low,
 
-        ads_7056_clock       => ads_7056_clock       ,
-        ads_7056_chip_select => ads_7056_chip_select ,
-        ads_7056_input_data  => ads_7056_input_data  ,
+        dab_primary_hi    => dab_primary_hi,
+        dab_primary_low   => dab_primary_low,
+        dab_secondary_hi  => dab_secondary_hi,
+        dab_secondary_low => dab_secondary_low,
 
-        ads_7056_clock_pri       => ads_7056_clock_pri       ,
-        ads_7056_chip_select_pri => ads_7056_chip_select_pri ,
-        ads_7056_input_data_pri  => ads_7056_input_data_pri  ,
+        output_inu_leg1_hi  => output_inu_leg1_hi,
+        output_inu_leg1_low => output_inu_leg1_low,
+        output_inu_leg2_hi  => output_inu_leg2_hi,
+        output_inu_leg2_low => output_inu_leg2_low,
 
+        primary_bypass_relay   => primary_bypass_relay,
+        secondary_bypass_relay => secondary_bypass_relay,
 
-        grid_inu_sdm_data    => grid_inu_sdm_data    ,
-        output_inu_sdm_data  => output_inu_sdm_data  ,
-        dab_sdm_data         => dab_sdm_data         ,
+        gate_power1_pwm => gate_power1_pwm,
+        gate_power2_pwm => gate_power2_pwm,
+        gate_power3_pwm => gate_power3_pwm,
+        gate_power4_pwm => gate_power4_pwm,
+        gate_power5_pwm => gate_power5_pwm,
+        gate_power6_pwm => gate_power6_pwm,
+
+        grid_inu_sdm_clock   => grid_inu_sdm_clock,
+        output_inu_sdm_clock => output_inu_sdm_clock,
+        dab_sdm_clock        => dab_sdm_clock,
+
+        ads_7056_clock       => ads_7056_clock,
+        ads_7056_chip_select => ads_7056_chip_select,
+        ads_7056_input_data  => ads_7056_input_data,
+
+        ads_7056_clock_pri       => ads_7056_clock_pri,
+        ads_7056_chip_select_pri => ads_7056_chip_select_pri,
+        ads_7056_input_data_pri  => ads_7056_input_data_pri,
+
+        grid_inu_sdm_data   => grid_inu_sdm_data,
+        output_inu_sdm_data => output_inu_sdm_data,
+        dab_sdm_data        => dab_sdm_data,
 
         leds         => leds
     );

@@ -7,7 +7,31 @@ entity efinix_top is
         clock_120Mhz : in std_logic;
         uart_rx      : in std_logic;
         uart_tx      : out std_logic;
-        aux_pwm_out  : out std_logic;
+
+        grid_inu_leg1_hi  : out std_logic;
+        grid_inu_leg1_low : out std_logic;
+        grid_inu_leg2_hi  : out std_logic;
+        grid_inu_leg2_low : out std_logic;
+
+        dab_primary_hi    : out std_logic;
+        dab_primary_low   : out std_logic;
+        dab_secondary_hi  : out std_logic;
+        dab_secondary_low : out std_logic;
+
+        output_inu_leg1_hi  : out std_logic;
+        output_inu_leg1_low : out std_logic;
+        output_inu_leg2_hi  : out std_logic;
+        output_inu_leg2_low : out std_logic;
+
+        primary_bypass_relay   : out std_logic;
+        secondary_bypass_relay : out std_logic;
+
+        gate_power1_pwm : out std_logic;
+        gate_power2_pwm : out std_logic;
+        gate_power3_pwm : out std_logic;
+        gate_power4_pwm : out std_logic;
+        gate_power5_pwm : out std_logic;
+        gate_power6_pwm : out std_logic;
 
         grid_inu_sdm_clock   : out std_logic;
         output_inu_sdm_clock : out std_logic;
@@ -21,7 +45,6 @@ entity efinix_top is
         ads_7056_chip_select_pri : out std_logic;
         ads_7056_input_data_pri  : in std_logic;
 
-
         grid_inu_sdm_data   : in std_logic;
         output_inu_sdm_data : in std_logic;
         dab_sdm_data        : in std_logic;
@@ -33,7 +56,34 @@ end entity efinix_top;
 
 architecture rtl of efinix_top is
 
+    signal aux_pwm : std_logic := '0';
+
 begin
+
+    grid_inu_leg1_hi  <= '0';
+    grid_inu_leg1_low <= '0';
+    grid_inu_leg2_hi  <= '0';
+    grid_inu_leg2_low <= '0';
+
+    dab_primary_hi    <= '0';
+    dab_primary_low   <= '0';
+    dab_secondary_hi  <= '0';
+    dab_secondary_low <= '0';
+
+    output_inu_leg1_hi  <= '0';
+    output_inu_leg1_low <= '0';
+    output_inu_leg2_hi  <= '0';
+    output_inu_leg2_low <= '0';
+
+    primary_bypass_relay   <= '0';
+    secondary_bypass_relay <= '0';
+
+    gate_power6_pwm <= aux_pwm;
+    gate_power5_pwm <= aux_pwm;
+    gate_power4_pwm <= aux_pwm;
+    gate_power3_pwm <= aux_pwm;
+    gate_power2_pwm <= aux_pwm;
+    gate_power1_pwm <= aux_pwm;
 
     u_system_control : entity work.system_control
     port map( 
@@ -57,7 +107,7 @@ begin
           system_control_FPGA_out.power_electronics_FPGA_out.dab_sdm_clock        => grid_inu_sdm_clock   ,
           system_control_FPGA_out.power_electronics_FPGA_out.grid_inu_sdm_clock   => output_inu_sdm_clock ,
           system_control_FPGA_out.power_electronics_FPGA_out.output_inu_sdm_clock => dab_sdm_clock        ,
-          system_control_FPGA_out.power_electronics_FPGA_out.aux_pwm_out          => aux_pwm_out          ,
+          system_control_FPGA_out.power_electronics_FPGA_out.aux_pwm_out          => aux_pwm              ,
 
           system_control_FPGA_out.communications_FPGA_out.uart_FPGA_out.uart_transreceiver_FPGA_out.uart_tx_fpga_out.uart_tx => uart_tx);
 

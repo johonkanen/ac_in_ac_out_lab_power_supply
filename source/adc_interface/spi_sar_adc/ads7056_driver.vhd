@@ -26,20 +26,22 @@ architecture ads_7056 of spi_sar_adc is
     constant g_u8_clks_per_conversion : integer := 18;
     constant g_sh_counter_latch : integer := 8; -- TODO, figure out a number for this
 
-    signal spi_rx_buffer : std_logic_vector(17 downto 0) := (others => '0');
-    constant c_convert : std_logic := '0';
-    constant c_idle : std_logic := '1';
-    signal i : integer range 0 to 31;
     subtype t_ad_states is std_logic_vector(1 downto 0);
-    constant t_idle : t_ad_states := "00";
-    constant t_calibrate : t_ad_states := "11";
-    constant t_convert : t_ad_states := "10";
-    signal st_ad_states : t_ad_states;
-    signal r_po_spi_clk_out : std_logic := '0';
-    signal r_po_spi_cs : std_logic; 
+
+    signal spi_rx_buffer    : std_logic_vector(17 downto 0) := (others => '0');
+    signal i                : integer range 0 to 31;
+    signal st_ad_states     : t_ad_states;
+    signal r_po_spi_clk_out : std_logic                     := '0';
+    signal r_po_spi_cs      : std_logic;
     
     signal spi_process_count : natural range 0 to 2**7-1 := 0;
     signal spi_clk_div : natural range 0 to 2**7-1 := 0;
+
+    constant c_convert : std_logic := '0';
+    constant c_idle : std_logic := '1';
+    constant t_idle : t_ad_states := "00";
+    constant t_calibrate : t_ad_states := "11";
+    constant t_convert : t_ad_states := "10";
 
 begin
 
