@@ -10,14 +10,14 @@
  
 architecture ads_7056 of spi_sar_adc is 
 
-    alias si_spi_clk     is spi_sar_adc_clocks.clock                              ;
-    alias si_pll_lock    is spi_sar_adc_clocks.reset_n                            ;
+    alias clock     is spi_sar_adc_clocks.clock                              ;
+    alias reset_n    is spi_sar_adc_clocks.reset_n                            ;
     alias pi_spi_serial  is spi_sar_adc_FPGA_in.spi_serial_data                   ;
     alias po_spi_clk_out is spi_sar_adc_FPGA_out.spi_clock                        ;
     alias po_spi_cs      is spi_sar_adc_FPGA_out.chip_select                      ;
 
     alias si_spi_start   is spi_sar_adc_data_in.ad_conversion_started_with_1      ;
-    alias so_sh_rdy      is spi_sar_adc_data_out.adc_sample_and_hold_ready_when_1 ;
+    alias sample_and_hold_is_ready_when_1      is spi_sar_adc_data_out.adc_sample_and_hold_ready_when_1 ;
     alias so_spi_rdy     is spi_sar_adc_data_out.adc_conversion_is_ready_when_1   ;
     alias b_spi_rx       is spi_sar_adc_data_out.ad_measurement_data              ;
     alias s_spi_busy     is spi_sar_adc_data_out.adc_is_busy_when_1               ;
@@ -31,7 +31,7 @@ architecture ads_7056 of spi_sar_adc is
     signal spi_rx_buffer    : std_logic_vector(17 downto 0) := (others => '0');
     signal i                : integer range 0 to 31;
     signal st_ad_states     : t_ad_states;
-    signal r_po_spi_clk_out : std_logic                     := '0';
+    signal r_po_spi_clk_out : std_logic := '0';
     signal r_po_spi_cs      : std_logic;
     
     signal spi_process_count : natural range 0 to 2**7-1 := 0;
@@ -39,21 +39,22 @@ architecture ads_7056 of spi_sar_adc is
 
     constant c_convert : std_logic := '0';
     constant c_idle : std_logic := '1';
-    constant t_idle : t_ad_states := "00";
+
+    constant t_idle      : t_ad_states := "00";
     constant t_calibrate : t_ad_states := "11";
-    constant t_convert : t_ad_states := "10";
+    constant t_convert   : t_ad_states := "10";
 
 begin
 
 ------------------------------------------------------------------------
-    spi_control : process(si_spi_clk)
+    spi_control : process(clock)
     begin
-        if rising_edge(si_spi_clk) then
-            if si_pll_lock = '1' then
+        if rising_edge(clock) then
+            sample_and_hold_is_ready_when_1 <= '0';
+            so_spi_rdy <= '0';
+            if reset_n = '1' then
                 CASE st_ad_states is
                     WHEN t_calibrate =>
-                        so_sh_rdy <= '0';
-                        so_spi_rdy <= '0';
                         spi_rx_buffer <= (others => '0');  
 
                         spi_process_count <= spi_process_count + 1;
@@ -76,11 +77,9 @@ begin
                         end if;
 
                     WHEN t_idle =>
-                        so_spi_rdy <= '0';
                         spi_process_count <= 0;
                         spi_clk_div <= 0;
                         i <= (g_u8_clks_per_conversion)+1;
-                        so_sh_rdy <= '0';
 
                         if si_spi_start = '1' then
                             st_ad_states <= t_convert;
@@ -94,9 +93,7 @@ begin
                         
                         --indicate sample and hold being ready
                         if spi_process_count = g_sh_counter_latch-1 then
-                            so_sh_rdy <= '1';
-                        else
-                            so_sh_rdy <= '0';
+                            sample_and_hold_is_ready_when_1 <= '1';
                         end if;
 
                         spi_clk_div <= spi_clk_div + 1;
@@ -111,7 +108,6 @@ begin
                         end if;
 
                         st_ad_states <= t_convert;
-                        so_spi_rdy <= '0';
                         if spi_process_count = g_u8_clk_cnt*g_u8_clks_per_conversion-g_u8_clk_cnt/2 - 1 then
                             st_ad_states <= t_idle;
                             b_spi_rx     <= spi_rx_buffer(16 downto 1);
@@ -124,8 +120,6 @@ begin
                         i                <= (g_u8_clks_per_conversion)+1;
                         spi_rx_buffer    <= (others => '0');
                         r_po_spi_clk_out <= '1';
-                        so_sh_rdy        <= '0';
-                        so_spi_rdy       <= '0';
                         st_ad_states     <= t_calibrate;
                 end CASE;
 
@@ -135,8 +129,6 @@ begin
                 i                <= (g_u8_clks_per_conversion)+1;
                 spi_rx_buffer    <= (others => '0');
                 r_po_spi_clk_out <= '1';
-                so_sh_rdy        <= '0';
-                so_spi_rdy       <= '0';
                 st_ad_states     <= t_calibrate;
             end if;
         end if; --rising_edge
