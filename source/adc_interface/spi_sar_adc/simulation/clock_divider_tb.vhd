@@ -21,14 +21,17 @@ architecture vunit_simulation of clock_divider_tb is
     -- simulation specific signals ----
 
     signal rising_edge_is_detected : boolean := false;
+    signal falling_edge_detected : boolean := false;
 
     type clock_divider_record is record
-        divided_clock : std_logic;
+        divided_clock         : std_logic;
         clock_divider_counter : natural;
-        clock_divider_max : natural;
+        clock_divider_max     : natural;
+        clock_is_enabled      : boolean;
+        clock_clounter        : natural;
     end record;
 
-    constant init_clock_divider : clock_divider_record := ('1', 0, 1);
+    constant init_clock_divider : clock_divider_record := ('1', 0, 3, false, 9);
 ------------------------------------------------------------------------
     procedure create_clock_divider
     (
@@ -36,16 +39,21 @@ architecture vunit_simulation of clock_divider_tb is
     ) is
         alias m is clock_divider_object;
     begin
-        if m.clock_divider_counter > 0 then
-            m.clock_divider_counter <= m.clock_divider_counter - 1;
-        else
-            m.clock_divider_counter <= m.clock_divider_max;
-        end if;
-        
-        if m.clock_divider_counter > m.clock_divider_max/2 then
-            m.divided_clock <= '0';
+        if m.clock_is_enabled then
+            if m.clock_divider_counter > 0 then
+                m.clock_divider_counter <= m.clock_divider_counter - 1;
+            else
+                m.clock_divider_counter <= m.clock_divider_max;
+            end if;
+            
+            if m.clock_divider_counter > m.clock_divider_max/2 then
+                m.divided_clock <= '0';
+            else
+                m.divided_clock <= '1';
+            end if;
         else
             m.divided_clock <= '1';
+            m.clock_divider_counter <= m.clock_divider_max;
         end if;
 
     end create_clock_divider;
@@ -77,6 +85,17 @@ architecture vunit_simulation of clock_divider_tb is
         return m.clock_divider_counter = m.clock_divider_max/2 + purkka;
     end data_delivered_on_rising_edge;
 ------------------------------------------------------------------------
+    function data_delivered_on_falling_edge
+    (
+        clock_divider_object : clock_divider_record
+    )
+    return boolean
+    is
+        alias m is clock_divider_object;
+    begin
+        return m.clock_divider_counter = m.clock_divider_max - 1;
+    end data_delivered_on_falling_edge;
+------------------------------------------------------------------------
     signal clock_divider : clock_divider_record := init_clock_divider;
     signal divided_clock : std_logic;
 
@@ -102,7 +121,16 @@ begin
 
             create_clock_divider(clock_divider);
             divided_clock <= get_divided_clock(clock_divider);
+
             rising_edge_is_detected <= data_delivered_on_rising_edge(clock_divider);
+            falling_edge_detected   <= data_delivered_on_falling_edge(clock_divider);
+            if data_delivered_on_rising_edge(clock_divider) then
+                if clock_divider.clock_clounter > 0 then
+                    clock_divider.clock_clounter <= clock_divider.clock_clounter - 1;
+                end if;
+            end if;
+
+            clock_divider.clock_is_enabled <= clock_divider.clock_clounter > 0;
 
 
         end if; -- rising_edge
