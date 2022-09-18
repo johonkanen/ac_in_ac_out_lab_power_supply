@@ -6,6 +6,8 @@ LIBRARY ieee  ;
 library vunit_lib;
 context vunit_lib.vunit_context;
 
+    use work.clock_divider_pkg.all;
+
 entity clock_divider_tb is
   generic (runner_cfg : string);
 end;
@@ -23,79 +25,6 @@ architecture vunit_simulation of clock_divider_tb is
     signal rising_edge_is_detected : boolean := false;
     signal falling_edge_detected : boolean := false;
 
-    type clock_divider_record is record
-        divided_clock         : std_logic;
-        clock_divider_counter : natural;
-        clock_divider_max     : natural;
-        clock_is_enabled      : boolean;
-        clock_clounter        : natural;
-    end record;
-
-    constant init_clock_divider : clock_divider_record := ('1', 0, 3, false, 9);
-------------------------------------------------------------------------
-    procedure create_clock_divider
-    (
-        signal clock_divider_object : inout clock_divider_record
-    ) is
-        alias m is clock_divider_object;
-    begin
-        if m.clock_is_enabled then
-            if m.clock_divider_counter > 0 then
-                m.clock_divider_counter <= m.clock_divider_counter - 1;
-            else
-                m.clock_divider_counter <= m.clock_divider_max;
-            end if;
-            
-            if m.clock_divider_counter > m.clock_divider_max/2 then
-                m.divided_clock <= '0';
-            else
-                m.divided_clock <= '1';
-            end if;
-        else
-            m.divided_clock <= '1';
-            m.clock_divider_counter <= m.clock_divider_max;
-        end if;
-
-    end create_clock_divider;
-------------------------------------------------------------------------
-    function get_divided_clock
-    (
-        clock_divider_object : clock_divider_record
-    )
-    return std_logic 
-    is
-    begin
-        return clock_divider_object.divided_clock;
-    end get_divided_clock;
-------------------------------------------------------------------------
-    function data_delivered_on_rising_edge
-    (
-        clock_divider_object : clock_divider_record
-    )
-    return boolean
-    is
-        alias m is clock_divider_object;
-        variable purkka : integer := 0;
-    begin
-        if m.clock_divider_max > 1 then
-            purkka := -1;
-        else
-            purkka := 1;
-        end if;
-        return m.clock_divider_counter = m.clock_divider_max/2 + purkka;
-    end data_delivered_on_rising_edge;
-------------------------------------------------------------------------
-    function data_delivered_on_falling_edge
-    (
-        clock_divider_object : clock_divider_record
-    )
-    return boolean
-    is
-        alias m is clock_divider_object;
-    begin
-        return m.clock_divider_counter = m.clock_divider_max - 1;
-    end data_delivered_on_falling_edge;
-------------------------------------------------------------------------
     signal clock_divider : clock_divider_record := init_clock_divider;
     signal divided_clock : std_logic;
 
@@ -130,7 +59,14 @@ begin
                 end if;
             end if;
 
-            clock_divider.clock_is_enabled <= clock_divider.clock_clounter > 0;
+            if simulation_counter = 0 then 
+                request_clock_divider(clock_divider, 5);
+            end if;
+
+            if simulation_counter = 25 then 
+                request_clock_divider(clock_divider, 7);
+            end if;
+
 
 
         end if; -- rising_edge

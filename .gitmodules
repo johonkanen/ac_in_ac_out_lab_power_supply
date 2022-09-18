@@ -1,21 +1,21 @@
 [submodule "source/fpga_interconnect"]
-	path = source/fpga_interconnect
+	path = source/hVHDL_fpga_interconnect
 	url = https://github.com/hVHDL/hVHDL_fpga_interconnect.git 
 	main = origin/main
 [submodule "source/math_library"]
-	path = source/math_library
+	path = source/hVHDL_math_library
 	url = https://github.com/hVHDL/hVHDL_math_library.git 
 	main = origin/main
 [submodule "source/dynamic_simulation_library"]
-	path = source/dynamic_simulation_library
+	path = source/hVHDL_dynamic_model_verification_library
     url = https://github.com/hVHDL/hVHDL_dynamic_model_verification_library.git
     main = origin/main
 [submodule "source/vhdl_float"]
-	path = source/vhdl_float
+	path = source/hVHDL_floating_point
 	url = https://github.com/hVHDL/hVHDL_floating_point.git 
 	main = origin/main
 [submodule "source/uart"]
-	path = source/uart
+	path = source/hVHDL_uart
 	url = https://github.com/hVHDL/hVHDL_uart.git 
 	main = origin/main
 [submodule "source/memory_library"]

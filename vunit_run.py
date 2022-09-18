@@ -33,6 +33,7 @@ aux = VU.add_library("auxiliary_pwm")
 aux.add_source_files(ROOT / "source/aux_pwm" / "*.vhd")
 
 aux = VU.add_library("spi_adc")
+aux.add_source_files(ROOT / "source/adc_interface/" / "*.vhd")
 aux.add_source_files(ROOT / "source/adc_interface/spi_sar_adc" / "*.vhd")
 aux.add_source_files(ROOT / "source/adc_interface/spi_sar_adc/simulation" / "*.vhd")
 

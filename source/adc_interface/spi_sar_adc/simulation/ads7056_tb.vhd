@@ -53,6 +53,7 @@ architecture vunit_simulation of ads7056_tb is
     
     constant init_spi : spi_record := (0, '1', 0, '1', 0, (others => '0'));
 ------------------------------------------------------------------------
+------------------------------------------------------------------------
     procedure create_spi
     (
         signal spi_object : inout spi_record;
@@ -140,7 +141,6 @@ begin
             if ad_conversion_is_ready(spi_sar_adc_data_out) then
                 adc_measurement_data <= get_adc_data(spi_sar_adc_data_out);
             end if;
-
 
         end if; -- rising_edge
     end process stimulus;	
