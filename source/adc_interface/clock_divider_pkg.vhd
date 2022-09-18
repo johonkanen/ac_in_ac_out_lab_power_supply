@@ -29,6 +29,10 @@ package clock_divider_pkg is
     function data_delivered_on_falling_edge ( clock_divider_object : clock_divider_record)
         return boolean;
 ------------------------------------------------------------------------
+    procedure set_clock_divider (
+        signal clock_divider_object : out clock_divider_record;
+        clock_divider : in integer range 2 to 1024);
+------------------------------------------------------------------------
 
 end package clock_divider_pkg;
 
@@ -57,6 +61,12 @@ package body clock_divider_pkg is
         else
             m.divided_clock         <= '1';
             m.clock_divider_counter <= m.clock_divider_max;
+        end if;
+
+        if data_delivered_on_rising_edge(clock_divider_object) then
+            if m.clock_clounter > 0 then
+                m.clock_clounter <= m.clock_clounter - 1;
+            end if;
         end if;
 
     end create_clock_divider;
@@ -111,5 +121,14 @@ package body clock_divider_pkg is
     begin
         return m.clock_divider_counter = m.clock_divider_max - 1;
     end data_delivered_on_falling_edge;
+------------------------------------------------------------------------
+    procedure set_clock_divider
+    (
+        signal clock_divider_object : out clock_divider_record;
+        clock_divider : in integer range 2 to 1024
+    ) is
+    begin
+        clock_divider_object.clock_divider_max <= clock_divider;
+    end set_clock_divider;
 ------------------------------------------------------------------------
 end package body clock_divider_pkg;

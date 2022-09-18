@@ -50,20 +50,16 @@ begin
 
             create_clock_divider(clock_divider);
             divided_clock <= get_divided_clock(clock_divider);
+            set_clock_divider(clock_divider, 5);
 
             rising_edge_is_detected <= data_delivered_on_rising_edge(clock_divider);
             falling_edge_detected   <= data_delivered_on_falling_edge(clock_divider);
-            if data_delivered_on_rising_edge(clock_divider) then
-                if clock_divider.clock_clounter > 0 then
-                    clock_divider.clock_clounter <= clock_divider.clock_clounter - 1;
-                end if;
-            end if;
 
             if simulation_counter = 0 then 
                 request_clock_divider(clock_divider, 5);
             end if;
 
-            if simulation_counter = 25 then 
+            if simulation_counter = 125 then 
                 request_clock_divider(clock_divider, 7);
             end if;
 
