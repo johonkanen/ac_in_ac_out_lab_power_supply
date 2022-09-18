@@ -15,7 +15,7 @@ end;
 architecture vunit_simulation of clock_divider_tb is
 
     constant clock_period      : time    := 1 ns;
-    constant simtime_in_clocks : integer := 150;
+    constant simtime_in_clocks : integer := 250;
     
     signal simulator_clock     : std_logic := '0';
     signal simulation_counter  : natural   := 0;
@@ -25,7 +25,7 @@ architecture vunit_simulation of clock_divider_tb is
     signal rising_edge_is_detected : boolean := false;
     signal falling_edge_detected : boolean := false;
 
-    signal clock_divider : clock_divider_record := init_clock_divider;
+    signal clock_divider : clock_divider_record := init_clock_divider(5);
     signal divided_clock : std_logic;
 
 begin
@@ -50,20 +50,13 @@ begin
 
             create_clock_divider(clock_divider);
             divided_clock <= get_divided_clock(clock_divider);
-            set_clock_divider(clock_divider, 5);
 
             rising_edge_is_detected <= data_delivered_on_rising_edge(clock_divider);
             falling_edge_detected   <= data_delivered_on_falling_edge(clock_divider);
 
-            if simulation_counter = 0 then 
-                request_clock_divider(clock_divider, 5);
+            if simulation_counter = 5 then 
+                request_clock_divider(clock_divider, 24);
             end if;
-
-            if simulation_counter = 125 then 
-                request_clock_divider(clock_divider, 7);
-            end if;
-
-
 
         end if; -- rising_edge
     end process stimulus;	
