@@ -24,6 +24,7 @@ SET source=%project_root%/source/
 
 ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_analog_to_digital_drivers/sigma_delta/sigma_delta_cic_filter_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %source%/adc_interface/clock_divider_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 %source%/adc_interface/ads7056_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %source%/adc_interface/spi_sar_adc/spi_sar_adc_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %source%/adc_interface/spi_sar_adc/ads7056_driver.vhd
 

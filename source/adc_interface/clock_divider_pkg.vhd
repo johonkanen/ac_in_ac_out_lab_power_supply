@@ -88,12 +88,9 @@ package body clock_divider_pkg is
         end if;
 
         if m.clock_counter > 0 then
-            if m.clock_divider_counter > 0 then
-                m.clock_divider_counter <= m.clock_divider_counter - 1;
-            else
+            if m.clock_divider_counter = 0 then
                 m.clock_divider_counter <= m.clock_divider_max;
             end if;
-            
         end if;
 
         if data_delivered_on_rising_edge(clock_divider_object) then
