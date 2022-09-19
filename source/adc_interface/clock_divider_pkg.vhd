@@ -8,7 +8,7 @@ package clock_divider_pkg is
         divided_clock         : std_logic;
         clock_divider_counter : natural;
         clock_divider_max     : natural;
-        clock_counter        : natural;
+        clock_counter         : natural;
     end record;
 
 ------------------------------------------------------------------------
@@ -42,7 +42,9 @@ package clock_divider_pkg is
         signal clock_divider_object : out clock_divider_record;
         clock_divider : in integer range 2 to 1024);
 ------------------------------------------------------------------------
-
+    function clock_divider_is_ready ( clock_divider_object : clock_divider_record)
+        return boolean;
+------------------------------------------------------------------------
 end package clock_divider_pkg;
 
 
@@ -181,5 +183,14 @@ package body clock_divider_pkg is
     begin
         clock_divider_object.clock_divider_max <= clock_divider;
     end set_clock_divider;
+------------------------------------------------------------------------
+    function clock_divider_is_ready
+    (
+        clock_divider_object : clock_divider_record
+    )
+    return boolean is
+    begin
+        return (clock_divider_object.clock_counter > 0);
+    end clock_divider_is_ready;
 ------------------------------------------------------------------------
 end package body clock_divider_pkg;

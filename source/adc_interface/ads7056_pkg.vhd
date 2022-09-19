@@ -4,42 +4,51 @@ library ieee;
 
     use work.clock_divider_pkg.all;
 
-package ads_7056_pkg is
+package ads7056_pkg is
 
-    type ads_7056_record is record
-        clock_divider          : clock_divider_record;
-        shift_register         : std_logic_vector(17 downto 0);
-        is_ready               : boolean;
-        chip_select            : std_logic;
-        ads7056_is_initialized : boolean;
+    type ads7056_record is record
+        clock_divider   : clock_divider_record;
+        shift_register  : std_logic_vector(17 downto 0);
+        measurement     : unsigned(13 downto 0);
+        is_ready        : boolean;
+        chip_select     : std_logic;
+        chip_select_out : std_logic;
+        is_initialized  : boolean;
     end record;
 
-    function init_ads7056 return ads_7056_record;
+    function init_ads7056 return ads7056_record;
+
+    function init_ads7056 ( core_clocks_in_adc_clock : integer range 2 to 1024)
+        return ads7056_record;
+
 ------------------------------------------------------------------------
     procedure create_ads7056 (
-        signal ads7056_object : inout ads_7056_record;
+        signal ads7056_object : inout ads7056_record;
         ad_input_io : std_logic );
 ------------------------------------------------------------------------
     procedure request_ad_conversion (
-        signal ads7056_object : inout ads_7056_record);
+        signal ads7056_object : inout ads7056_record);
 ------------------------------------------------------------------------
-    procedure initialize_ads_7056 (
-        signal ads7056_object : inout ads_7056_record);
+    procedure initialize_ads7056 (
+        signal ads7056_object : inout ads7056_record);
 ------------------------------------------------------------------------
-    function get_ad_measurement ( ads7056_object : ads_7056_record)
+    function get_ad_measurement ( ads7056_object : ads7056_record)
         return integer;
 ------------------------------------------------------------------------
-    function ads7056_is_ready ( ads7056_object : ads_7056_record)
+    function ads7056_is_ready ( ads7056_object : ads7056_record)
         return boolean;
 ------------------------------------------------------------------------
-end package ads_7056_pkg;
+    function ads7056_has_been_initialized ( ads7056_object : ads7056_record)
+        return boolean;
+------------------------------------------------------------------------
+end package ads7056_pkg;
 
 
-package body ads_7056_pkg is
+package body ads7056_pkg is
 
-    constant initial_values_for_ads7056 : ads_7056_record := ( init_clock_divider(7), (others => '0'), false, '1', false);
+    constant initial_values_for_ads7056 : ads7056_record := ( init_clock_divider(7), (others => '0'), (others => '0'), false, '1', '1', false);
 --------------------------------------------------
-    function init_ads7056 return ads_7056_record
+    function init_ads7056 return ads7056_record
     is
     begin
        return initial_values_for_ads7056; 
@@ -49,14 +58,16 @@ package body ads_7056_pkg is
     (
         core_clocks_in_adc_clock : integer range 2 to 1024
     )
-    return ads_7056_record
+    return ads7056_record
     is
-        variable init_values : ads_7056_record := initial_values_for_ads7056;
+        variable init_values : ads7056_record := initial_values_for_ads7056;
     begin
 
         init_values := (init_clock_divider(core_clocks_in_adc_clock) ,
                         (others => '0')                              ,
+                        (others => '0')                              ,
                         false                                        ,
+                        '1'                                          ,
                         '1'                                          ,
                         false);
 
@@ -66,7 +77,7 @@ package body ads_7056_pkg is
 ------------------------------------------------------------------------
     procedure create_ads7056
     (
-        signal ads7056_object : inout ads_7056_record;
+        signal ads7056_object : inout ads7056_record;
         ad_input_io : std_logic 
     ) is
         alias m is ads7056_object;
@@ -82,11 +93,17 @@ package body ads_7056_pkg is
 
             m.chip_select <= '0';
         end if;
+        m.chip_select_out <= m.chip_select;
+        m.is_ready <= m.chip_select = '1' and m.chip_select_out = '0';
+
+        if m.is_ready then
+            m.measurement <= unsigned(m.shift_register(15 downto 2));
+        end if;
     end create_ads7056;
 ------------------------------------------------------------------------
     procedure request_ad_conversion
     (
-        signal ads7056_object : inout ads_7056_record;
+        signal ads7056_object : inout ads7056_record;
         number_of_adc_clocks : integer
     ) is
     begin
@@ -96,44 +113,51 @@ package body ads_7056_pkg is
 ------------------------------
     procedure request_ad_conversion
     (
-        signal ads7056_object : inout ads_7056_record
+        signal ads7056_object : inout ads7056_record
     ) is
     begin
         request_ad_conversion(ads7056_object, 18);
     end request_ad_conversion;
 ------------------------------------------------------------------------
-    procedure initialize_ads_7056
+    function ads7056_has_been_initialized
     (
-        signal ads7056_object : inout ads_7056_record
+        ads7056_object : ads7056_record
+    )
+    return boolean
+    is
+    begin
+        return ads7056_object.is_initialized;
+    end ads7056_has_been_initialized;
+------------------------------------------------------------------------
+    procedure initialize_ads7056
+    (
+        signal ads7056_object : inout ads7056_record
     ) is
     begin
-        if ads7056_object.ads7056_is_initialized then
+        if ads7056_has_been_initialized(ads7056_object) then
             request_ad_conversion(ads7056_object, 60);
         else
             request_ad_conversion(ads7056_object, 24);
-            ads7056_object.ads7056_is_initialized <= true;
+            ads7056_object.is_initialized <= true;
         end if;
         
-    end initialize_ads_7056;
+    end initialize_ads7056;
 ------------------------------------------------------------------------
     function get_ad_measurement
     (
-        ads7056_object : ads_7056_record
+        ads7056_object : ads7056_record
     )
     return integer
     is
-        variable uint_measurement : unsigned(13 downto 0);
     begin
 
-        uint_measurement := unsigned(ads7056_object.shift_register(15 downto 2));
-
-        return to_integer(uint_measurement);
+        return to_integer(ads7056_object.measurement);
         
     end get_ad_measurement;
 ------------------------------------------------------------------------
     function ads7056_is_ready
     (
-        ads7056_object : ads_7056_record
+        ads7056_object : ads7056_record
     )
     return boolean
     is
@@ -141,4 +165,4 @@ package body ads_7056_pkg is
         return ads7056_object.is_ready;
     end ads7056_is_ready;
 ------------------------------------------------------------------------
-end package body ads_7056_pkg;
+end package body ads7056_pkg;

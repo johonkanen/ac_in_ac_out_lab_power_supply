@@ -5,6 +5,9 @@
     add_vhdl_file_to_project $tcl_path/../source/adc_interface/spi_sar_adc/spi_sar_adc_pkg.vhd
     add_vhdl_file_to_project $tcl_path/../source/adc_interface/spi_sar_adc/ads7056_driver.vhd
 
+    add_vhdl_file_to_project $tcl_path/../source/adc_interface/clock_divider_pkg.vhd
+    add_vhdl_file_to_project $tcl_path/../source/adc_interface/ads7056_pkg.vhd
+
     add_vhdl_file_to_project $tcl_path/../source/system_control/main_state_machine/main_state_machine_pkg.vhd                      
     add_vhdl_file_to_project $tcl_path/../source/system_control/system_control.vhd                                                 
     add_vhdl_file_to_project $tcl_path/../source/system_control/power_electronics/power_electronics.vhd     

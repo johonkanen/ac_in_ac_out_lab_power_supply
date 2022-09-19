@@ -27,27 +27,6 @@ architecture vunit_simulation of clock_divider_tb is
 
     signal clock_divider : clock_divider_record := init_clock_divider(7);
     signal divided_clock : std_logic;
-    signal chip_select : std_logic := '0';
-    signal chip_select1 : std_logic := '0';
-    signal output : std_logic := '0';
-
-    function "and"
-    (
-        left : boolean;
-        right : std_logic 
-    )
-    return std_logic 
-    is
-        variable value : std_logic;
-    begin
-        if left and right = '0' then
-            value := '0';
-        else
-            value := '1';
-        end if;
-        return value;
-            
-    end "and";
 
 begin
 
@@ -75,21 +54,9 @@ begin
             rising_edge_is_detected <= data_delivered_on_rising_edge(clock_divider);
             falling_edge_detected   <= data_delivered_on_falling_edge(clock_divider);
 
-            output <= '1';
-            chip_select <= '1';
             if simulation_counter = 15 then 
                 request_clock_divider(clock_divider, 24);
-                chip_select <= '0';
-                output <= '0';
             end if;
-
-            if clock_divider.clock_counter > 0 then
-                chip_select <= '0';
-            end if;
-            chip_select1 <= chip_select;
-
-            output <= (clock_divider.clock_counter > 0) and chip_select;
-
 
         end if; -- rising_edge
     end process stimulus;	

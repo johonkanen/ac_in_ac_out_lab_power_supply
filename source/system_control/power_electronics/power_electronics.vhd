@@ -48,6 +48,7 @@ library ieee;
     use work.fpga_interconnect_pkg.all;
     use work.system_register_addresses_pkg.all;
     use work.aux_pwm_pkg.all;
+    use work.ads7056_pkg.all;
 
 library math_library_26x26;
     use math_library_26x26.multiplier_pkg.all;
@@ -110,17 +111,24 @@ architecture rtl of power_electronics is
     signal spi_sar_adc_data_in2  : spi_sar_adc_data_input_group;
     signal spi_sar_adc_data_out2 : spi_sar_adc_data_output_group;
 
+    signal ads7056 : ads7056_record := init_ads7056(7);
+    signal ads7056_pri : ads7056_record := init_ads7056(7);
+
 begin
 
     power_electronics_FPGA_out.aux_pwm_out <= aux_pwm.pwm_out;
+    power_electronics_FPGA_out.spi_sar_adc_FPGA_out.chip_select <= ads7056.chip_select_out;
+    power_electronics_FPGA_out.spi_sar_adc_FPGA_out.spi_clock  <= ads7056.clock_divider.divided_clock;
 
+    power_electronics_FPGA_out.spi_sar_adc_FPGA_out2.chip_select <= ads7056_pri.chip_select_out;
+    power_electronics_FPGA_out.spi_sar_adc_FPGA_out2.spi_clock  <= ads7056_pri.clock_divider.divided_clock;
 ------------------------------------------------------------------------
     led_blinker : process(clock_120Mhz)
 
     begin
         if rising_edge(clock_120Mhz) then
-            idle_adc(spi_sar_adc_data_in);
-            idle_adc(spi_sar_adc_data_in2);
+            create_ads7056(ads7056, power_electronics_FPGA_in.spi_sar_adc_FPGA_in.spi_serial_data);
+            create_ads7056(ads7056_pri, power_electronics_FPGA_in.spi_sar_adc_FPGA_in2.spi_serial_data);
 
             init_bus(bus_out);
             connect_data_to_address(bus_in, bus_out, power_electronics_data_address, data_from_power_electronics);
@@ -131,8 +139,8 @@ begin
             connect_read_only_data_to_address(bus_in , bus_out , 5000 , get_cic_filter_output(dab_cic_filter));
             connect_read_only_data_to_address(bus_in , bus_out , 5001 , get_cic_filter_output(output_inu_cic_filter));
             connect_read_only_data_to_address(bus_in , bus_out , 5002 , get_cic_filter_output(grid_inu_cic_filter));
-            connect_read_only_data_to_address(bus_in , bus_out , 5003 , get_adc_data(spi_sar_adc_data_out));
-            connect_read_only_data_to_address(bus_in , bus_out , 5004 , get_adc_data(spi_sar_adc_data_out2));
+            connect_read_only_data_to_address(bus_in , bus_out , 5003 , get_ad_measurement(ads7056));
+            connect_read_only_data_to_address(bus_in , bus_out , 5004 , get_ad_measurement(ads7056_pri));
 
             create_aux_pwm(aux_pwm);
             if data_from_power_electronics = 999 then
@@ -174,7 +182,10 @@ begin
             count_down_from(model_calculation_counter, 1199);
             if model_calculation_counter = 0 then
                 request_lcr_filter_calculation(lcr_model);
-                start_ad_conversion(spi_sar_adc_data_in);
+                if ads7056_has_been_initialized(ads7056) then
+                    request_ad_conversion(ads7056);
+                    request_ad_conversion(ads7056_pri);
+                end if;
                 start_ad_conversion(spi_sar_adc_data_in2);
 
                 if stimulus_counter > 0 then
@@ -190,6 +201,10 @@ begin
                 startup_delay_counter <= startup_delay_counter - 1;
             else
                 reset_n <= '1';
+            end if;
+            if startup_delay_counter = 1 then
+                initialize_ads7056(ads7056);
+                initialize_ads7056(ads7056_pri);
             end if;
 
         end if; --rising_edge
@@ -229,21 +244,4 @@ begin
         end if; --rising_edge
     end process test_sdm_clocks;	
 ------------------------------------------------------------------------
-
------------------------------------------------------------------------- 
-    u_spi_sar_adc : entity work.spi_sar_adc
-    port map( (clock => clock_120Mhz, reset_n => reset_n) ,
-          power_electronics_FPGA_in.spi_sar_adc_FPGA_in   ,
-    	  power_electronics_FPGA_out.spi_sar_adc_FPGA_out ,
-    	  spi_sar_adc_data_in                             ,
-    	  spi_sar_adc_data_out);
-
------------------------------------------------------------------------- 
-    u_spi_sar_adc2 : entity work.spi_sar_adc
-    port map( (clock => clock_120Mhz, reset_n => reset_n) ,
-          power_electronics_FPGA_in.spi_sar_adc_FPGA_in2   ,
-    	  power_electronics_FPGA_out.spi_sar_adc_FPGA_out2 ,
-    	  spi_sar_adc_data_in2                             ,
-    	  spi_sar_adc_data_out2);
------------------------------------------------------------------------- 
 end rtl;
