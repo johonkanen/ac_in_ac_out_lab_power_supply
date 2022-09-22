@@ -3,7 +3,6 @@ library ieee;
     use ieee.numeric_std.all;
 
     use work.system_clocks_pkg.all;
-    use work.spi_sar_adc_pkg.all;
     use work.fpga_interconnect_pkg.all;
 
 package power_electronics_pkg is
@@ -12,8 +11,10 @@ package power_electronics_pkg is
         dab_sdm_data        : std_logic;
         grid_sdm_data       : std_logic;
         output_sdm_data     : std_logic;
-        spi_sar_adc_FPGA_in : spi_sar_adc_FPGA_input_group;
-        spi_sar_adc_FPGA_in2 : spi_sar_adc_FPGA_input_group;
+
+        spi_data1 : std_logic;
+        spi_data2 : std_logic;
+
     end record;
     
     type power_electronics_FPGA_output_group is record
@@ -23,8 +24,16 @@ package power_electronics_pkg is
         grid_inu_sdm_clock   : std_logic;
         output_inu_sdm_clock : std_logic;
 
-        spi_sar_adc_FPGA_out : spi_sar_adc_FPGA_output_group;
-        spi_sar_adc_FPGA_out2 : spi_sar_adc_FPGA_output_group;
+        spi_clock1   : std_logic;
+        chip_select1 : std_logic;
+
+        spi_clock2   : std_logic;
+        chip_select2 : std_logic;
+
+
+        ad_mux_channel_select1 : std_logic_vector(2 downto 0);
+        ad_mux_channel_select2 : std_logic_vector(2 downto 0);
+
     end record;
     
     type power_electronics_data_input_group is record
@@ -55,7 +64,6 @@ library math_library_26x26;
     use math_library_26x26.lcr_filter_model_pkg.all;
 
     use work.sigma_delta_cic_filter_pkg.all;
-    use work.spi_sar_adc_pkg.all;
 
 entity power_electronics is
     port (
@@ -103,32 +111,40 @@ architecture rtl of power_electronics is
     signal output_inu_cic_filter : cic_filter_record := init_cic_filter;
 
     signal startup_delay_counter : natural := 25e4;
-    signal reset_n : std_logic := '0';
 
-    signal spi_sar_adc_data_in  : spi_sar_adc_data_input_group;
-    signal spi_sar_adc_data_out : spi_sar_adc_data_output_group;
+    signal ads7056 : ads7056_record := init_ads7056(5);
+    signal ads7056_pri : ads7056_record := init_ads7056(5);
 
-    signal spi_sar_adc_data_in2  : spi_sar_adc_data_input_group;
-    signal spi_sar_adc_data_out2 : spi_sar_adc_data_output_group;
-
-    signal ads7056 : ads7056_record := init_ads7056(7);
-    signal ads7056_pri : ads7056_record := init_ads7056(7);
+    function to_std_logic_vector
+    (
+        data : integer
+    )
+    return std_logic_vector 
+    is
+    begin
+        return std_logic_vector(to_unsigned(data, 3));
+    end to_std_logic_vector;
 
 begin
 
     power_electronics_FPGA_out.aux_pwm_out <= aux_pwm.pwm_out;
-    power_electronics_FPGA_out.spi_sar_adc_FPGA_out.chip_select <= ads7056.chip_select_out;
-    power_electronics_FPGA_out.spi_sar_adc_FPGA_out.spi_clock  <= ads7056.clock_divider.divided_clock;
 
-    power_electronics_FPGA_out.spi_sar_adc_FPGA_out2.chip_select <= ads7056_pri.chip_select_out;
-    power_electronics_FPGA_out.spi_sar_adc_FPGA_out2.spi_clock  <= ads7056_pri.clock_divider.divided_clock;
+    -- ad mux1 positions 1: afe voltage, 2: output voltage, 3: dc link
+    power_electronics_FPGA_out.ad_mux_channel_select1           <= to_std_logic_vector(2);
+    power_electronics_FPGA_out.chip_select1 <= ads7056.chip_select_out;
+    power_electronics_FPGA_out.spi_clock1   <= ads7056.clock_divider.divided_clock;
+
+    -- ad mux2 positions 1: dc link, 2: afe_voltage, 3: grid voltage
+    power_electronics_FPGA_out.ad_mux_channel_select2            <= to_std_logic_vector(2);
+    power_electronics_FPGA_out.chip_select2 <= ads7056_pri.chip_select_out;
+    power_electronics_FPGA_out.spi_clock2   <= ads7056_pri.clock_divider.divided_clock;
 ------------------------------------------------------------------------
     led_blinker : process(clock_120Mhz)
 
     begin
         if rising_edge(clock_120Mhz) then
-            create_ads7056(ads7056, power_electronics_FPGA_in.spi_sar_adc_FPGA_in.spi_serial_data);
-            create_ads7056(ads7056_pri, power_electronics_FPGA_in.spi_sar_adc_FPGA_in2.spi_serial_data);
+            create_ads7056(ads7056, power_electronics_FPGA_in.spi_data1);
+            create_ads7056(ads7056_pri, power_electronics_FPGA_in.spi_data2);
 
             init_bus(bus_out);
             connect_data_to_address(bus_in, bus_out, power_electronics_data_address, data_from_power_electronics);
@@ -186,7 +202,6 @@ begin
                     request_ad_conversion(ads7056);
                     request_ad_conversion(ads7056_pri);
                 end if;
-                start_ad_conversion(spi_sar_adc_data_in2);
 
                 if stimulus_counter > 0 then
                     stimulus_counter <= stimulus_counter - 1;
@@ -196,11 +211,8 @@ begin
                 end if;
             end if;
 
-            reset_n <= '0';
             if startup_delay_counter > 0 then
                 startup_delay_counter <= startup_delay_counter - 1;
-            else
-                reset_n <= '1';
             end if;
             if startup_delay_counter = 1 then
                 initialize_ads7056(ads7056);

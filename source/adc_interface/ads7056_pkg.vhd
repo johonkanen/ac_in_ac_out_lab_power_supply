@@ -41,6 +41,9 @@ package ads7056_pkg is
     function ads7056_has_been_initialized ( ads7056_object : ads7056_record)
         return boolean;
 ------------------------------------------------------------------------
+    function ad_converter_is_busy ( ads7056_object : ads7056_record)
+        return boolean;
+------------------------------------------------------------------------
 end package ads7056_pkg;
 
 
@@ -107,8 +110,10 @@ package body ads7056_pkg is
         number_of_adc_clocks : integer
     ) is
     begin
-       request_clock_divider(ads7056_object.clock_divider, number_of_adc_clocks);
-       ads7056_object.chip_select <= '0';
+        if not ad_converter_is_busy(ads7056_object) then
+           request_clock_divider(ads7056_object.clock_divider, number_of_adc_clocks);
+           ads7056_object.chip_select <= '0';
+       end if;
     end request_ad_conversion;
 ------------------------------
     procedure request_ad_conversion
@@ -164,5 +169,16 @@ package body ads7056_pkg is
     begin
         return ads7056_object.is_ready;
     end ads7056_is_ready;
+------------------------------------------------------------------------
+    function ad_converter_is_busy
+    (
+        ads7056_object : ads7056_record
+    )
+    return boolean
+    is
+        alias m is ads7056_object;
+    begin
+        return (m.chip_select = '0') or (m.chip_select = '1' and m.chip_select_out = '0');
+    end ad_converter_is_busy;
 ------------------------------------------------------------------------
 end package body ads7056_pkg;

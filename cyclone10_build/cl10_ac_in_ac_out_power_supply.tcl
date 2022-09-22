@@ -106,6 +106,15 @@ else \
     set_location_assignment PIN_T13 -to ads_7056_chip_select_pri
     set_location_assignment PIN_T15 -to ads_7056_input_data_pri 
 
+    set_location_assignment PIN_R16 -to ad_mux1_io[2]
+    set_location_assignment PIN_P15 -to ad_mux1_io[1]
+    set_location_assignment PIN_T14 -to ad_mux1_io[0]
+
+    set_location_assignment PIN_L16 -to ad_mux2_io[2]
+    set_location_assignment PIN_L15 -to ad_mux2_io[1]
+    set_location_assignment PIN_N15 -to ad_mux2_io[0]
+
+
 
 	export_assignments
     set_global_assignment -name SDC_FILE $tcl_path/cl10_ac_in_ac_out_power_supply.sdc

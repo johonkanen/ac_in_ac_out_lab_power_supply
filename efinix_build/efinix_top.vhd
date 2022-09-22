@@ -37,10 +37,12 @@ entity efinix_top is
         output_inu_sdm_clock : out std_logic;
         dab_sdm_clock        : out std_logic;
 
+        ad_mux1_io           : out std_logic_vector(2 downto 0);
         ads_7056_clock       : out std_logic;
         ads_7056_chip_select : out std_logic;
         ads_7056_input_data  : in std_logic;
 
+        ad_mux2_io               : out std_logic_vector(2 downto 0);
         ads_7056_clock_pri       : out std_logic;
         ads_7056_chip_select_pri : out std_logic;
         ads_7056_input_data_pri  : in std_logic;
@@ -94,14 +96,16 @@ begin
           system_control_FPGA_in.power_electronics_FPGA_in.grid_sdm_data   => grid_inu_sdm_data   ,
           system_control_FPGA_in.power_electronics_FPGA_in.output_sdm_data => output_inu_sdm_data ,
 
-          system_control_FPGA_in.power_electronics_FPGA_in.spi_sar_adc_FPGA_in.spi_serial_data  => ads_7056_input_data  ,
-          system_control_FPGA_in.power_electronics_FPGA_in.spi_sar_adc_FPGA_in2.spi_serial_data => ads_7056_input_data_pri  ,
+          system_control_FPGA_in.power_electronics_FPGA_in.spi_data1  => ads_7056_input_data  ,
+          system_control_FPGA_in.power_electronics_FPGA_in.spi_data2 => ads_7056_input_data_pri  ,
 
-          system_control_FPGA_out.power_electronics_FPGA_out.spi_sar_adc_FPGA_out.chip_select  => ads_7056_chip_select ,
-          system_control_FPGA_out.power_electronics_FPGA_out.spi_sar_adc_FPGA_out.spi_clock    => ads_7056_clock       ,
+          system_control_FPGA_out.power_electronics_FPGA_out.ad_mux_channel_select1            => ad_mux1_io           ,
+          system_control_FPGA_out.power_electronics_FPGA_out.chip_select1  => ads_7056_chip_select ,
+          system_control_FPGA_out.power_electronics_FPGA_out.spi_clock1    => ads_7056_clock       ,
 
-          system_control_FPGA_out.power_electronics_FPGA_out.spi_sar_adc_FPGA_out2.chip_select  => ads_7056_chip_select_pri ,
-          system_control_FPGA_out.power_electronics_FPGA_out.spi_sar_adc_FPGA_out2.spi_clock    => ads_7056_clock_pri       ,
+          system_control_FPGA_out.power_electronics_FPGA_out.ad_mux_channel_select2            => ad_mux2_io               ,
+          system_control_FPGA_out.power_electronics_FPGA_out.chip_select2 => ads_7056_chip_select_pri ,
+          system_control_FPGA_out.power_electronics_FPGA_out.spi_clock2   => ads_7056_clock_pri       ,
 
           system_control_FPGA_out.power_electronics_FPGA_out.leds                 => leds                 ,
           system_control_FPGA_out.power_electronics_FPGA_out.dab_sdm_clock        => grid_inu_sdm_clock   ,
