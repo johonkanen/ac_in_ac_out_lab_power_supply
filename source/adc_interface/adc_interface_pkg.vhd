@@ -87,6 +87,7 @@ architecture rtl of adc_interface is
 
     signal initial_delay : integer range 0 to 2**20-1 := 500e3;
 
+------------------------------------------------------------------------
     function to_std_logic_vector
     (
         data : integer
@@ -96,7 +97,7 @@ architecture rtl of adc_interface is
     begin
         return std_logic_vector(to_unsigned(data, 3));
     end to_std_logic_vector;
-
+------------------------------------------------------------------------
 begin
     -- ad mux1 positions 0: afe voltage, 1: output voltage, 2: dc link
     adc_interface_FPGA_out <= (ad_mux_channel_select1 => to_std_logic_vector(0)               ,

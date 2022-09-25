@@ -10,6 +10,7 @@ package power_electronics_pkg is
 
     type power_electronics_FPGA_input_group is record
         adc_interface_FPGA_in  : adc_interface_FPGA_input_group;
+        pll_locked : std_logic;
 
     end record;
     
@@ -109,16 +110,6 @@ begin
 
     power_electronics_FPGA_out.aux_pwm_out <= aux_pwm.pwm_out;
 
-    -- ad mux1 positions 0: afe voltage, 1: output voltage, 2: dc link
-    -- power_electronics_FPGA_out.ad_mux_channel_select1 <= to_std_logic_vector(1);
-    -- power_electronics_FPGA_out.chip_select1           <= ads7056.chip_select_out;
-    -- power_electronics_FPGA_out.spi_clock1             <= ads7056.clock_divider.divided_clock;
-
-    -- ad mux2 positions 1: dc link, 2: afe_voltage, 3: grid voltage
-    -- power_electronics_FPGA_out.ad_mux_channel_select2 <= to_std_logic_vector(2);
-    -- power_electronics_FPGA_out.chip_select2           <= ads7056_pri.chip_select_out;
-    -- power_electronics_FPGA_out.spi_clock2             <= ads7056_pri.clock_divider.divided_clock;
-
     combine_buses : process(clock_120mhz)
         
     begin
@@ -130,7 +121,7 @@ begin
     u_adc_interface : entity work.adc_interface
     port map( 
               clock => clock_120mhz,
-              pll_locked => '1',
+              pll_locked => power_electronics_FPGA_in.pll_locked,
               adc_interface_FPGA_in          => power_electronics_FPGA_in.adc_interface_FPGA_in,
               adc_interface_FPGA_out         => power_electronics_FPGA_out.adc_interface_FPGA_out,
               adc_interface_data_in.bus_in   => bus_in,

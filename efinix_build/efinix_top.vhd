@@ -91,6 +91,7 @@ begin
     u_system_control : entity work.system_control
     port map( 
           system_clocks.clock_120mhz => clock_120mhz ,
+          system_control_FPGA_in.power_electronics_FPGA_in.pll_locked => pll_locked,
 
           -- inputs
           system_control_FPGA_in.communications_FPGA_in.uart_FPGA_in.uart_transreceiver_FPGA_in.uart_rx_fpga_in.uart_rx => uart_rx,
