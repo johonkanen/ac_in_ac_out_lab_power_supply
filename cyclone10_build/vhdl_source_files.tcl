@@ -5,6 +5,7 @@
 
     add_vhdl_file_to_project $tcl_path/../source/adc_interface/clock_divider_pkg.vhd
     add_vhdl_file_to_project $tcl_path/../source/adc_interface/ads7056_pkg.vhd
+    add_vhdl_file_to_project $tcl_path/../source/adc_interface/adc_interface_pkg.vhd
 
     add_vhdl_file_to_project $tcl_path/../source/system_control/main_state_machine/main_state_machine_pkg.vhd                      
     add_vhdl_file_to_project $tcl_path/../source/system_control/system_control.vhd                                                 

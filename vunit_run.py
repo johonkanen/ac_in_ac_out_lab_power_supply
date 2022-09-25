@@ -16,7 +16,8 @@ aux = VU.add_library("auxiliary_pwm")
 aux.add_source_files(ROOT / "source/aux_pwm" / "*.vhd")
 
 aux = VU.add_library("spi_adc")
-aux.add_source_files(ROOT / "source/adc_interface/" / "*.vhd")
+aux.add_source_files(ROOT / "source/adc_interface/clock_divider_pkg.vhd")
+aux.add_source_files(ROOT / "source/adc_interface/ads7056_pkg.vhd")
 aux.add_source_files(ROOT / "source/adc_interface/simulation" / "*.vhd")
 
 VU.main()

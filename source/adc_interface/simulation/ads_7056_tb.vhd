@@ -86,6 +86,7 @@ begin
                 chip_select <= '0';
             end if;
             chip_select1 <= chip_select;
+            request_ad_conversion(ads7056);
 
             output <= (clock_divider.clock_counter > 0) and chip_select;
 

@@ -6,6 +6,9 @@ SET project_root=%%F
 )
 SET source=%project_root%/source/hVHDL_floating_point
 
+ghdl -a --ieee=synopsys --std=08 source/hVHDL_fpga_interconnect/interconnect_configuration/data_15_address_15_bit_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 source/hVHDL_fpga_interconnect/fpga_interconnect_pkg.vhd
+
 ghdl -a --ieee=synopsys --std=08 --work=float %source%/float_type_definitions/float_word_length_16_bit_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 --work=float %source%/float_type_definitions/float_type_definitions_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 --work=float %source%/normalizer/normalizer_configuration/normalizer_with_4_stage_pipe_pkg.vhd
@@ -60,8 +63,6 @@ ghdl -a --ieee=synopsys --std=08 --work=math_library_26x26 source/hVHDL_dynamic_
 ghdl -a --ieee=synopsys --std=08 source/system_register_addresses_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 source/rtl_counters/rtl_counter_pkg.vhd
-ghdl -a --ieee=synopsys --std=08 source/hVHDL_fpga_interconnect/interconnect_configuration/data_15_address_15_bit_pkg.vhd
-ghdl -a --ieee=synopsys --std=08 source/hVHDL_fpga_interconnect/fpga_interconnect_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_uart/uart_transreceiver/uart_tx/uart_tx_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_uart/uart_transreceiver/uart_rx/uart_rx_pkg.vhd
