@@ -52,9 +52,9 @@ library ieee;
     use ieee.numeric_std.all;
 
     use work.adc_interface_pkg.all;
-    use work.ads7056_pkg.all;
     use work.sigma_delta_cic_filter_pkg.all;
     use work.fpga_interconnect_pkg.all;
+    use work.muxed_adc_pkg.all;
 
 entity adc_interface is
     port (
@@ -72,8 +72,8 @@ architecture rtl of adc_interface is
     alias bus_in is adc_interface_data_in.bus_in;
     alias bus_out is adc_interface_data_out.bus_out;
 
-    signal ads7056     : ads7056_record := init_ads7056(7);
-    signal ads7056_pri : ads7056_record := init_ads7056(7);
+    signal muxed_adc     : muxed_adc_record := init_muxed_adc(7);
+    signal muxed_adc_pri : muxed_adc_record := init_muxed_adc(7);
 
     signal dab_cic_filter        : cic_filter_record := init_cic_filter;
     signal grid_inu_cic_filter   : cic_filter_record := init_cic_filter;
@@ -86,6 +86,8 @@ architecture rtl of adc_interface is
     signal pll_lock_pipeline : std_logic_vector(7 downto 0) := (others => '0');
 
     signal initial_delay : integer range 0 to 2**20-1 := 500e3;
+    signal channel : integer range 0 to 7 := 0;
+
 
 ------------------------------------------------------------------------
     function to_std_logic_vector
@@ -101,13 +103,13 @@ architecture rtl of adc_interface is
 begin
     -- ad mux1 positions 0: afe voltage, 1: output voltage, 2: dc link
     adc_interface_FPGA_out <= (ad_mux_channel_select1 => to_std_logic_vector(0)               ,
-                                chip_select1          =>  ads7056.chip_select_out             ,
-                                spi_clock1            =>  ads7056.clock_divider.divided_clock ,
+                                chip_select1          =>  muxed_adc.ads7056.chip_select_out             ,
+                                spi_clock1            =>  muxed_adc.ads7056.clock_divider.divided_clock ,
 
     -- ad mux2 positions 1: dc link, 2: afe_voltage, 3: grid voltage
                                 ad_mux_channel_select2 => to_std_logic_vector(2)                  ,
-                                chip_select2           => ads7056_pri.chip_select_out             ,
-                                spi_clock2             => ads7056_pri.clock_divider.divided_clock ,
+                                chip_select2           => muxed_adc_pri.ads7056.chip_select_out             ,
+                                spi_clock2             => muxed_adc_pri.ads7056.clock_divider.divided_clock ,
 
                                 dab_sdm_clock        =>  sdm_io_clock,
                                 grid_inu_sdm_clock   =>  sdm_io_clock,
@@ -118,14 +120,15 @@ begin
     test_adc : process(clock)
     begin
         if rising_edge(clock) then
-            create_ads7056(ads7056, adc_interface_FPGA_in.spi_data1);
-            create_ads7056(ads7056_pri, adc_interface_FPGA_in.spi_data2);
+            create_muxed_adc(muxed_adc, adc_interface_FPGA_in.spi_data1);
+            create_muxed_adc(muxed_adc_pri, adc_interface_FPGA_in.spi_data2);
+
             init_bus(bus_out);
             connect_read_only_data_to_address(bus_in , bus_out , 5000 , get_cic_filter_output(dab_cic_filter));
             connect_read_only_data_to_address(bus_in , bus_out , 5001 , get_cic_filter_output(output_inu_cic_filter));
             connect_read_only_data_to_address(bus_in , bus_out , 5002 , get_cic_filter_output(grid_inu_cic_filter));
-            connect_read_only_data_to_address(bus_in , bus_out , 5003 , get_ad_measurement(ads7056));
-            connect_read_only_data_to_address(bus_in , bus_out , 5004 , get_ad_measurement(ads7056_pri));
+            connect_read_only_data_to_address(bus_in , bus_out , 5003 , get_ad_measurement(muxed_adc));
+            connect_read_only_data_to_address(bus_in , bus_out , 5004 , get_ad_measurement(muxed_adc_pri));
             connect_read_only_data_to_address(bus_in , bus_out , 5005 , 33585);
 
             pll_lock_pipeline <= pll_lock_pipeline(6 downto 0) & pll_locked;
@@ -135,14 +138,14 @@ begin
             end if;
 
             if pll_lock_pipeline = x"ff" and initial_delay = 5000 then
-                initialize_ads7056(ads7056);
-                initialize_ads7056(ads7056_pri);
+                init_adc(muxed_adc);
+                init_adc(muxed_adc_pri);
             end if;
 
             if initial_delay = 0 then
                 initial_delay <= 1199;
-                request_ad_conversion(ads7056);
-                request_ad_conversion(ads7056_pri);
+                request_ad_conversion(muxed_adc);
+                request_ad_conversion(muxed_adc_pri);
             end if;
 
 

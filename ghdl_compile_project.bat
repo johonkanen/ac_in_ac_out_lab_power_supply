@@ -25,11 +25,15 @@ ghdl -a --ieee=synopsys --std=08 --work=float %source%/float_first_order_filter/
 
 SET source=%project_root%/source/
 
+ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_analog_to_digital_drivers/sigma_delta/sigma_delta_simulation_model_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_analog_to_digital_drivers/sigma_delta/sigma_delta_cic_filter_pkg.vhd
-ghdl -a --ieee=synopsys --std=08 %source%/adc_interface/clock_divider_pkg.vhd
-ghdl -a --ieee=synopsys --std=08 %source%/adc_interface/ads7056_pkg.vhd
-ghdl -a --ieee=synopsys --std=08 %source%/adc_interface/adc_interface_pkg.vhd
+                                                 
+ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_analog_to_digital_drivers/spi_adc/clock_divider_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_analog_to_digital_drivers/spi_adc/ads7056_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_analog_to_digital_drivers/spi_adc/ad_mux_driver_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_analog_to_digital_drivers/spi_adc/muxed_adc_pkg.vhd
 
+ghdl -a --ieee=synopsys --std=08 %source%/adc_interface/adc_interface_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 %source%/aux_pwm/aux_pwm_pkg.vhd
 

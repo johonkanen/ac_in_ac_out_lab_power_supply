@@ -4,7 +4,9 @@
     add_vhdl_file_to_project $tcl_path/../source/hvhdl_analog_to_digital_drivers/sigma_delta/sigma_delta_cic_filter_pkg.vhd
 
     add_vhdl_file_to_project $tcl_path/../source/hvhdl_analog_to_digital_drivers/spi_adc/clock_divider_pkg.vhd
+    add_vhdl_file_to_project $tcl_path/../source/hvhdl_analog_to_digital_drivers/spi_adc/ad_mux_driver_pkg.vhd
     add_vhdl_file_to_project $tcl_path/../source/hvhdl_analog_to_digital_drivers/spi_adc/ads7056_pkg.vhd
+    add_vhdl_file_to_project $tcl_path/../source/hvhdl_analog_to_digital_drivers/spi_adc/muxed_adc_pkg.vhd
     add_vhdl_file_to_project $tcl_path/../source/adc_interface/adc_interface_pkg.vhd
 
     add_vhdl_file_to_project $tcl_path/../source/system_control/main_state_machine/main_state_machine_pkg.vhd                      

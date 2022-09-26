@@ -25,3 +25,4 @@
 [submodule "source/hVHDL_analog_to_digital_drivers"]
 	path = source/hVHDL_analog_to_digital_drivers
 	url = https://github.com/hVHDL/hVHDL_analog_to_digital_drivers.git
+	main = origin/main
