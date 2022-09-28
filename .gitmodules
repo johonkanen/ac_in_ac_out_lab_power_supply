@@ -26,3 +26,7 @@
 	path = source/hVHDL_analog_to_digital_drivers
 	url = https://github.com/hVHDL/hVHDL_analog_to_digital_drivers.git
 	main = origin/main
+[submodule "ac_power_supply_hw_analysis"]
+	path = ac_power_supply_hw_analysis
+    url = https://github.com/johonkanen/ac_power_supply_hw_analysis.git 
+    main = origin/main
