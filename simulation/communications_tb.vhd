@@ -10,12 +10,13 @@ context vunit_lib.vunit_context;
     use work.uart_rx_pkg.all;
     use work.fpga_interconnect_pkg.all;
     use work.uart_communication_pkg.all;
+    use work.communications_pkg.all;
 
-entity uart_communication_tb is
+entity communications_tb is
   generic (runner_cfg : string);
 end;
 
-architecture vunit_simulation of uart_communication_tb is
+architecture vunit_simulation of communications_tb is
 
     constant clock_period      : time    := 1 ns;
     constant simtime_in_clocks : integer := 5000;
@@ -25,32 +26,31 @@ architecture vunit_simulation of uart_communication_tb is
     -----------------------------------
     -- simulation specific signals ----
 
-    signal uart_rx_FPGA_in  : uart_rx_FPGA_input_group;
     signal uart_rx_data_in  : uart_rx_data_input_group;
     signal uart_rx_data_out : uart_rx_data_output_group;
 
-    signal uart_tx_FPGA_out  : uart_tx_FPGA_output_group;
     signal uart_tx_data_in  : uart_tx_data_input_group;
     signal uart_tx_data_out : uart_tx_data_output_group;
-
-    constant time_between_packages : integer := 10;
-    signal transmit_timer : integer range 0 to 127 := 1;
 
     signal memory : memory_array := (others => (others => '0'));
     signal memory_address : integer range memory_array'range := 0;
 
     signal transmit_buffer : memory_array := (others => x"00");
 
-    signal testy_thing : std_logic_vector(7*memory_array'high downto 0);
-
     signal bus_from_main : fpga_interconnect_record := init_fpga_interconnect;
     signal bus_from_process1 : fpga_interconnect_record := init_fpga_interconnect;
 
     signal data_in_1 : integer := 57;
+    signal data_read_with_uart : integer := 0;
     signal number_of_transmitted_words : integer := 7;
 
     signal uart_communication : uart_communcation_record := init_uart_communcation;
-    signal receive_is_ready : boolean := false;
+------------------------------------------------------------------------
+    signal communications_FPGA_in  : communications_FPGA_input_group;
+    signal communications_FPGA_out : communications_FPGA_output_group;
+    signal communications_data_in  : communications_data_input_group;
+    signal communications_data_out : communications_data_output_group;
+------------------------------------------------------------------------
 
 begin
 
@@ -59,6 +59,8 @@ begin
     begin
         test_runner_setup(runner, runner_cfg);
         wait for simtime_in_clocks*clock_period;
+        check(data_in_1 = 25, "failed to write data to register");
+        check(data_read_with_uart = 25, "failed to read data from register");
         test_runner_cleanup(runner); -- Simulation ends here
         wait;
     end process simtime;	
@@ -75,51 +77,45 @@ begin
             simulation_counter <= simulation_counter + 1;
 
             init_uart(uart_tx_data_in);
-            init_bus(bus_from_main);
             create_uart_communication(uart_communication, uart_rx_data_out, uart_tx_data_in, uart_tx_data_out);
 
             if simulation_counter = 0 then 
-                -- transmit_words_with_uart(uart_communication, read_data_from_register(1));
                 transmit_words_with_uart(uart_communication, write_data_to_register(1, 25));
             end if;
-
-            if write_to_address_is_requested(bus_from_process1, 0) then
-                transmit_words_with_uart(uart_communication, write_data_to_register(1, get_data(bus_from_process1)));
+            
+            if simulation_counter = 2000 then 
+                transmit_words_with_uart(uart_communication, read_data_from_register(1));
             end if;
 
-            receive_is_ready <= frame_has_been_received(uart_communication);
-
-            ------------------------------------------------------------------------
             if frame_has_been_received(uart_communication) then
-                CASE get_command(uart_communication) is
-                    WHEN read_is_requested_from_address_from_uart =>
-                        request_data_from_address(bus_from_main, get_command_address(uart_communication));
-
-                    WHEN write_to_address_is_requested_from_uart =>
-                        write_data_to_address(bus_from_main, get_command_address(uart_communication), get_command_data(uart_communication));
-
-                    WHEN stream_data_from_address =>
-
-                    WHEN others => -- do nothing
-                end CASE;
+                data_read_with_uart <= get_command_data(uart_communication);
             end if;
 
         end if; -- rising_edge
     end process stimulus;	
+
+------------------------------------------------------------------------
+
+    u_communications : entity work.communications
+    port map( (clock                      => simulator_clock)                             ,
+          communications_FPGA_in          => communications_FPGA_in  ,
+          communications_FPGA_out         => communications_FPGA_out ,
+          communications_data_in.bus_in   => bus_from_process1       ,
+    	  communications_data_out.bus_out => bus_from_main);
+
 ------------------------------------------------------------------------
     u_uart_rx : entity work.uart_rx
-    port map((clock => simulator_clock)        ,
-         (uart_rx => uart_tx_FPGA_out.uart_tx) ,
-    	  uart_rx_data_in                      ,
-    	  uart_rx_data_out); 
+    port map((clock => simulator_clock)                              ,
+          uart_rx_FPGA_in.uart_rx => communications_FPGA_out.uart_tx ,
+    	  uart_rx_data_in => uart_rx_data_in                         ,
+    	  uart_rx_data_out => uart_rx_data_out); 
 
 ------------------------------------------------------------------------
     u_uart_tx : entity work.uart_tx
-    port map((clock => simulator_clock) ,
-    	  uart_tx_FPGA_out              ,
-    	  uart_tx_data_in               ,
-    	  uart_tx_data_out);
-
+    port map((clock                => simulator_clock)               ,
+    	  uart_tx_FPGA_out.uart_tx => communications_FPGA_in.uart_rx ,
+    	  uart_tx_data_in          => uart_tx_data_in                ,
+    	  uart_tx_data_out         => uart_tx_data_out);
 ------------------------------------------------------------------------
     process1 : process(simulator_clock)
     begin

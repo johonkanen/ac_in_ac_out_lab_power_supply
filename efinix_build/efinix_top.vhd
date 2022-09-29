@@ -94,7 +94,7 @@ begin
           system_control_FPGA_in.power_electronics_FPGA_in.pll_locked => pll_locked,
 
           -- inputs
-          system_control_FPGA_in.communications_FPGA_in.uart_FPGA_in.uart_transreceiver_FPGA_in.uart_rx_fpga_in.uart_rx => uart_rx,
+          system_control_FPGA_in.communications_FPGA_in.uart_rx => uart_rx,
 
           system_control_FPGA_in.power_electronics_FPGA_in.adc_interface_FPGA_in.dab_sdm_data    => dab_sdm_data        ,
           system_control_FPGA_in.power_electronics_FPGA_in.adc_interface_FPGA_in.grid_sdm_data   => grid_inu_sdm_data   ,
@@ -104,7 +104,7 @@ begin
           system_control_FPGA_in.power_electronics_FPGA_in.adc_interface_FPGA_in.spi_data2 => ads_7056_input_data_pri ,
 
           -- outputs
-          system_control_FPGA_out.communications_FPGA_out.uart_FPGA_out.uart_transreceiver_FPGA_out.uart_tx_fpga_out.uart_tx => uart_tx,
+          system_control_FPGA_out.communications_FPGA_out.uart_tx => uart_tx,
 
           system_control_FPGA_out.power_electronics_FPGA_out.adc_interface_FPGA_out.ad_mux_channel_select1 => ad_mux1_io           ,
           system_control_FPGA_out.power_electronics_FPGA_out.adc_interface_FPGA_out.chip_select1           => ads_7056_chip_select ,

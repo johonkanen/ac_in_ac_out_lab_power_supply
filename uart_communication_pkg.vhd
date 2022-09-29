@@ -7,6 +7,10 @@ library ieee;
 
 package uart_communication_pkg is
 
+    constant read_is_requested_from_address_from_uart : integer := 2;
+    constant write_to_address_is_requested_from_uart  : integer := 4;
+    constant stream_data_from_address                 : integer := 5;
+
     type base_array is array (natural range <>) of std_logic_vector(7 downto 0);
     subtype memory_array is base_array(0 to 7);
 
@@ -40,6 +44,24 @@ package uart_communication_pkg is
     function frame_has_been_received ( uart_communcation_object : uart_communcation_record)
         return boolean;
 
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+    function write_data_to_register ( address : integer; data : integer)
+        return base_array;
+------------------------------------------------------------------------
+    function read_data_from_register ( address : integer)
+        return base_array;
+------------------------------------------------------------------------
+    function get_command ( uart_communcation_object : uart_communcation_record)
+        return integer;
+------------------------------------------------------------------------
+    function get_command_address ( uart_communcation_object : uart_communcation_record)
+        return integer;
+------------------------------------------------------------------------
+    function get_command_data ( uart_communcation_object : uart_communcation_record)
+        return integer;
+------------------------------------------------------------------------
+
 end package uart_communication_pkg;
 
 package body uart_communication_pkg is
@@ -62,7 +84,7 @@ package body uart_communication_pkg is
         if m.number_of_transmitted_words > 0 then
             if uart_tx_is_ready(uart_tx_out) or m.is_requested then
                 transmit_8bit_data_package(uart_tx_in, m.transmit_buffer(0));
-                m.transmit_buffer <= m.transmit_buffer(1 to 7) & x"ff";
+                m.transmit_buffer <= m.transmit_buffer(1 to 7) & x"00";
                 m.number_of_transmitted_words <= m.number_of_transmitted_words - 1;
             end if;
         else
@@ -131,5 +153,78 @@ package body uart_communication_pkg is
         return uart_communcation_object.receive_is_ready;
     end frame_has_been_received;
 ------------------------------------------------------------------------
+    function int_to_bytes
+    (
+        number : integer
+    )
+    return base_array 
+    is
+        variable uint_number : unsigned(15 downto 0);
+    begin
+        uint_number := to_unsigned(number,16);
+        return (std_logic_vector(uint_number(15 downto 8)) , std_logic_vector(uint_number(7 downto 0)));
+    end int_to_bytes;
 
+    function bytes_to_int
+    (
+        data : base_array
+    )
+    return integer
+    is
+    begin
+        return to_integer(unsigned(data(data'left)) & unsigned(data(data'left + 1)));
+    end bytes_to_int;
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+    function write_data_to_register
+    (
+        address : integer;
+        data : integer
+    )
+    return base_array
+    is
+    begin
+        return int_to_bytes(address) & int_to_bytes(data);
+    end write_data_to_register;
+------------------------------------------------------------------------
+    function read_data_from_register
+    (
+        address : integer
+    )
+    return base_array
+    is
+    begin
+        return int_to_bytes(address);
+    end read_data_from_register;
+------------------------------------------------------------------------
+    function get_command
+    (
+        uart_communcation_object : uart_communcation_record
+    )
+    return integer
+    is
+    begin
+        return to_integer(unsigned(uart_communcation_object.receive_buffer(0)));
+    end get_command;
+------------------------------------------------------------------------
+    function get_command_address
+    (
+        uart_communcation_object : uart_communcation_record
+    )
+    return integer
+    is
+    begin
+        return bytes_to_int(uart_communcation_object.receive_buffer(1 to 2));
+    end get_command_address;
+------------------------------------------------------------------------
+    function get_command_data
+    (
+        uart_communcation_object : uart_communcation_record
+    )
+    return integer
+    is
+    begin
+        return bytes_to_int(uart_communcation_object.receive_buffer(3 to 4));
+    end get_command_data;
+------------------------------------------------------------------------
 end package body uart_communication_pkg;

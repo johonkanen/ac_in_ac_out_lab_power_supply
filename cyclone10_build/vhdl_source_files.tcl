@@ -13,13 +13,9 @@
     add_vhdl_file_to_project $tcl_path/../source/system_control/system_control.vhd                                                 
     add_vhdl_file_to_project $tcl_path/../source/system_control/power_electronics/power_electronics.vhd     
     add_vhdl_file_to_project $tcl_path/../source/system_control/power_electronics/power_electronics_pkg.vhd 
-    add_vhdl_file_to_project $tcl_path/../source/hVHDL_uart/uart_pkg.vhd                                                                 
-    add_vhdl_file_to_project $tcl_path/../source/hVHDL_uart/uart.vhd                                                                     
-    add_vhdl_file_to_project $tcl_path/../source/hVHDL_uart/uart_transreceiver/uart_transreceiver_data_type_16_bit_pkg.vhd                                    
-    add_vhdl_file_to_project $tcl_path/../source/hVHDL_uart/uart_transreceiver/uart_transreceiver.vhd                                    
-    add_vhdl_file_to_project $tcl_path/../source/hVHDL_uart/uart_transreceiver/uart_transreceiver_pkg.vhd                                
     add_vhdl_file_to_project $tcl_path/../source/hVHDL_uart/uart_transreceiver/uart_rx/uart_rx_pkg.vhd                                   
     add_vhdl_file_to_project $tcl_path/../source/hVHDL_uart/uart_transreceiver/uart_tx/uart_tx_pkg.vhd                                   
+    add_vhdl_file_to_project $tcl_path/../uart_communication_pkg.vhd
     add_vhdl_file_to_project $tcl_path/../source/system_control/communications/communications.vhd           
     add_vhdl_file_to_project $tcl_path/../source/hVHDL_fpga_interconnect/interconnect_configuration/data_15_address_15_bit_pkg.vhd       
     add_vhdl_file_to_project $tcl_path/../source/hVHDL_fpga_interconnect/fpga_interconnect_pkg.vhd                                       

@@ -17,9 +17,13 @@ uart.add_source_files(ROOT / "source/hVHDL_fpga_interconnect/fpga_interconnect_p
 
 uart.add_source_files(ROOT / "source/hVHDL_uart/uart_transreceiver/uart_rx/uart_rx_pkg.vhd")
 uart.add_source_files(ROOT / "source/hVHDL_uart/uart_transreceiver/uart_tx/uart_tx_pkg.vhd")
-uart.add_source_files(ROOT / "simulation/uart_communication_tb.vhd")
-uart.add_source_files(ROOT / "simulation/tb_test_uart_protocol.vhd")
+
+uart.add_source_files(ROOT / "source/system_control/communications/communications.vhd")
+
 uart.add_source_files(ROOT / "uart_communication_pkg.vhd")
+
+uart.add_source_files(ROOT / "simulation/uart_communication_tb.vhd")
+uart.add_source_files(ROOT / "simulation/communications_tb.vhd")
 
 
 VU.main()
