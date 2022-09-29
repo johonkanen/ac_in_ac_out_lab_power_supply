@@ -11,3 +11,4 @@ outflow/
 *.log
 *.raw
 *.net
+*pycache*

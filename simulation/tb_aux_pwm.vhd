@@ -17,7 +17,7 @@ architecture vunit_simulation of tb_aux_pwm is
 
     signal simulator_clock : std_logic := '0';
     constant clock_per : time := 1 ns;
-    constant simtime_in_clocks : integer := 1500;
+    constant simtime_in_clocks : integer := 48e3;
 
     signal simulation_counter : natural := 0;
     -----------------------------------

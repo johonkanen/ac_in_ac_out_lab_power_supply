@@ -144,9 +144,7 @@ begin
             create_aux_pwm(aux_pwm);
             if data_from_power_electronics = 999 then
                 start_aux_pwm(aux_pwm);
-            end if;
-
-            if data_from_power_electronics = 0 then
+            else
                 stop_aux_pwm(aux_pwm);
             end if;
 

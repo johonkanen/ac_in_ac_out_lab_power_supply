@@ -25,7 +25,7 @@ package uart_communication_pkg is
         receive_address: integer range 0 to 7;
         number_of_received_words : integer range 0 to 7;
         receive_is_ready         : boolean;
-        receive_timeout          : integer range 0 to 1023;
+        receive_timeout          : integer range 0 to 2**16-1;
     end record;
 
     constant init_uart_communcation : uart_communcation_record := (0, (others => x"00"), false, false, (others => x"00"), 0,0, false, 0);
@@ -106,7 +106,7 @@ package body uart_communication_pkg is
         end if;
 
         if uart_rx_data_is_ready(uart_rx) then
-            m.receive_timeout <= 1000;
+            m.receive_timeout <= 65535;
             m.receive_buffer(m.receive_address) <= get_uart_rx_data(uart_rx);
             m.receive_address <= m.receive_address + 1;
 

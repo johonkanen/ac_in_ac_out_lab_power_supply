@@ -99,9 +99,9 @@ begin
     end process test_uart;	
 ------------------------------------------------------------------------
     u_uart_rx : entity work.uart_rx
-    port map((clock => clock)                                                                                ,
+    port map((clock => clock)                        ,
          (uart_rx => communications_FPGA_in.uart_rx) ,
-    	  uart_rx_data_in                                                                                    ,
+    	  uart_rx_data_in                            ,
     	  uart_rx_data_out); 
 ------------------------------------------------------------------------
     u_uart_tx : entity work.uart_tx
