@@ -45,6 +45,12 @@ package uart_communication_pkg is
         return boolean;
 
 ------------------------------------------------------------------------
+    procedure send_stream_data_packet (
+        signal uart_communcation_object : out uart_communcation_record;
+        data_words_in : base_array );
+------------------------------------------------------------------------
+    function transmit_is_ready ( uart_communication_object : uart_communcation_record)
+        return boolean;
 ------------------------------------------------------------------------
     function write_data_to_register ( address : integer; data : integer)
         return base_array;
@@ -143,6 +149,23 @@ package body uart_communication_pkg is
         
     end transmit_words_with_uart;
 ------------------------------------------------------------------------
+    procedure send_stream_data_packet
+    (
+        signal uart_communcation_object : out uart_communcation_record;
+        data_words_in : base_array 
+    ) is
+        alias m is uart_communcation_object;
+    begin
+        m.number_of_transmitted_words <= data_words_in'length;
+
+        -- m.transmit_buffer(0) <= std_logic_vector(to_unsigned(data_words_in'length, 8));
+        for i in 0 to data_words_in'high loop
+            m.transmit_buffer(i) <= data_words_in(i);
+        end loop;
+        m.is_requested <= true;
+        
+    end send_stream_data_packet;
+------------------------------------------------------------------------
     function frame_has_been_received
     (
         uart_communcation_object : uart_communcation_record
@@ -226,5 +249,15 @@ package body uart_communication_pkg is
     begin
         return bytes_to_int(uart_communcation_object.receive_buffer(3 to 4));
     end get_command_data;
+------------------------------------------------------------------------
+    function transmit_is_ready
+    (
+        uart_communication_object : uart_communcation_record
+    )
+    return boolean
+    is
+    begin
+        return uart_communication_object.is_ready;
+    end transmit_is_ready;
 ------------------------------------------------------------------------
 end package body uart_communication_pkg;

@@ -24,6 +24,7 @@ uart.add_source_files(ROOT / "uart_communication_pkg.vhd")
 
 uart.add_source_files(ROOT / "simulation/uart_communication_tb.vhd")
 uart.add_source_files(ROOT / "simulation/communications_tb.vhd")
+uart.add_source_files(ROOT / "simulation/tb_uart_stream.vhd")
 
 
 VU.main()
