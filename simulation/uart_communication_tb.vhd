@@ -91,18 +91,31 @@ begin
                     WHEN stream_data_from_address =>
                         number_of_registers_to_stream <= get_number_of_registers_to_stream(uart_communication);
                         stream_address                <= get_command_address(uart_communication);
+                        request_data_from_address(bus_from_main, get_command_address(uart_communication));
+                        send_stream_data_packet(uart_communication, 0);
 
                     WHEN others => -- do nothing
                 end CASE;
             end if;
+            -----------------------
 
-            -- if number_of_registers_to_stream > 0 then
-            --     number_of_registers_to_stream <= number_of_registers_to_stream - 1;
-            --     request_data_from_address(bus_from_main, stream_address);
-            -- end if;
 
             if write_to_address_is_requested(bus_from_process1, 0) then
-                transmit_words_with_uart(uart_communication, write_data_to_register(1, get_data(bus_from_process1)));
+                if (number_of_registers_to_stream = 0)  then
+                    transmit_words_with_uart(uart_communication, write_data_to_register(1, get_data(bus_from_process1)));
+                else
+                    send_stream_data_packet(uart_communication, get_data(bus_from_process1));
+                end if;
+            end if;
+
+            if simulation_counter > 3541 then
+                if number_of_registers_to_stream > 0 then
+                    if transmit_is_ready(uart_communication) then
+                        number_of_registers_to_stream <= number_of_registers_to_stream - 1;
+                        request_data_from_address(bus_from_main, stream_address);
+                        send_stream_data_packet(uart_communication, number_of_registers_to_stream);
+                    end if;
+                end if;
             end if;
 
             ------------------------------------------------------------------------
@@ -112,7 +125,8 @@ begin
                     -- transmit_words_with_uart(uart_communication, read_data_from_register(1));
                     transmit_words_with_uart(uart_communication, write_data_to_register(1, 25));
                 WHEN 2e3 => 
-                    transmit_words_with_uart(uart_communication, read_data_from_register(65535) & int24_to_bytes(7989135));
+                    transmit_words_with_uart(uart_communication, read_data_from_register(2) & int24_to_bytes(5));
+                    -- transmit_words_with_uart(uart_communication, write_data_to_register(1, 55));
                 WHEN others =>
             end CASE;
 

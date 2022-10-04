@@ -62,6 +62,8 @@ architecture rtl of communications is
     signal uart_communication : uart_communcation_record := init_uart_communcation;
 
     signal counter : integer range 0 to 2**12-1 := 1199; 
+    signal number_of_registers_to_stream : integer range 0 to 2**23-1 := 0;
+    signal stream_address : integer range 0 to 2**16-1 := 0;
 
 begin
 
@@ -85,15 +87,26 @@ begin
                         write_data_to_address(bus_out, get_command_address(uart_communication), get_command_data(uart_communication));
 
                     WHEN stream_data_from_address =>
-                        -- do something to stream data
+                        number_of_registers_to_stream <= get_number_of_registers_to_stream(uart_communication);
+                        stream_address                <= get_command_address(uart_communication);
+                        send_stream_data_packet(uart_communication, 0);
 
                     WHEN others => -- do nothing
                 end CASE;
             end if;
-            
-            if write_to_address_is_requested(bus_in, 0) then
-                transmit_words_with_uart(uart_communication, write_data_to_register(0, get_data(bus_in)));
+
+            if number_of_registers_to_stream > 0 then
+                if transmit_is_ready(uart_communication) then
+                    number_of_registers_to_stream <= number_of_registers_to_stream - 1;
+                    request_data_from_address(bus_out, stream_address);
+                    send_stream_data_packet(uart_communication, number_of_registers_to_stream);
+                end if;
+            else
+                if write_to_address_is_requested(bus_in, 0) then
+                    transmit_words_with_uart(uart_communication, write_data_to_register(address => 0, data => get_data(bus_in)));
+                end if;
             end if;
+            
             
         end if; -- rising_edge
     end process test_uart;	

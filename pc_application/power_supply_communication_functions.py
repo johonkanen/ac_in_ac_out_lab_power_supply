@@ -26,3 +26,20 @@ def write_data_to_address(address, data):
     uart_message = data 
     uart_link.write(uart_message.to_bytes(2, "big"))
     
+def stream_data_from_address(address, number_of_registers):
+    uart_message = 5
+    uart_link.write(uart_message.to_bytes(1, "big"))
+    uart_message = address
+    uart_link.write(uart_message.to_bytes(2, "big"))
+    uart_message = number_of_registers 
+    uart_link.write(uart_message.to_bytes(3, "big"))
+
+    received_stream = [0]
+    for i in range(number_of_registers):
+        received_stream.append(get_stream_packet_from_uart())
+
+    return received_stream
+
+def get_stream_packet_from_uart():
+    data_from_uart = uart_link.read(2)
+    return int.from_bytes(data_from_uart, "big")

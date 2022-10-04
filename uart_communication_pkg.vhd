@@ -49,6 +49,10 @@ package uart_communication_pkg is
         signal uart_communcation_object : out uart_communcation_record;
         data_words_in : base_array );
 ------------------------------------------------------------------------
+    procedure send_stream_data_packet (
+        signal uart_communcation_object : out uart_communcation_record;
+        data_in : integer);
+------------------------------------------------------------------------
     function transmit_is_ready ( uart_communication_object : uart_communcation_record)
         return boolean;
 ------------------------------------------------------------------------
@@ -120,12 +124,12 @@ package body uart_communication_pkg is
         if uart_rx_data_is_ready(uart_rx) then
             m.receive_timeout <= 65535;
             m.receive_buffer(m.receive_address) <= get_uart_rx_data(uart_rx);
-            m.receive_address <= m.receive_address + 1;
+            m.receive_address <= (m.receive_address + 1) mod 8;
 
             if m.number_of_received_words > 0 then
                 m.number_of_received_words <= m.number_of_received_words - 1;
             else
-                m.number_of_received_words <= get_uart_rx_data(uart_rx);
+                m.number_of_received_words <= get_uart_rx_data(uart_rx) mod 8;
             end if;
 
             if m.number_of_received_words = 1 then
@@ -165,12 +169,14 @@ package body uart_communication_pkg is
         m.number_of_transmitted_words <= data_words_in'length;
 
         -- m.transmit_buffer(0) <= std_logic_vector(to_unsigned(data_words_in'length, 8));
-        for i in 0 to data_words_in'high loop
+        for i in data_words_in'high downto 0 loop
             m.transmit_buffer(i) <= data_words_in(i);
         end loop;
         m.is_requested <= true;
         
     end send_stream_data_packet;
+
+------------------------------------------------------------------------
 ------------------------------------------------------------------------
     function frame_has_been_received
     (
@@ -290,5 +296,15 @@ package body uart_communication_pkg is
     begin
         return uart_communication_object.is_ready;
     end transmit_is_ready;
+------------------------------------------------------------------------
+    procedure send_stream_data_packet
+    (
+        signal uart_communcation_object : out uart_communcation_record;
+        data_in : integer
+    ) is
+    begin
+        send_stream_data_packet(uart_communcation_object, int_to_bytes(data_in));
+        
+    end send_stream_data_packet;
 ------------------------------------------------------------------------
 end package body uart_communication_pkg;

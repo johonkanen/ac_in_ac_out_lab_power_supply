@@ -40,3 +40,4 @@ def print_things():
     print(request_data_from_address(4097))
 
 print_things()
+print(stream_data_from_address(5003, 1000)) 
