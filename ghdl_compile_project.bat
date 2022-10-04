@@ -74,7 +74,11 @@ ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_uart/uart_transreceiver/uart_tra
 ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_uart/uart_transreceiver/uart_transreceiver_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_uart/uart_pkg.vhd
 
+ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_uart/uart_pkg.vhd
+
 ghdl -a --ieee=synopsys --std=08 uart_communication_pkg.vhd
+
+ghdl -a --ieee=synopsys --std=08 uart_stream_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 source/system_control/communications/communications.vhd
 

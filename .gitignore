@@ -12,3 +12,4 @@ outflow/
 *.raw
 *.net
 *pycache*
+deleteme/

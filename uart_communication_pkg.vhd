@@ -58,6 +58,9 @@ package uart_communication_pkg is
     function read_data_from_register ( address : integer)
         return base_array;
 ------------------------------------------------------------------------
+    function get_number_of_registers_to_stream (uart_communication_object : uart_communcation_record)
+        return integer;
+------------------------------------------------------------------------
     function get_command ( uart_communcation_object : uart_communcation_record)
         return integer;
 ------------------------------------------------------------------------
@@ -66,6 +69,9 @@ package uart_communication_pkg is
 ------------------------------------------------------------------------
     function get_command_data ( uart_communcation_object : uart_communcation_record)
         return integer;
+------------------------------------------------------------------------
+    function int24_to_bytes ( number : integer)
+        return base_array;
 ------------------------------------------------------------------------
 
 end package uart_communication_pkg;
@@ -176,6 +182,7 @@ package body uart_communication_pkg is
         return uart_communcation_object.receive_is_ready;
     end frame_has_been_received;
 ------------------------------------------------------------------------
+------------------------------------------------------------------------
     function int_to_bytes
     (
         number : integer
@@ -187,7 +194,7 @@ package body uart_communication_pkg is
         uint_number := to_unsigned(number,16);
         return (std_logic_vector(uint_number(15 downto 8)) , std_logic_vector(uint_number(7 downto 0)));
     end int_to_bytes;
-
+--------------------------------------------------
     function bytes_to_int
     (
         data : base_array
@@ -197,6 +204,18 @@ package body uart_communication_pkg is
     begin
         return to_integer(unsigned(data(data'left)) & unsigned(data(data'left + 1)));
     end bytes_to_int;
+--------------------------------------------------
+    function int24_to_bytes
+    (
+        number : integer
+    )
+    return base_array 
+    is
+        variable uint_number : unsigned(23 downto 0);
+    begin
+        uint_number := to_unsigned(number,24);
+        return (std_logic_vector(uint_number(23 downto 16)) ,std_logic_vector(uint_number(15 downto 8)) , std_logic_vector(uint_number(7 downto 0)));
+    end int24_to_bytes;
 ------------------------------------------------------------------------
 ------------------------------------------------------------------------
     function write_data_to_register
@@ -249,6 +268,18 @@ package body uart_communication_pkg is
     begin
         return bytes_to_int(uart_communcation_object.receive_buffer(3 to 4));
     end get_command_data;
+------------------------------------------------------------------------
+    function get_number_of_registers_to_stream
+    (
+        uart_communication_object : uart_communcation_record
+    )
+    return integer
+    is
+        alias data is uart_communication_object.receive_buffer;
+    begin
+        return to_integer(unsigned(data(3)) & unsigned(data(4))& unsigned(data(5)));
+
+    end get_number_of_registers_to_stream;
 ------------------------------------------------------------------------
     function transmit_is_ready
     (

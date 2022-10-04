@@ -18,7 +18,7 @@ end;
 architecture vunit_simulation of uart_communication_tb is
 
     constant clock_period      : time    := 1 ns;
-    constant simtime_in_clocks : integer := 5000;
+    constant simtime_in_clocks : integer := 15000;
     
     signal simulator_clock     : std_logic := '0';
     signal simulation_counter  : natural   := 0;
@@ -41,8 +41,6 @@ architecture vunit_simulation of uart_communication_tb is
 
     signal transmit_buffer : memory_array := (others => x"00");
 
-    signal testy_thing : std_logic_vector(7*memory_array'high downto 0);
-
     signal bus_from_main : fpga_interconnect_record := init_fpga_interconnect;
     signal bus_from_process1 : fpga_interconnect_record := init_fpga_interconnect;
 
@@ -51,6 +49,8 @@ architecture vunit_simulation of uart_communication_tb is
 
     signal uart_communication : uart_communcation_record := init_uart_communcation;
     signal receive_is_ready : boolean := false;
+    signal number_of_registers_to_stream : integer range 0 to 2**23-1 := 0;
+    signal stream_address : integer range 0 to 2**16-1 := 0;
 
 begin
 
@@ -78,19 +78,9 @@ begin
             init_bus(bus_from_main);
             create_uart_communication(uart_communication, uart_rx_data_out, uart_tx_data_in, uart_tx_data_out);
 
-            if simulation_counter = 0 then 
-                -- transmit_words_with_uart(uart_communication, read_data_from_register(1));
-                transmit_words_with_uart(uart_communication, write_data_to_register(1, 25));
-            end if;
-
-            if write_to_address_is_requested(bus_from_process1, 0) then
-                transmit_words_with_uart(uart_communication, write_data_to_register(1, get_data(bus_from_process1)));
-            end if;
-
-            receive_is_ready <= frame_has_been_received(uart_communication);
-
             ------------------------------------------------------------------------
             if frame_has_been_received(uart_communication) then
+
                 CASE get_command(uart_communication) is
                     WHEN read_is_requested_from_address_from_uart =>
                         request_data_from_address(bus_from_main, get_command_address(uart_communication));
@@ -99,10 +89,36 @@ begin
                         write_data_to_address(bus_from_main, get_command_address(uart_communication), get_command_data(uart_communication));
 
                     WHEN stream_data_from_address =>
+                        number_of_registers_to_stream <= get_number_of_registers_to_stream(uart_communication);
+                        stream_address                <= get_command_address(uart_communication);
 
                     WHEN others => -- do nothing
                 end CASE;
             end if;
+
+            -- if number_of_registers_to_stream > 0 then
+            --     number_of_registers_to_stream <= number_of_registers_to_stream - 1;
+            --     request_data_from_address(bus_from_main, stream_address);
+            -- end if;
+
+            if write_to_address_is_requested(bus_from_process1, 0) then
+                transmit_words_with_uart(uart_communication, write_data_to_register(1, get_data(bus_from_process1)));
+            end if;
+
+            ------------------------------------------------------------------------
+            -- test injection
+            CASE simulation_counter is
+                WHEN 0 =>
+                    -- transmit_words_with_uart(uart_communication, read_data_from_register(1));
+                    transmit_words_with_uart(uart_communication, write_data_to_register(1, 25));
+                WHEN 2e3 => 
+                    transmit_words_with_uart(uart_communication, read_data_from_register(65535) & int24_to_bytes(7989135));
+                WHEN others =>
+            end CASE;
+
+            receive_is_ready <= frame_has_been_received(uart_communication);
+            ------------------------------------------------------------------------
+
 
         end if; -- rising_edge
     end process stimulus;	

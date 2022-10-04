@@ -21,10 +21,15 @@ uart.add_source_files(ROOT / "source/hVHDL_uart/uart_transreceiver/uart_tx/uart_
 uart.add_source_files(ROOT / "source/system_control/communications/communications.vhd")
 
 uart.add_source_files(ROOT / "uart_communication_pkg.vhd")
+uart.add_source_files(ROOT / "uart_stream_pkg.vhd")
 
 uart.add_source_files(ROOT / "simulation/uart_communication_tb.vhd")
 uart.add_source_files(ROOT / "simulation/communications_tb.vhd")
 uart.add_source_files(ROOT / "simulation/tb_uart_stream.vhd")
+uart.add_source_files(ROOT / "simulation/uart_stream_2_tb.vhd")
+
+testi = VU.add_library("testi")
+testi.add_source_file(ROOT / "simulation/tb_test_commands.vhd")
 
 
 VU.main()

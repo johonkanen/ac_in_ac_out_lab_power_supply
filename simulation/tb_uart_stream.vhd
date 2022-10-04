@@ -10,6 +10,7 @@ context vunit_lib.vunit_context;
     use work.uart_rx_pkg.all;
     use work.fpga_interconnect_pkg.all;
     use work.uart_communication_pkg.all;
+    use work.uart_stream_pkg.all;
 
 entity tb_uart_stream is
   generic (runner_cfg : string);
@@ -33,9 +34,6 @@ architecture vunit_simulation of tb_uart_stream is
     signal uart_tx_data_in  : uart_tx_data_input_group;
     signal uart_tx_data_out : uart_tx_data_output_group;
 
-    constant time_between_packages : integer := 10;
-    signal transmit_timer : integer range 0 to 127 := 1;
-
     signal memory : memory_array := (others => (others => '0'));
     signal memory_address : integer range memory_array'range := 0;
 
@@ -56,6 +54,8 @@ architecture vunit_simulation of tb_uart_stream is
     signal stream_is_ready : boolean := false;
 
     signal transmit_is_done : boolean := false;
+
+    signal uart_stream : uart_stream_record := init_uart_stream;
 ------------------------------------------------------------------------
 begin
 
@@ -83,19 +83,16 @@ begin
             init_bus(bus_from_main);
             create_uart_communication(uart_communication, uart_rx_data_out, uart_tx_data_in, uart_tx_data_out);
 
+            create_uart_stream(uart_stream, uart_communication);
+
             if simulation_counter = 0 then 
-                -- transmit_8bit_data_package(uart_tx_data_in, x"05");
-                send_stream_data_packet(uart_communication, (x"ac", x"dc"));
+                transmit_8bit_data_package(uart_tx_data_in, x"05");
+                -- send_stream_data_packet(uart_communication, (x"ac", x"dc"));
+                set_number_of_transmitted_streams(uart_stream, 5);
             end if;
 
-            if transmit_is_ready(uart_communication) then
-                if stream_counter > 0 then
-                    stream_counter <= stream_counter - 1;
-                    send_stream_data_packet(uart_communication, (x"ac", x"dc"));
-                end if;
-            end if;
-
-            transmit_is_done <= transmit_is_ready(uart_communication);
+            transmit_is_done     <= transmit_is_ready(uart_communication);
+            streaming_is_ongoing <= uart_stream_is_ready(uart_stream);
 
         end if; -- rising_edge
     end process stimulus;	
