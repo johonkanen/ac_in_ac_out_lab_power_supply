@@ -64,6 +64,7 @@ architecture rtl of communications is
     signal counter : integer range 0 to 2**12-1 := 1199; 
     signal number_of_registers_to_stream : integer range 0 to 2**23-1 := 0;
     signal stream_address : integer range 0 to 2**16-1 := 0;
+    signal uart_stream_is_requested : boolean := false;
 
 begin
 
@@ -78,6 +79,7 @@ begin
             create_uart_communication(uart_communication, uart_rx_data_out, uart_tx_data_in, uart_tx_data_out);
 
             ------------------------------------------------------------------------
+            uart_stream_is_requested <= false;
             if frame_has_been_received(uart_communication) then
                 CASE get_command(uart_communication) is
                     WHEN read_is_requested_from_address_from_uart =>
@@ -89,17 +91,17 @@ begin
                     WHEN stream_data_from_address =>
                         number_of_registers_to_stream <= get_number_of_registers_to_stream(uart_communication);
                         stream_address                <= get_command_address(uart_communication);
-                        send_stream_data_packet(uart_communication, 0);
+                        uart_stream_is_requested <= true;
 
                     WHEN others => -- do nothing
                 end CASE;
             end if;
 
             if number_of_registers_to_stream > 0 then
-                if transmit_is_ready(uart_communication) then
+                request_data_from_address(bus_out, stream_address);
+                if transmit_is_ready(uart_communication) or uart_stream_is_requested then
                     number_of_registers_to_stream <= number_of_registers_to_stream - 1;
-                    request_data_from_address(bus_out, stream_address);
-                    send_stream_data_packet(uart_communication, number_of_registers_to_stream);
+                    send_stream_data_packet(uart_communication, get_data(bus_in));
                 end if;
             else
                 if write_to_address_is_requested(bus_in, 0) then

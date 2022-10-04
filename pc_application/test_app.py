@@ -1,7 +1,5 @@
 from power_supply_communication_functions import *
 
-import time
-
 def start():
     write_data_to_address(8192,999)
 
@@ -40,4 +38,4 @@ def print_things():
     print(request_data_from_address(4097))
 
 print_things()
-print(stream_data_from_address(5003, 1000)) 
+plot_data_from_address(60, 200000)
