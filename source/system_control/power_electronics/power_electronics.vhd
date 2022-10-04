@@ -138,7 +138,7 @@ begin
             connect_data_to_address(bus_in, bus_from_power_electronics, power_electronics_data_address, data_from_power_electronics);
 
             connect_read_only_data_to_address(bus_in , bus_from_power_electronics , capacitor_voltage_address , get_capacitor_voltage(lcr_model)/64 + 32768);
-            connect_read_only_data_to_address(bus_in , bus_from_power_electronics , capacitor_voltage_address+1  , get_inductor_current(lcr_model)/16 + 32768);
+            connect_read_only_data_to_address(bus_in , bus_from_power_electronics , capacitor_current_address , get_inductor_current(lcr_model)/16 + 32768);
 
 
             create_aux_pwm(aux_pwm);
