@@ -34,7 +34,7 @@ library ieee;
 
     use work.communications_pkg.all;
     use work.fpga_interconnect_pkg.all;
-    use work.uart_communication_pkg.all;
+    use work.uart_protocol_pkg.all;
     use work.uart_rx_pkg.all;
     use work.uart_tx_pkg.all;
 
@@ -59,7 +59,7 @@ architecture rtl of communications is
 
     signal uart_tx_data_in    : uart_tx_data_input_group;
     signal uart_tx_data_out   : uart_tx_data_output_group;
-    signal uart_communication : uart_communcation_record := init_uart_communcation;
+    signal uart_protocol : uart_communcation_record := init_uart_communcation;
 
     signal counter : integer range 0 to 2**12-1 := 1199; 
     signal number_of_registers_to_stream : integer range 0 to 2**23-1 := 0;
@@ -75,38 +75,38 @@ begin
 
             init_uart(uart_tx_data_in);
             init_bus(bus_out);
-            create_uart_communication(uart_communication, uart_rx_data_out, uart_tx_data_in, uart_tx_data_out);
+            create_uart_protocol(uart_protocol, uart_rx_data_out, uart_tx_data_in, uart_tx_data_out);
 
             ------------------------------------------------------------------------
-            if frame_has_been_received(uart_communication) then
-                CASE get_command(uart_communication) is
+            if frame_has_been_received(uart_protocol) then
+                CASE get_command(uart_protocol) is
                     WHEN read_is_requested_from_address_from_uart =>
-                        request_data_from_address(bus_out, get_command_address(uart_communication));
+                        request_data_from_address(bus_out, get_command_address(uart_protocol));
 
                     WHEN write_to_address_is_requested_from_uart =>
-                        write_data_to_address(bus_out, get_command_address(uart_communication), get_command_data(uart_communication));
+                        write_data_to_address(bus_out, get_command_address(uart_protocol), get_command_data(uart_protocol));
 
                     WHEN stream_data_from_address =>
-                        number_of_registers_to_stream <= get_number_of_registers_to_stream(uart_communication);
-                        stream_address                <= get_command_address(uart_communication);
-                        request_data_from_address(bus_out, get_command_address(uart_communication));
+                        number_of_registers_to_stream <= get_number_of_registers_to_stream(uart_protocol);
+                        stream_address                <= get_command_address(uart_protocol);
+                        request_data_from_address(bus_out, get_command_address(uart_protocol));
 
                     WHEN others => -- do nothing
                 end CASE;
             end if;
 
             if number_of_registers_to_stream > 0 then
-                if transmit_is_ready(uart_communication) then
+                if transmit_is_ready(uart_protocol) then
                     request_data_from_address(bus_out, stream_address);
                 end if;
 
                 if write_to_address_is_requested(bus_in, 0) then
                     number_of_registers_to_stream <= number_of_registers_to_stream - 1;
-                    send_stream_data_packet(uart_communication, get_data(bus_in));
+                    send_stream_data_packet(uart_protocol, get_data(bus_in));
                 end if;
             else
                 if write_to_address_is_requested(bus_in, 0) then
-                    transmit_words_with_uart(uart_communication, write_data_to_register(address => 0, data => get_data(bus_in)));
+                    transmit_words_with_uart(uart_protocol, write_data_to_register(address => 0, data => get_data(bus_in)));
                 end if;
             end if;
             

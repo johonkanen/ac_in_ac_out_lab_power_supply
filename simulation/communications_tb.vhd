@@ -9,7 +9,7 @@ context vunit_lib.vunit_context;
     use work.uart_tx_pkg.all;
     use work.uart_rx_pkg.all;
     use work.fpga_interconnect_pkg.all;
-    use work.uart_communication_pkg.all;
+    use work.uart_protocol_pkg.all;
     use work.communications_pkg.all;
 
 entity communications_tb is
@@ -44,7 +44,7 @@ architecture vunit_simulation of communications_tb is
     signal data_read_with_uart : integer := 0;
     signal number_of_transmitted_words : integer := 7;
 
-    signal uart_communication : uart_communcation_record := init_uart_communcation;
+    signal uart_protocol : uart_communcation_record := init_uart_communcation;
 ------------------------------------------------------------------------
     signal communications_FPGA_in  : communications_FPGA_input_group;
     signal communications_FPGA_out : communications_FPGA_output_group;
@@ -68,8 +68,8 @@ begin
     simulator_clock <= not simulator_clock after clock_period/2.0;
 ------------------------------------------------------------------------
 
-    transmit_buffer             <= uart_communication.transmit_buffer;
-    number_of_transmitted_words <= uart_communication.number_of_transmitted_words;
+    transmit_buffer             <= uart_protocol.transmit_buffer;
+    number_of_transmitted_words <= uart_protocol.number_of_transmitted_words;
 
     stimulus : process(simulator_clock)
     begin
@@ -77,18 +77,18 @@ begin
             simulation_counter <= simulation_counter + 1;
 
             init_uart(uart_tx_data_in);
-            create_uart_communication(uart_communication, uart_rx_data_out, uart_tx_data_in, uart_tx_data_out);
+            create_uart_protocol(uart_protocol, uart_rx_data_out, uart_tx_data_in, uart_tx_data_out);
 
             if simulation_counter = 0 then 
-                transmit_words_with_uart(uart_communication, write_data_to_register(1, 25));
+                transmit_words_with_uart(uart_protocol, write_data_to_register(1, 25));
             end if;
             
             if simulation_counter = 2000 then 
-                transmit_words_with_uart(uart_communication, read_data_from_register(1));
+                transmit_words_with_uart(uart_protocol, read_data_from_register(1));
             end if;
 
-            if frame_has_been_received(uart_communication) then
-                data_read_with_uart <= get_command_data(uart_communication);
+            if frame_has_been_received(uart_protocol) then
+                data_read_with_uart <= get_command_data(uart_protocol);
             end if;
 
         end if; -- rising_edge

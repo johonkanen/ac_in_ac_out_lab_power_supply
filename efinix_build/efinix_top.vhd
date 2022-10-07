@@ -61,6 +61,8 @@ architecture rtl of efinix_top is
 
     signal aux_pwm : std_logic := '0';
 
+    signal dummy : std_logic;
+
 begin
 
     grid_inu_leg1_hi  <= '0';
@@ -105,6 +107,8 @@ begin
 
           -- outputs
           system_control_FPGA_out.communications_FPGA_out.uart_tx => uart_tx,
+
+          system_control_FPGA_out.power_electronics_FPGA_out.power_electronics_control_FPGA_out.grid_gate_low => dummy,
 
           system_control_FPGA_out.power_electronics_FPGA_out.adc_interface_FPGA_out.ad_mux_channel_select1 => ad_mux1_io           ,
           system_control_FPGA_out.power_electronics_FPGA_out.adc_interface_FPGA_out.chip_select1           => ads_7056_chip_select ,

@@ -30,3 +30,7 @@
 	path = ac_power_supply_hw_analysis
     url = https://github.com/johonkanen/ac_power_supply_hw_analysis.git 
     main = origin/main
+[submodule "fpga_uart_pc_software"]
+	path = fpga_uart_pc_software
+	url = https://github.com/johonkanen/fpga_uart_pc_software.git
+    main = origin/main

@@ -2,9 +2,9 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
-    use work.system_clocks_pkg.all;
     use work.fpga_interconnect_pkg.all;
     use work.adc_interface_pkg.all;
+    use work.power_electronics_control_pkg.all;
 
 package power_electronics_pkg is
 
@@ -19,6 +19,8 @@ package power_electronics_pkg is
         aux_pwm_out          : std_logic;
 
         adc_interface_FPGA_out : adc_interface_FPGA_output_group;
+
+        power_electronics_control_FPGA_out : power_electronics_control_FPGA_output_group; 
     end record;
     
     type power_electronics_data_input_group is record
@@ -63,7 +65,7 @@ architecture rtl of power_electronics is
 
     alias clock_120Mhz is system_clocks.clock_120Mhz;
     alias leds is power_electronics_FPGA_out.leds;
-    alias bus_in is power_electronics_data_in.bus_in;
+    alias bus_from_master is power_electronics_data_in.bus_in;
     alias bus_out is power_electronics_data_out.bus_out;
 
     signal counter : integer range 0 to 2**16-1 := 0; 
@@ -106,6 +108,8 @@ architecture rtl of power_electronics is
     signal bus_from_adc_interface : fpga_interconnect_record := init_fpga_interconnect;
     signal bus_from_power_electronics : fpga_interconnect_record := init_fpga_interconnect;
 
+    signal bus_from_power_electronics_control : fpga_interconnect_record := init_fpga_interconnect;
+
 begin
 
     power_electronics_FPGA_out.aux_pwm_out <= aux_pwm.pwm_out;
@@ -114,7 +118,7 @@ begin
         
     begin
         if rising_edge(clock_120mhz) then
-            bus_out <= bus_from_adc_interface and bus_from_power_electronics;
+            bus_out <= bus_from_adc_interface and bus_from_power_electronics and bus_from_power_electronics_control;
         end if; --rising_edge
     end process combine_buses;	
 
@@ -124,7 +128,7 @@ begin
               pll_locked => power_electronics_FPGA_in.pll_locked,
               adc_interface_FPGA_in          => power_electronics_FPGA_in.adc_interface_FPGA_in,
               adc_interface_FPGA_out         => power_electronics_FPGA_out.adc_interface_FPGA_out,
-              adc_interface_data_in.bus_in   => bus_in,
+              adc_interface_data_in.bus_in   => bus_from_master,
               adc_interface_data_out.bus_out => bus_from_adc_interface);
 
 
@@ -135,10 +139,10 @@ begin
         if rising_edge(clock_120Mhz) then
 
             init_bus(bus_from_power_electronics);
-            connect_data_to_address(bus_in, bus_from_power_electronics, power_electronics_data_address, data_from_power_electronics);
+            connect_data_to_address(bus_from_master, bus_from_power_electronics, power_electronics_data_address, data_from_power_electronics);
 
-            connect_read_only_data_to_address(bus_in , bus_from_power_electronics , capacitor_voltage_address , get_capacitor_voltage(lcr_model)/64 + 32768);
-            connect_read_only_data_to_address(bus_in , bus_from_power_electronics , capacitor_current_address , get_inductor_current(lcr_model)/16 + 32768);
+            connect_read_only_data_to_address(bus_from_master , bus_from_power_electronics , capacitor_voltage_address , get_capacitor_voltage(lcr_model)/64 + 32768);
+            connect_read_only_data_to_address(bus_from_master , bus_from_power_electronics , capacitor_current_address , get_inductor_current(lcr_model)/16 + 32768);
 
 
             create_aux_pwm(aux_pwm);
@@ -148,11 +152,11 @@ begin
                 stop_aux_pwm(aux_pwm);
             end if;
 
-            if write_to_address_is_requested(bus_in, power_electronics_data_address) and get_data(bus_in) = 1 then
+            if write_to_address_is_requested(bus_from_master, power_electronics_data_address) and get_data(bus_from_master) = 1 then
                 system_is_started <= true;
             end if;
 
-            if write_to_address_is_requested(bus_in, power_electronics_data_address) and get_data(bus_in) = 0 then
+            if write_to_address_is_requested(bus_from_master, power_electronics_data_address) and get_data(bus_from_master) = 0 then
                 system_is_started <= false;
             end if;
 
@@ -190,6 +194,14 @@ begin
 
         end if; --rising_edge
     end process led_blinker;	
+
+    u_power_electronics_control : entity work.power_electronics_control
+    port map (
+        system_clocks   => system_clocks,
+        power_electronics_control_FPGA_out         => power_electronics_FPGA_out.power_electronics_control_FPGA_out,
+        power_electronics_control_data_in.bus_in   => bus_from_master,
+        power_electronics_control_data_out.bus_out => bus_from_power_electronics_control);
+
 
 ------------------------------------------------------------------------
 end rtl;

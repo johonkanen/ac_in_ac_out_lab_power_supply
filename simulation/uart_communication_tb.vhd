@@ -9,13 +9,13 @@ context vunit_lib.vunit_context;
     use work.uart_tx_pkg.all;
     use work.uart_rx_pkg.all;
     use work.fpga_interconnect_pkg.all;
-    use work.uart_communication_pkg.all;
+    use work.uart_protocol_pkg.all;
 
-entity uart_communication_tb is
+entity uart_protocol_tb is
   generic (runner_cfg : string);
 end;
 
-architecture vunit_simulation of uart_communication_tb is
+architecture vunit_simulation of uart_protocol_tb is
 
     constant clock_period      : time    := 1 ns;
     constant simtime_in_clocks : integer := 15000;
@@ -47,7 +47,7 @@ architecture vunit_simulation of uart_communication_tb is
     signal data_in_1 : integer := 57;
     signal number_of_transmitted_words : integer := 7;
 
-    signal uart_communication : uart_communcation_record := init_uart_communcation;
+    signal uart_protocol : uart_communcation_record := init_uart_communcation;
     signal receive_is_ready : boolean := false;
     signal number_of_registers_to_stream : integer range 0 to 2**23-1 := 0;
     signal stream_address : integer range 0 to 2**16-1 := 0;
@@ -66,8 +66,8 @@ begin
     simulator_clock <= not simulator_clock after clock_period/2.0;
 ------------------------------------------------------------------------
 
-    transmit_buffer             <= uart_communication.transmit_buffer;
-    number_of_transmitted_words <= uart_communication.number_of_transmitted_words;
+    transmit_buffer             <= uart_protocol.transmit_buffer;
+    number_of_transmitted_words <= uart_protocol.number_of_transmitted_words;
 
     stimulus : process(simulator_clock)
     begin
@@ -76,23 +76,23 @@ begin
 
             init_uart(uart_tx_data_in);
             init_bus(bus_from_main);
-            create_uart_communication(uart_communication, uart_rx_data_out, uart_tx_data_in, uart_tx_data_out);
+            create_uart_protocol(uart_protocol, uart_rx_data_out, uart_tx_data_in, uart_tx_data_out);
 
             ------------------------------------------------------------------------
-            if frame_has_been_received(uart_communication) then
+            if frame_has_been_received(uart_protocol) then
 
-                CASE get_command(uart_communication) is
+                CASE get_command(uart_protocol) is
                     WHEN read_is_requested_from_address_from_uart =>
-                        request_data_from_address(bus_from_main, get_command_address(uart_communication));
+                        request_data_from_address(bus_from_main, get_command_address(uart_protocol));
 
                     WHEN write_to_address_is_requested_from_uart =>
-                        write_data_to_address(bus_from_main, get_command_address(uart_communication), get_command_data(uart_communication));
+                        write_data_to_address(bus_from_main, get_command_address(uart_protocol), get_command_data(uart_protocol));
 
                     WHEN stream_data_from_address =>
-                        number_of_registers_to_stream <= get_number_of_registers_to_stream(uart_communication);
-                        stream_address                <= get_command_address(uart_communication);
-                        request_data_from_address(bus_from_main, get_command_address(uart_communication));
-                        send_stream_data_packet(uart_communication, 0);
+                        number_of_registers_to_stream <= get_number_of_registers_to_stream(uart_protocol);
+                        stream_address                <= get_command_address(uart_protocol);
+                        request_data_from_address(bus_from_main, get_command_address(uart_protocol));
+                        send_stream_data_packet(uart_protocol, 0);
 
                     WHEN others => -- do nothing
                 end CASE;
@@ -102,18 +102,18 @@ begin
 
             if write_to_address_is_requested(bus_from_process1, 0) then
                 if (number_of_registers_to_stream = 0)  then
-                    transmit_words_with_uart(uart_communication, write_data_to_register(1, get_data(bus_from_process1)));
+                    transmit_words_with_uart(uart_protocol, write_data_to_register(1, get_data(bus_from_process1)));
                 else
-                    send_stream_data_packet(uart_communication, get_data(bus_from_process1));
+                    send_stream_data_packet(uart_protocol, get_data(bus_from_process1));
                 end if;
             end if;
 
             if simulation_counter > 3541 then
                 if number_of_registers_to_stream > 0 then
-                    if transmit_is_ready(uart_communication) then
+                    if transmit_is_ready(uart_protocol) then
                         number_of_registers_to_stream <= number_of_registers_to_stream - 1;
                         request_data_from_address(bus_from_main, stream_address);
-                        send_stream_data_packet(uart_communication, number_of_registers_to_stream);
+                        send_stream_data_packet(uart_protocol, number_of_registers_to_stream);
                     end if;
                 end if;
             end if;
@@ -122,15 +122,15 @@ begin
             -- test injection
             CASE simulation_counter is
                 WHEN 0 =>
-                    -- transmit_words_with_uart(uart_communication, read_data_from_register(1));
-                    transmit_words_with_uart(uart_communication, write_data_to_register(1, 25));
+                    -- transmit_words_with_uart(uart_protocol, read_data_from_register(1));
+                    transmit_words_with_uart(uart_protocol, write_data_to_register(1, 25));
                 WHEN 2e3 => 
-                    transmit_words_with_uart(uart_communication, read_data_from_register(2) & int24_to_bytes(5));
-                    -- transmit_words_with_uart(uart_communication, write_data_to_register(1, 55));
+                    transmit_words_with_uart(uart_protocol, read_data_from_register(2) & int24_to_bytes(5));
+                    -- transmit_words_with_uart(uart_protocol, write_data_to_register(1, 55));
                 WHEN others =>
             end CASE;
 
-            receive_is_ready <= frame_has_been_received(uart_communication);
+            receive_is_ready <= frame_has_been_received(uart_protocol);
             ------------------------------------------------------------------------
 
 

@@ -76,14 +76,13 @@ ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_uart/uart_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_uart/uart_pkg.vhd
 
-ghdl -a --ieee=synopsys --std=08 uart_communication_pkg.vhd
-
-ghdl -a --ieee=synopsys --std=08 uart_stream_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 source/hVHDL_uart/uart_protocol/uart_protocol_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 source/system_control/communications/communications.vhd
 
 ghdl -a --ieee=synopsys --std=08 source/system_control/main_state_machine/main_state_machine_pkg.vhd
-ghdl -a --ieee=synopsys --std=08 source/system_control/power_electronics/power_electronics.vhd
+ghdl -a --ieee=synopsys --std=08 source/system_control/power_electronics/power_electronics_control/power_electronics_control_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 source/system_control/power_electronics/power_electronics_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 source/system_control/main_state_machine/main_state_machine_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 source/system_control/system_control.vhd
