@@ -25,7 +25,7 @@ uart.add_source_files(ROOT / "simulation/uart_communication_tb.vhd")
 uart.add_source_files(ROOT / "simulation/communications_tb.vhd")
 
 math_library_22x22 = VU.add_library("math_library_22x22")
-math_library_22x22.add_source_files(ROOT / "source/hVHDL_math_library/multiplier/multiplier_base_types_26bit_pkg.vhd")
+math_library_22x22.add_source_files(ROOT / "source/hVHDL_math_library/multiplier/multiplier_base_types_22bit_pkg.vhd")
 math_library_22x22.add_source_files(ROOT / "source/hVHDL_math_library/multiplier/multiplier_pkg.vhd")
 math_library_22x22.add_source_files(ROOT / "source/hVHDL_dynamic_model_verification_library/state_variable/state_variable_pkg.vhd")
 math_library_22x22.add_source_files(ROOT / "source/hVHDL_dynamic_model_verification_library/lcr_filter_model/lcr_filter_model_pkg.vhd")
