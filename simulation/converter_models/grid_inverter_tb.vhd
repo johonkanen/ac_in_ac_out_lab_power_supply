@@ -102,7 +102,7 @@ begin
             create_test_lcr_filter(
                 hw_multiplier     => multiplier,
                 lcr_filter_object => lcr_model,
-                load_current      => get_capacitor_voltage(lcr_model)/128,
+                load_current      => int_voltage(load_current),
                 u_in              => int_voltage(input_voltage));
 
         if lcr_filter_calculation_is_ready(lcr_model) or simulation_counter = 0 then
@@ -110,7 +110,7 @@ begin
         end if;
 
         output_voltage <= real_voltage(get_capacitor_voltage(lcr_model));
-        load_current   <= real_voltage(get_capacitor_voltage(lcr_model)) / 1.0;
+        load_current   <= real_voltage(get_capacitor_voltage(lcr_model)) / 10.0;
 
         end if; -- rising_edge
     end process stimulus;	
