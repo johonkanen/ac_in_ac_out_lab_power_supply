@@ -17,7 +17,7 @@ end;
 architecture vunit_simulation of grid_inverter_tb is
 
     constant clock_period      : time    := 1 ns;
-    constant simtime_in_clocks : integer := 50000;
+    constant simtime_in_clocks : integer := 75000;
     
     signal simulator_clock     : std_logic := '0';
     signal simulation_counter  : natural   := 0;
@@ -70,12 +70,11 @@ architecture vunit_simulation of grid_inverter_tb is
     end inductance_is;
     ----
 
-    signal lcr_model  : lcr_model_record  := init_lcr_model_integrator_gains(inductance_is(3000.0e-6), capacitance_is(200.0e-6));
+    signal lcr_model  : lcr_model_record  := init_lcr_filter(inductance_is(3000.0e-6), capacitance_is(200.0e-6), 100);
     signal multiplier : multiplier_record := init_multiplier;
     signal output_voltage : real := 0.0;
-    signal input_voltage : real := 400.0;
-
-    signal load_current : real := 0.0;
+    signal input_voltage  : real := 325.0;
+    signal load_current   : real := 0.0;
 
 
 begin
@@ -105,12 +104,12 @@ begin
                 load_current      => int_voltage(load_current),
                 u_in              => int_voltage(input_voltage));
 
-        if lcr_filter_calculation_is_ready(lcr_model) or simulation_counter = 0 then
-            request_lcr_filter_calculation(lcr_model);
-        end if;
+            if lcr_filter_calculation_is_ready(lcr_model) or simulation_counter = 0 then
+                request_lcr_filter_calculation(lcr_model);
+            end if;
 
-        output_voltage <= real_voltage(get_capacitor_voltage(lcr_model));
-        load_current   <= real_voltage(get_capacitor_voltage(lcr_model)) / 10.0;
+            output_voltage <= real_voltage(get_capacitor_voltage(lcr_model));
+            load_current   <= real_voltage(get_capacitor_voltage(lcr_model)) / 5.0;
 
         end if; -- rising_edge
     end process stimulus;	
