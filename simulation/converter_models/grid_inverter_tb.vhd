@@ -90,9 +90,19 @@ architecture vunit_simulation of grid_inverter_tb is
     begin
         return integer(resistance * integrator_gain);
     end resistance_is;
+
+    function resistance_is
+    (
+        resistance : integer
+    )
+    return integer
+    is
+    begin
+        return resistance_is(real(resistance));
+    end resistance_is;
     ----
 
-    signal lcr_model  : lcr_model_record  := init_lcr_filter(inductance_is(470.0e-6), capacitance_is(20.0e-6), resistance_is(0.3));
+    signal lcr_model  : lcr_model_record  := init_lcr_filter(inductance_is(470.0e-6), capacitance_is(20.0e-6), resistance_is(1));
     signal multiplier : multiplier_record := init_multiplier;
     signal output_voltage   : real := 0.0;
     signal input_voltage    : real := 325.0;
@@ -104,7 +114,7 @@ begin
     simtime : process
     begin
         test_runner_setup(runner, runner_cfg);
-        wait until number_of_calculation_cycles = 3e3 ;
+        wait until simulation_time > stoptime;
         check(abs(output_voltage - input_voltage) < 50.0, "error in input and output voltages too high");
         test_runner_cleanup(runner); -- Simulation ends here
         wait;
@@ -132,7 +142,7 @@ begin
                 request_lcr_filter_calculation(lcr_model);
 
                 simulation_time <= simulation_time + simulation_time_step;
-                write(row , simulation_time  , left , 30);
+                write(row , simulation_time + simulation_time_step   , left , 30);
                 write(row , real_voltage(get_inductor_current(lcr_model))  , left , 30);
                 write(row , real_voltage(get_capacitor_voltage(lcr_model)) , left , 30);
 
