@@ -7,9 +7,11 @@ import os
 import ltspice
 abs_path = os.path.dirname(os.path.realpath(__file__))
 SimCommander.setLTspiceRunCommand(SimCommander,"c:/Programs/LTC/LTspiceXVII/XVIIx64.exe")
-lcr = SimCommander(abs_path + "./simulation/converter_models/lcr_filter.asc", timeout=8, verbose=False)
-lcr.run()
-lcr.wait_completion()
+
+# currently needs to have the lcr_filter.asc run manually since the lcr.run does not work right for some reason
+# lcr = SimCommander(abs_path + "./simulation/converter_models/lcr_filter.asc", timeout=8, verbose=False)
+# lcr.run()
+# lcr.wait_completion()
 
 d = LTSpiceRawRead(abs_path + "./simulation/converter_models/lcr_filter.raw")
 
@@ -28,7 +30,7 @@ with open('inverter_simulation_results.dat') as f:
 pyplot.subplot(2, 1, 1)
 pyplot.plot(simulation_time, inductor_current)
 pyplot.plot(d.get_trace("time"), d.get_trace("I(L1)"))
-pyplot.title('inductor_current')
+pyplot.title('inductor current')
 pyplot.ylabel('current(A)')
 pyplot.legend(['current from VHDL', 'current from LTSpice'])
 
@@ -40,4 +42,6 @@ pyplot.legend(['voltage from VHDL', 'voltage from LTSpice'])
 
 pyplot.xlabel('time (s)')
 pyplot.ylabel('voltage(V)')
+
 pyplot.show()
+
