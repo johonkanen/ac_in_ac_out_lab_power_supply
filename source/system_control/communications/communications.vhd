@@ -57,13 +57,23 @@ architecture rtl of communications is
     signal uart_rx_data_in  : uart_rx_data_input_group;
     signal uart_rx_data_out : uart_rx_data_output_group;
 
-    signal uart_tx_data_in    : uart_tx_data_input_group;
-    signal uart_tx_data_out   : uart_tx_data_output_group;
+    signal uart_tx_data_in  : uart_tx_data_input_group;
+    signal uart_tx_data_out : uart_tx_data_output_group;
     signal uart_protocol : uart_communcation_record := init_uart_communcation;
 
-    signal counter : integer range 0 to 2**12-1 := 1199; 
+    signal counter        :  integer range 0 to 2**12-1 := 1199;
+    signal stream_address :  integer range 0 to 2**16-1 := 0;
     signal number_of_registers_to_stream : integer range 0 to 2**23-1 := 0;
-    signal stream_address : integer range 0 to 2**16-1 := 0;
+
+    function responce_for_request_data_from_address_is_ready
+    (
+        return_bus : fpga_interconnect_record
+    )
+    return boolean
+    is
+    begin
+        return write_to_address_is_requested(return_bus, 0);
+    end responce_for_request_data_from_address_is_ready;
 
 begin
 
@@ -77,7 +87,7 @@ begin
             init_bus(bus_out);
             create_uart_protocol(uart_protocol, uart_rx_data_out, uart_tx_data_in, uart_tx_data_out);
 
-            ------------------------------------------------------------------------
+            --------------------
             if frame_has_been_received(uart_protocol) then
                 CASE get_command(uart_protocol) is
                     WHEN read_is_requested_from_address_from_uart =>
@@ -95,20 +105,24 @@ begin
                 end CASE;
             end if;
 
+            --------------------
             if number_of_registers_to_stream > 0 then
                 if transmit_is_ready(uart_protocol) then
                     request_data_from_address(bus_out, stream_address);
                 end if;
 
-                if write_to_address_is_requested(bus_in, 0) then
+                if responce_for_request_data_from_address_is_ready(bus_in) then
                     number_of_registers_to_stream <= number_of_registers_to_stream - 1;
                     send_stream_data_packet(uart_protocol, get_data(bus_in));
                 end if;
+
             else
-                if write_to_address_is_requested(bus_in, 0) then
+                if responce_for_request_data_from_address_is_ready(bus_in) then
                     transmit_words_with_uart(uart_protocol, write_data_to_register(address => 0, data => get_data(bus_in)));
                 end if;
+
             end if;
+            --------------------
             
         end if; -- rising_edge
     end process test_uart;	
