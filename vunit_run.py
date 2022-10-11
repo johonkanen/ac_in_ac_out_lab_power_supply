@@ -30,5 +30,6 @@ math_library_22x22.add_source_files(ROOT / "source/hVHDL_math_library/multiplier
 math_library_22x22.add_source_files(ROOT / "source/hVHDL_dynamic_model_verification_library/state_variable/state_variable_pkg.vhd")
 math_library_22x22.add_source_files(ROOT / "source/hVHDL_dynamic_model_verification_library/lcr_filter_model/lcr_filter_model_pkg.vhd")
 math_library_22x22.add_source_files(ROOT / "simulation/converter_models/grid_inverter_tb.vhd")
+math_library_22x22.add_source_files(ROOT / "simulation/converter_models/grid_inverter_current_step_tb.vhd")
 
 VU.main()
