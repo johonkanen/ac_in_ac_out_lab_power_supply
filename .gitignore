@@ -13,3 +13,5 @@ outflow/
 *.net
 *pycache*
 deleteme/
+*.bak
+*.dat
