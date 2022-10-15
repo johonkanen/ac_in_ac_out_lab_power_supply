@@ -63,6 +63,8 @@ ghdl -a --ieee=synopsys --std=08 --work=math_library_22x22 source/hVHDL_dynamic_
 ghdl -a --ieee=synopsys --std=08 --work=math_library_26x26 source/hVHDL_dynamic_model_verification_library/state_variable/state_variable_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 --work=math_library_26x26 source/hVHDL_dynamic_model_verification_library/lcr_filter_model/lcr_filter_model_pkg.vhd
 
+ghdl -a --ieee=synopsys --std=08 --work=math_library_22x22 simulation/converter_models/simulation_pkg.vhd
+
 
 ghdl -a --ieee=synopsys --std=08 source/system_register_addresses_pkg.vhd
 
