@@ -89,5 +89,5 @@ ghdl -a --ieee=synopsys --std=08 source/system_control/power_electronics/power_e
 ghdl -a --ieee=synopsys --std=08 source/system_control/main_state_machine/main_state_machine_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 source/system_control/system_control.vhd
 
-ghdl -a --ieee=synopsys --std=08 efinix_build/efinix_top.vhd
+ghdl -a --ieee=synopsys --std=08 source/top.vhd
 ghdl -a --ieee=synopsys --std=08 cyclone10_build/cyclone_10_top.vhd

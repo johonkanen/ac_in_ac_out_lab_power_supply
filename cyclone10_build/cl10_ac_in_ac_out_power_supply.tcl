@@ -50,7 +50,7 @@ else \
 
     source $tcl_path/make_assignments.tcl
 
-    set_global_assignment -name VHDL_FILE $tcl_path/../efinix_build/efinix_top.vhd
+    set_global_assignment -name VHDL_FILE $tcl_path/../source/top.vhd
     set_global_assignment -name VHDL_FILE $tcl_path/cyclone_10_top.vhd
     set_global_assignment -name VHDL_FILE $tcl_path/../efinix_build/efinix_system_clocks_pkg.vhd
 

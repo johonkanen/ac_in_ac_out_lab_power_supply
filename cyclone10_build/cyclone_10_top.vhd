@@ -78,7 +78,7 @@ begin
 ------------------------------------------------------------------------
 
 ------------------------------------------------------------------------
-    u_efinix : entity work.efinix_top
+    u_top : entity work.top
     port map (
         clock_120Mhz => clock_120Mhz,
         pll_locked   => pll_locked,
