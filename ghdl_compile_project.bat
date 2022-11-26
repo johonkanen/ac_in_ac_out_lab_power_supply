@@ -23,7 +23,24 @@ ghdl -a --ieee=synopsys --std=08 --work=float %source%/float_multiplier/float_mu
 ghdl -a --ieee=synopsys --std=08 --work=float %source%/float_alu/float_alu_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 --work=float %source%/float_first_order_filter/float_first_order_filter_pkg.vhd
 
+SET source=%project_root%/source/hVHDL_math_library
+
+ghdl -a --ieee=synopsys --std=08 %source%/multiplier/multiplier_base_types_18bit_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 %source%/real_to_fixed/real_to_fixed_pkg.vhd
+
+ghdl -a --ieee=synopsys --std=08 %source%/multiplier/multiplier_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 %source%/sincos/sincos_pkg.vhd
+
 SET source=%project_root%/source/
+
+ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_dynamic_model_verification_library/simulator_engine/simulation_configuration_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_dynamic_model_verification_library/simulator_engine/simulation_pkg.vhd
+
+ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_dynamic_model_verification_library/state_variable/state_variable_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_dynamic_model_verification_library/lcr_filter_model/lcr_filter_model_pkg.vhd
+
+ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_analog_to_digital_drivers/sigma_delta/sigma_delta_simulation_model_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_analog_to_digital_drivers/sigma_delta/sigma_delta_cic_filter_pkg.vhd
 
 ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_analog_to_digital_drivers/sigma_delta/sigma_delta_simulation_model_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %source%/hVHDL_analog_to_digital_drivers/sigma_delta/sigma_delta_cic_filter_pkg.vhd
@@ -62,9 +79,6 @@ ghdl -a --ieee=synopsys --std=08 --work=math_library_22x22 source/hVHDL_dynamic_
 
 ghdl -a --ieee=synopsys --std=08 --work=math_library_26x26 source/hVHDL_dynamic_model_verification_library/state_variable/state_variable_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 --work=math_library_26x26 source/hVHDL_dynamic_model_verification_library/lcr_filter_model/lcr_filter_model_pkg.vhd
-
-ghdl -a --ieee=synopsys --std=08 --work=math_library_22x22 simulation/converter_models/simulation_pkg.vhd
-
 
 ghdl -a --ieee=synopsys --std=08 source/system_register_addresses_pkg.vhd
 

@@ -11,7 +11,6 @@ package power_electronics_pkg is
     type power_electronics_FPGA_input_group is record
         adc_interface_FPGA_in  : adc_interface_FPGA_input_group;
         pll_locked : std_logic;
-
     end record;
     
     type power_electronics_FPGA_output_group is record
@@ -19,7 +18,6 @@ package power_electronics_pkg is
         aux_pwm_out          : std_logic;
 
         adc_interface_FPGA_out : adc_interface_FPGA_output_group;
-
         power_electronics_control_FPGA_out : power_electronics_control_FPGA_output_group; 
     end record;
     
@@ -114,23 +112,27 @@ begin
 
     power_electronics_FPGA_out.aux_pwm_out <= aux_pwm.pwm_out;
 
+------------------------------------------------------------------------
     combine_buses : process(clock_120mhz)
-        
     begin
         if rising_edge(clock_120mhz) then
-            bus_out <= bus_from_adc_interface and bus_from_power_electronics and bus_from_power_electronics_control;
-        end if; --rising_edge
+
+            bus_out <= bus_from_adc_interface 
+                       and bus_from_power_electronics 
+                       and bus_from_power_electronics_control;
+
+        end if;
     end process combine_buses;	
 
+------------------------------------------------------------------------
     u_adc_interface : entity work.adc_interface
     port map( 
-              clock => clock_120mhz,
+              clock      => clock_120mhz,
               pll_locked => power_electronics_FPGA_in.pll_locked,
               adc_interface_FPGA_in          => power_electronics_FPGA_in.adc_interface_FPGA_in,
               adc_interface_FPGA_out         => power_electronics_FPGA_out.adc_interface_FPGA_out,
               adc_interface_data_in.bus_in   => bus_from_master,
               adc_interface_data_out.bus_out => bus_from_adc_interface);
-
 
 ------------------------------------------------------------------------
     led_blinker : process(clock_120Mhz)
@@ -195,13 +197,13 @@ begin
         end if; --rising_edge
     end process led_blinker;	
 
+------------------------------------------------------------------------
     u_power_electronics_control : entity work.power_electronics_control
     port map (
         system_clocks   => system_clocks,
         power_electronics_control_FPGA_out         => power_electronics_FPGA_out.power_electronics_control_FPGA_out,
         power_electronics_control_data_in.bus_in   => bus_from_master,
         power_electronics_control_data_out.bus_out => bus_from_power_electronics_control);
-
 
 ------------------------------------------------------------------------
 end rtl;

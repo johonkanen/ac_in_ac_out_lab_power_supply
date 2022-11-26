@@ -96,12 +96,9 @@ begin
     end process main_system_controller;	
 
 ------------------------------------------------------------------------
-    combine_buses : process(clock_120Mhz)
-    begin
+    combine_buses : process(clock_120Mhz) begin
         if rising_edge(clock_120Mhz) then
-
              bus_to_master <= power_electronics_data_out.bus_out and bus_from_system_control;
-
         end if;
     end process combine_buses;	
 ------------------------------------------------------------------------
