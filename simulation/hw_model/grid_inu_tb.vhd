@@ -6,24 +6,30 @@ LIBRARY ieee  ;
 library vunit_lib;
 context vunit_lib.vunit_context;
 
-    use work.fpga_interconnect_pkg.all;
     use work.multiplier_pkg.all;
     use work.lcr_filter_model_pkg.all;
     use work.simulation_pkg.all;
 
-entity gri_inu_tb is
+entity grid_inu_tb is
   generic (runner_cfg : string);
 end;
 
-architecture vunit_simulation of gri_inu_tb is
+architecture vunit_simulation of grid_inu_tb is
 
     constant clock_period      : time    := 1 ns;
-    constant simtime_in_clocks : integer := 5000;
+    constant simtime_in_clocks : integer := 50000;
     
     signal simulator_clock     : std_logic := '0';
     signal simulation_counter  : natural   := 0;
     -----------------------------------
     -- simulation specific signals ----
+
+    signal multiplier : multiplier_record := init_multiplier;
+    signal lcr_model  : lcr_model_record  := init_lcr_filter(inductance_is(470.0e-6), capacitance_is(20.0e-6), resistance_is(0.9));
+
+    signal output_voltage   : real := 0.0;
+    signal input_voltage    : real := 325.0;
+    signal inductor_current : real := 0.0;
 
 begin
 
@@ -45,6 +51,19 @@ begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
 
+            create_multiplier(multiplier);
+            create_test_lcr_filter(
+                hw_multiplier     => multiplier,
+                lcr_filter_object => lcr_model,
+                load_current      => 0,
+                u_in              => int_voltage(input_voltage));
+
+            if lcr_filter_calculation_is_ready(lcr_model) or simulation_counter = 0 then
+                request_lcr_filter_calculation(lcr_model);
+            end if;
+
+            output_voltage   <= real_voltage(get_capacitor_voltage(lcr_model));
+            inductor_current <= real_voltage(get_inductor_current(lcr_model));
 
         end if; -- rising_edge
     end process stimulus;	
