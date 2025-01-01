@@ -105,4 +105,6 @@ begin
     r_output_inu_sdm_data <= output_inu_sdm_data;
     r_dab_sdm_data        <= dab_sdm_data;
 
+    -- u_fpga_communications : entity work.fpga_communications
+
 end rtl;

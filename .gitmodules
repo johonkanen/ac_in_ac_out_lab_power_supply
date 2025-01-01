@@ -34,3 +34,6 @@
 	path = fpga_uart_pc_software
 	url = https://github.com/johonkanen/fpga_uart_pc_software.git
     main = origin/main
+[submodule "source/fpga_communication"]
+	path = source/fpga_communication
+	url = https://github.com/johonkanen/fpga_communication.git
