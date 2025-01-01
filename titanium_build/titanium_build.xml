@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<efx:project name="titanium_build" description="" last_change="1735576345" sw_version="2024.2.294.1.19" last_run_state="" last_run_flow="" config_result_in_sync="true" design_ood="change" place_ood="" route_ood="" xmlns:efx="http://www.efinixinc.com/enf_proj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/enf_proj enf_proj.xsd">
+<efx:project name="titanium_build" description="" last_change="1735761686" sw_version="2024.2.294.1.19" last_run_state="pass" last_run_flow="bitstream" config_result_in_sync="true" design_ood="sync" place_ood="sync" route_ood="sync" xmlns:efx="http://www.efinixinc.com/enf_proj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/enf_proj enf_proj.xsd">
     <efx:device_info>
         <efx:family name="Titanium"/>
         <efx:device name="Ti60F225"/>
         <efx:timing_model name="C4"/>
     </efx:device_info>
-    <efx:design_info def_veri_version="verilog_2k" def_vhdl_version="vhdl_2019" unified_flow="true">
-        <efx:top_module name="titanium_build"/>
+    <efx:design_info def_veri_version="verilog_2k" def_vhdl_version="vhdl_2019" unified_flow="false">
+        <efx:top_module name="top"/>
         <efx:design_file name="titanium_top.vhd" version="default" library="default"/>
-        <efx:top_vhdl_arch name="top"/>
+        <efx:design_file name="../source/fpga_communication/uart_protocol_pkg.vhd" version="default" library="default"/>
+        <efx:design_file name="../source/fpga_communication/fpga_interconnect_16bit_pkg.vhd" version="default" library="default"/>
+        <efx:design_file name="../source/fpga_communication/serial_protocol_generic_pkg.vhd" version="default" library="default"/>
+        <efx:design_file name="../source/fpga_communication/communications.vhd" version="default" library="default"/>
+        <efx:design_file name="../source/fpga_communication/hVHDL_fpga_interconnect/fpga_interconnect_generic_pkg.vhd" version="default" library="default"/>
+        <efx:design_file name="../source/fpga_communication/hVHDL_uart/uart_rx/uart_rx_pkg.vhd" version="default" library="default"/>
+        <efx:design_file name="../source/fpga_communication/hVHDL_uart/uart_tx/uart_tx_pkg.vhd" version="default" library="default"/>
+        <efx:top_vhdl_arch name="rtl"/>
     </efx:design_info>
     <efx:constraint_info>
+        <efx:sdc_file name="titanium_build.sdc"/>
         <efx:inter_file name=""/>
     </efx:constraint_info>
     <efx:isf_info/>
@@ -41,8 +49,8 @@
         <efx:param name="operator-sharing" value="0" value_type="e_option"/>
         <efx:param name="optimize-adder-tree" value="1" value_type="e_option"/>
         <efx:param name="optimize-zero-init-rom" value="1" value_type="e_option"/>
-        <efx:param name="peri-syn-instantiation" value="1" value_type="e_option"/>
-        <efx:param name="peri-syn-inference" value="1" value_type="e_option"/>
+        <efx:param name="peri-syn-instantiation" value="0" value_type="e_option"/>
+        <efx:param name="peri-syn-inference" value="0" value_type="e_option"/>
         <efx:param name="ram-decomp-mode" value="0" value_type="e_option"/>
         <efx:param name="retiming" value="1" value_type="e_option"/>
         <efx:param name="seq_opt" value="1" value_type="e_option"/>

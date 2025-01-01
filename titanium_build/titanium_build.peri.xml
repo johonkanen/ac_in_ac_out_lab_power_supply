@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<efxpt:design_db name="titanium_build" device_def="Ti60F225" version="2024.2.294.1.19" db_version="20242999" last_change_date="Wed Jan  1 21:54:55 2025" xmlns:efxpt="http://www.efinixinc.com/peri_design_db" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/peri_design_db peri_design_db.xsd ">
+    <efxpt:device_info>
+        <efxpt:iobank_info>
+            <efxpt:iobank name="1A" iostd="1.8 V LVCMOS" is_dyn_voltage="false" mode_sel_name="1A_MODE_SEL"/>
+            <efxpt:iobank name="1B" iostd="1.8 V LVCMOS" is_dyn_voltage="false" mode_sel_name="1B_MODE_SEL"/>
+            <efxpt:iobank name="2A" iostd="1.8 V LVCMOS" is_dyn_voltage="false" mode_sel_name="2A_MODE_SEL"/>
+            <efxpt:iobank name="2B" iostd="1.8 V LVCMOS" is_dyn_voltage="false" mode_sel_name="2B_MODE_SEL"/>
+            <efxpt:iobank name="3A" iostd="1.8 V LVCMOS" is_dyn_voltage="false" mode_sel_name="3A_MODE_SEL"/>
+            <efxpt:iobank name="3B" iostd="1.8 V LVCMOS" is_dyn_voltage="false" mode_sel_name="3B_MODE_SEL"/>
+            <efxpt:iobank name="4A" iostd="1.8 V LVCMOS" is_dyn_voltage="false" mode_sel_name="4A_MODE_SEL"/>
+            <efxpt:iobank name="4B" iostd="1.8 V LVCMOS" is_dyn_voltage="false" mode_sel_name="4B_MODE_SEL"/>
+            <efxpt:iobank name="BL" iostd="3.3 V LVCMOS" is_dyn_voltage="false" mode_sel_name="BL_MODE_SEL"/>
+            <efxpt:iobank name="BR" iostd="3.3 V LVCMOS" is_dyn_voltage="false" mode_sel_name="BR_MODE_SEL"/>
+            <efxpt:iobank name="TL" iostd="3.3 V LVCMOS" is_dyn_voltage="false" mode_sel_name="TL_MODE_SEL"/>
+            <efxpt:iobank name="TR" iostd="3.3 V LVCMOS" is_dyn_voltage="false" mode_sel_name="TR_MODE_SEL"/>
+        </efxpt:iobank_info>
+        <efxpt:ctrl_info>
+            <efxpt:ctrl name="cfg" ctrl_def="CONFIG_CTRL0" clock_name="" is_clk_invert="false" cbsel_bus_name="cfg_CBSEL" config_ctrl_name="cfg_CONFIG" ena_capture_name="cfg_ENA" error_status_name="cfg_ERROR" um_signal_status_name="cfg_USR_STATUS" is_remote_update_enable="false" is_user_mode_enable="false"/>
+        </efxpt:ctrl_info>
+        <efxpt:seu_info>
+            <efxpt:seu name="seu" block_def="CONFIG_SEU0" mode="auto" ena_detect="false" wait_interval="16500000">
+                <efxpt:gen_pin>
+                    <efxpt:pin name="seu_START" type_name="START" is_bus="false"/>
+                    <efxpt:pin name="seu_INJECT_ERROR" type_name="INJECT_ERROR" is_bus="false"/>
+                    <efxpt:pin name="seu_RST" type_name="RST" is_bus="false"/>
+                    <efxpt:pin name="seu_CONFIG" type_name="CONFIG" is_bus="false"/>
+                    <efxpt:pin name="seu_ERROR" type_name="ERROR" is_bus="false"/>
+                    <efxpt:pin name="seu_DONE" type_name="DONE" is_bus="false"/>
+                </efxpt:gen_pin>
+            </efxpt:seu>
+        </efxpt:seu_info>
+        <efxpt:clkmux_info>
+            <efxpt:clkmux name="CLKMUX_B" block_def="CLKMUX_B" is_mux_bot0_dyn="false" is_mux_bot7_dyn="false">
+                <efxpt:gen_pin>
+                    <efxpt:pin name="" type_name="ROUTE0" is_bus="false" is_clk="true" is_clk_invert="false"/>
+                    <efxpt:pin name="" type_name="ROUTE1" is_bus="false" is_clk="true" is_clk_invert="false"/>
+                    <efxpt:pin name="" type_name="ROUTE2" is_bus="false" is_clk="true" is_clk_invert="false"/>
+                    <efxpt:pin name="" type_name="ROUTE3" is_bus="false" is_clk="true" is_clk_invert="false"/>
+                    <efxpt:pin name="" type_name="DYN_MUX_OUT_0" is_bus="false"/>
+                    <efxpt:pin name="" type_name="DYN_MUX_OUT_7" is_bus="false"/>
+                    <efxpt:pin name="" type_name="DYN_MUX_SEL_0" is_bus="true"/>
+                    <efxpt:pin name="" type_name="DYN_MUX_SEL_7" is_bus="true"/>
+                </efxpt:gen_pin>
+            </efxpt:clkmux>
+            <efxpt:clkmux name="CLKMUX_L" block_def="CLKMUX_L" is_mux_bot0_dyn="false" is_mux_bot7_dyn="false">
+                <efxpt:gen_pin>
+                    <efxpt:pin name="" type_name="ROUTE0" is_bus="false" is_clk="true" is_clk_invert="false"/>
+                    <efxpt:pin name="" type_name="ROUTE1" is_bus="false" is_clk="true" is_clk_invert="false"/>
+                    <efxpt:pin name="" type_name="ROUTE2" is_bus="false" is_clk="true" is_clk_invert="false"/>
+                    <efxpt:pin name="" type_name="ROUTE3" is_bus="false" is_clk="true" is_clk_invert="false"/>
+                    <efxpt:pin name="" type_name="DYN_MUX_OUT_0" is_bus="false"/>
+                    <efxpt:pin name="" type_name="DYN_MUX_OUT_7" is_bus="false"/>
+                    <efxpt:pin name="" type_name="DYN_MUX_SEL_0" is_bus="true"/>
+                    <efxpt:pin name="" type_name="DYN_MUX_SEL_7" is_bus="true"/>
+                </efxpt:gen_pin>
+            </efxpt:clkmux>
+            <efxpt:clkmux name="CLKMUX_R" block_def="CLKMUX_R" is_mux_bot0_dyn="false" is_mux_bot7_dyn="false">
+                <efxpt:gen_pin>
+                    <efxpt:pin name="" type_name="ROUTE0" is_bus="false" is_clk="true" is_clk_invert="false"/>
+                    <efxpt:pin name="" type_name="ROUTE1" is_bus="false" is_clk="true" is_clk_invert="false"/>
+                    <efxpt:pin name="" type_name="ROUTE2" is_bus="false" is_clk="true" is_clk_invert="false"/>
+                    <efxpt:pin name="" type_name="ROUTE3" is_bus="false" is_clk="true" is_clk_invert="false"/>
+                    <efxpt:pin name="" type_name="DYN_MUX_OUT_0" is_bus="false"/>
+                    <efxpt:pin name="" type_name="DYN_MUX_OUT_7" is_bus="false"/>
+                    <efxpt:pin name="" type_name="DYN_MUX_SEL_0" is_bus="true"/>
+                    <efxpt:pin name="" type_name="DYN_MUX_SEL_7" is_bus="true"/>
+                </efxpt:gen_pin>
+            </efxpt:clkmux>
+            <efxpt:clkmux name="CLKMUX_T" block_def="CLKMUX_T" is_mux_bot0_dyn="false" is_mux_bot7_dyn="false">
+                <efxpt:gen_pin>
+                    <efxpt:pin name="" type_name="ROUTE0" is_bus="false" is_clk="true" is_clk_invert="false"/>
+                    <efxpt:pin name="" type_name="ROUTE1" is_bus="false" is_clk="true" is_clk_invert="false"/>
+                    <efxpt:pin name="" type_name="ROUTE2" is_bus="false" is_clk="true" is_clk_invert="false"/>
+                    <efxpt:pin name="" type_name="ROUTE3" is_bus="false" is_clk="true" is_clk_invert="false"/>
+                    <efxpt:pin name="" type_name="DYN_MUX_OUT_0" is_bus="false"/>
+                    <efxpt:pin name="" type_name="DYN_MUX_OUT_7" is_bus="false"/>
+                    <efxpt:pin name="" type_name="DYN_MUX_SEL_0" is_bus="true"/>
+                    <efxpt:pin name="" type_name="DYN_MUX_SEL_7" is_bus="true"/>
+                </efxpt:gen_pin>
+            </efxpt:clkmux>
+        </efxpt:clkmux_info>
+    </efxpt:device_info>
+    <efxpt:gpio_info>
+        <efxpt:comp_gpio name="ad_mux1_io[0]" gpio_def="GPIOB_N_14" mode="output" bus_name="ad_mux1_io" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="ad_mux1_io[0]"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="ad_mux1_io[0]" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="ad_mux1_io[1]" gpio_def="GPIOB_P_12" mode="output" bus_name="ad_mux1_io" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="ad_mux1_io[1]"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="ad_mux1_io[1]" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="ad_mux1_io[2]" gpio_def="GPIOR_P_07" mode="output" bus_name="ad_mux1_io" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="ad_mux1_io[2]"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="ad_mux1_io[2]" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="ad_mux2_io[0]" gpio_def="GPIOR_P_05" mode="output" bus_name="ad_mux2_io" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="ad_mux2_io[0]"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="ad_mux2_io[0]" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="ad_mux2_io[1]" gpio_def="GPIOR_N_07" mode="output" bus_name="ad_mux2_io" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="ad_mux2_io[1]"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="ad_mux2_io[1]" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="ad_mux2_io[2]" gpio_def="GPIOR_P_09" mode="output" bus_name="ad_mux2_io" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="ad_mux2_io[2]"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="ad_mux2_io[2]" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="ads_7056_chip_select" gpio_def="GPIOL_P_00" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="ads_7056_chip_select"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="ads_7056_chip_select" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="ads_7056_chip_select_pri" gpio_def="GPIOB_P_14" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="ads_7056_chip_select_pri"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="ads_7056_chip_select_pri" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="ads_7056_clock" gpio_def="GPIOB_N_00" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="ads_7056_clock"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="ads_7056_clock" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="ads_7056_clock_pri" gpio_def="GPIOB_P_17" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="ads_7056_clock_pri"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="ads_7056_clock_pri" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="ads_7056_input_data" gpio_def="GPIOL_N_00" mode="input" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="IN_PIN" value="ads_7056_input_data"/>
+                <efxpt:netlist_parameter name="IN_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:input_config name="ads_7056_input_data" name_ddio_lo="" conn_type="normal" is_register="false" clock_name="" is_clock_inverted="false" pull_option="none" is_schmitt_trigger="false" ddio_type="none" is_bus_hold="false" delay="0" is_serial="false" is_dyn_delay="false" fastclk_name="" pullup_ena_name="ads_7056_input_data_PULL_UP_ENA" dyn_delay_en_name="ads_7056_input_data_DLY_ENA" dyn_delay_reset_name="ads_7056_input_data_DLY_RST" dyn_delay_ctrl_name="ads_7056_input_data_DLY_CTRL" clkmux_buf_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="ads_7056_input_data_pri" gpio_def="GPIOR_29" mode="input" bus_name="" io_standard="3.3 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="IN_PIN" value="ads_7056_input_data_pri"/>
+                <efxpt:netlist_parameter name="IN_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:input_config name="ads_7056_input_data_pri" name_ddio_lo="" conn_type="normal" is_register="false" clock_name="" is_clock_inverted="false" pull_option="none" is_schmitt_trigger="false" ddio_type="none" is_bus_hold="false" delay="0" is_serial="false" is_dyn_delay="false" fastclk_name="" pullup_ena_name="ads_7056_input_data_pri_PULL_UP_ENA" dyn_delay_en_name="ads_7056_input_data_pri_DLY_ENA" dyn_delay_reset_name="ads_7056_input_data_pri_DLY_RST" dyn_delay_ctrl_name="ads_7056_input_data_pri_DLY_CTRL" clkmux_buf_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="dab_primary_hi" gpio_def="GPIOB_N_07" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="dab_primary_hi"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="dab_primary_hi" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="dab_primary_low" gpio_def="GPIOB_P_02" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="dab_primary_low"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="dab_primary_low" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="dab_sdm_clock" gpio_def="GPIOB_N_02" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="dab_sdm_clock"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="dab_sdm_clock" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="dab_sdm_data" gpio_def="GPIOR_27" mode="input" bus_name="" io_standard="3.3 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="IN_PIN" value="dab_sdm_data"/>
+                <efxpt:netlist_parameter name="IN_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:input_config name="dab_sdm_data" name_ddio_lo="" conn_type="normal" is_register="false" clock_name="" is_clock_inverted="false" pull_option="none" is_schmitt_trigger="false" ddio_type="none" is_bus_hold="false" delay="0" is_serial="false" is_dyn_delay="false" fastclk_name="" pullup_ena_name="dab_sdm_data_PULL_UP_ENA" dyn_delay_en_name="dab_sdm_data_DLY_ENA" dyn_delay_reset_name="dab_sdm_data_DLY_RST" dyn_delay_ctrl_name="dab_sdm_data_DLY_CTRL" clkmux_buf_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="dab_secondary_hi" gpio_def="GPIOB_P_00" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="dab_secondary_hi"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="dab_secondary_hi" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="dab_secondary_low" gpio_def="GPIOL_N_06" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="dab_secondary_low"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="dab_secondary_low" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="gate_power1_pwm" gpio_def="GPIOB_N_15" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="gate_power1_pwm"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="gate_power1_pwm" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="gate_power2_pwm" gpio_def="GPIOB_N_17" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="gate_power2_pwm"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="gate_power2_pwm" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="gate_power3_pwm" gpio_def="GPIOB_P_15" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="gate_power3_pwm"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="gate_power3_pwm" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="gate_power4_pwm" gpio_def="GPIOB_P_01" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="gate_power4_pwm"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="gate_power4_pwm" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="gate_power5_pwm" gpio_def="GPIOL_N_07" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="gate_power5_pwm"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="gate_power5_pwm" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="gate_power6_pwm" gpio_def="GPIOB_N_01" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="gate_power6_pwm"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="gate_power6_pwm" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="grid_inu_leg1_hi" gpio_def="GPIOB_P_07" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="grid_inu_leg1_hi"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="grid_inu_leg1_hi" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="grid_inu_leg1_low" gpio_def="GPIOR_N_09" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="grid_inu_leg1_low"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="grid_inu_leg1_low" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="grid_inu_leg2_hi" gpio_def="GPIOB_N_12" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="grid_inu_leg2_hi"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="grid_inu_leg2_hi" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="grid_inu_leg2_low" gpio_def="GPIOB_P_13" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="grid_inu_leg2_low"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="grid_inu_leg2_low" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="grid_inu_sdm_clock" gpio_def="GPIOR_N_05" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="grid_inu_sdm_clock"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="grid_inu_sdm_clock" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="grid_inu_sdm_data" gpio_def="GPIOR_25" mode="input" bus_name="" io_standard="3.3 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="IN_PIN" value="grid_inu_sdm_data"/>
+                <efxpt:netlist_parameter name="IN_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:input_config name="grid_inu_sdm_data" name_ddio_lo="" conn_type="normal" is_register="false" clock_name="" is_clock_inverted="false" pull_option="none" is_schmitt_trigger="false" ddio_type="none" is_bus_hold="false" delay="0" is_serial="false" is_dyn_delay="false" fastclk_name="" pullup_ena_name="grid_inu_sdm_data_PULL_UP_ENA" dyn_delay_en_name="grid_inu_sdm_data_DLY_ENA" dyn_delay_reset_name="grid_inu_sdm_data_DLY_RST" dyn_delay_ctrl_name="grid_inu_sdm_data_DLY_CTRL" clkmux_buf_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="output_inu_leg1_hi" gpio_def="GPIOL_N_02" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="output_inu_leg1_hi"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="output_inu_leg1_hi" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="output_inu_leg1_low" gpio_def="GPIOL_P_02" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="output_inu_leg1_low"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="output_inu_leg1_low" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="output_inu_leg2_hi" gpio_def="GPIOL_P_09" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="output_inu_leg2_hi"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="output_inu_leg2_hi" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="output_inu_leg2_low" gpio_def="GPIOL_N_05" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="output_inu_leg2_low"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="output_inu_leg2_low" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="output_inu_sdm_clock" gpio_def="GPIOL_P_07" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="output_inu_sdm_clock"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="output_inu_sdm_clock" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="output_inu_sdm_data" gpio_def="GPIOR_28" mode="input" bus_name="" io_standard="3.3 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="IN_PIN" value="output_inu_sdm_data"/>
+                <efxpt:netlist_parameter name="IN_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:input_config name="output_inu_sdm_data" name_ddio_lo="" conn_type="normal" is_register="false" clock_name="" is_clock_inverted="false" pull_option="none" is_schmitt_trigger="false" ddio_type="none" is_bus_hold="false" delay="0" is_serial="false" is_dyn_delay="false" fastclk_name="" pullup_ena_name="output_inu_sdm_data_PULL_UP_ENA" dyn_delay_en_name="output_inu_sdm_data_DLY_ENA" dyn_delay_reset_name="output_inu_sdm_data_DLY_RST" dyn_delay_ctrl_name="output_inu_sdm_data_DLY_CTRL" clkmux_buf_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="primary_bypass_relay" gpio_def="GPIOL_P_08" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="primary_bypass_relay"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="primary_bypass_relay" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="ref_clock" gpio_def="GPIOR_P_19" mode="input" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:input_config name="ref_clock" name_ddio_lo="" conn_type="pll_clkin" is_register="false" clock_name="" is_clock_inverted="false" pull_option="none" is_schmitt_trigger="false" ddio_type="none" is_bus_hold="false" delay="0" is_serial="false" is_dyn_delay="false" fastclk_name="" pullup_ena_name="ref_clock_PULL_UP_ENA" dyn_delay_en_name="ref_clock_DLY_ENA" dyn_delay_reset_name="ref_clock_DLY_RST" dyn_delay_ctrl_name="ref_clock_DLY_CTRL" clkmux_buf_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="secondary_bypass_relay" gpio_def="GPIOB_P_08" mode="output" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="secondary_bypass_relay"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="secondary_bypass_relay" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="u_fpga_communications/u_uart_rx/input_buffer[0]" gpio_def="GPIOL_02" mode="input" bus_name="" io_standard="3.3 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="IN_CLK_PIN" value="main_clock"/>
+                <efxpt:netlist_parameter name="IN_PIN" value="uart_rx"/>
+                <efxpt:netlist_parameter name="IN_REG" value="REG"/>
+                <efxpt:netlist_parameter name="IS_INCLK_INVERTED" value="0"/>
+            </efxpt:netlist_config>
+            <efxpt:input_config name="uart_rx" name_ddio_lo="" conn_type="normal" is_register="true" clock_name="main_clock" is_clock_inverted="false" pull_option="none" is_schmitt_trigger="false" ddio_type="none" is_bus_hold="false" delay="0" is_serial="false" is_dyn_delay="false" fastclk_name="" pullup_ena_name="u_fpga_communications/u_uart_rx/input_buffer_PULL_UP_ENA[0]" dyn_delay_en_name="u_fpga_communications/u_uart_rx/input_buffer_DLY_ENA[0]" dyn_delay_reset_name="u_fpga_communications/u_uart_rx/input_buffer_DLY_RST[0]" dyn_delay_ctrl_name="u_fpga_communications/u_uart_rx/input_buffer_DLY_CTRL[0]" clkmux_buf_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="uart_tx" gpio_def="GPIOL_01" mode="output" bus_name="" io_standard="3.3 V LVCMOS">
+            <efxpt:netlist_config netlist_checksum="titanium_build.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="uart_tx"/>
+                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
+            </efxpt:netlist_config>
+            <efxpt:output_config name="uart_tx" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:global_unused_config state="input with weak pullup"/>
+        <efxpt:bus name="ad_mux1_io" mode="output" msb="2" lsb="0"/>
+        <efxpt:bus name="ad_mux2_io" mode="output" msb="2" lsb="0"/>
+    </efxpt:gpio_info>
+    <efxpt:pll_info>
+        <efxpt:pll name="main_pll" pll_def="PLL_TR0" ref_clock_name="" ref_clock_freq="50.0000" multiplier="2" pre_divider="1" post_divider="2" reset_name="" locked_name="pll_locked" is_ipfrz="false" is_bypass_lock="true">
+            <efxpt:adv_prop ref_clock_mode="external" ref_clock1_name="" ext_ref_clock_id="2" clksel_name="" feedback_clock_name="main_pll_CLKOUT0" feedback_mode="local"/>
+            <efxpt:gen_pin>
+                <efxpt:pin name="" type_name="SHIFT_ENA" is_bus="false"/>
+                <efxpt:pin name="" type_name="DESKEWED" is_bus="false"/>
+                <efxpt:pin name="" type_name="SHIFT" is_bus="true"/>
+                <efxpt:pin name="" type_name="SHIFT_SEL" is_bus="true"/>
+            </efxpt:gen_pin>
+            <efxpt:comp_output_clock name="main_pll_CLKOUT0" number="0" out_divider="24" is_dyn_phase="false" phase_setting="0" is_inverted="false">
+                <efxpt:gen_pin/>
+            </efxpt:comp_output_clock>
+            <efxpt:comp_output_clock name="main_clock" number="1" out_divider="20" is_dyn_phase="false" phase_setting="0" is_inverted="false">
+                <efxpt:gen_pin/>
+            </efxpt:comp_output_clock>
+            <efxpt:comp_prop/>
+        </efxpt:pll>
+    </efxpt:pll_info>
+    <efxpt:osc_info/>
+    <efxpt:lvds_info/>
+    <efxpt:jtag_info/>
+    <efxpt:mipi_dphy_info/>
+    <efxpt:partial_design source="titanium_build.peri.db"/>
+</efxpt:design_db>

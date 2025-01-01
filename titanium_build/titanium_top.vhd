@@ -1,9 +1,11 @@
 library ieee;
     use ieee.std_logic_1164.all;
 
+    use work.fpga_interconnect_pkg.all;
+
 entity top is
     port (
-        clock_120Mhz : in std_logic;
+        main_clock : in std_logic;
         pll_locked   : in std_logic;
 
         uart_rx      : in std_logic;
@@ -62,6 +64,11 @@ architecture rtl of top is
     signal r_output_inu_sdm_data : std_logic;
     signal r_dab_sdm_data        : std_logic;
 
+    signal bus_to_communications   : fpga_interconnect_record := init_fpga_interconnect;
+    signal bus_from_communications : fpga_interconnect_record := init_fpga_interconnect;
+
+    signal bus_from_top : fpga_interconnect_record := init_fpga_interconnect;
+
 begin
 
     output_inu_leg1_hi  <= '0';
@@ -105,6 +112,29 @@ begin
     r_output_inu_sdm_data <= output_inu_sdm_data;
     r_dab_sdm_data        <= dab_sdm_data;
 
-    -- u_fpga_communications : entity work.fpga_communications
+------------------------------------------------------------------------
+    process(main_clock) is
+    begin
+        if rising_edge(main_clock) then
+            init_bus(bus_from_top);
 
+            
+            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 1, 44252);
+
+
+
+            bus_to_communications <= bus_from_top;
+        end if;
+    end process;
+------------------------------------------------------------------------
+    u_fpga_communications : entity work.fpga_communications
+    generic map(fpga_interconnect_pkg => work.fpga_interconnect_pkg)
+        port map(
+            clock                   => main_clock            ,
+            uart_rx                 => uart_rx               ,
+            uart_tx                 => uart_tx               ,
+            bus_to_communications   => bus_to_communications ,
+            bus_from_communications => bus_from_communications
+        );
+------------------------------------------------------------------------
 end rtl;
