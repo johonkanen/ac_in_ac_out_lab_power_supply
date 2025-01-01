@@ -96,10 +96,10 @@ begin
 ------------------------------------------------------------------------
     clock_120Mhz <= simulator_clock;
 
-    u_top : entity work.top
+    u_top : entity work.titanium_top
     port map(
-    clock_120Mhz => clock_120Mhz,
-    pll_locked   => pll_locked,
+    main_clock => clock_120Mhz,
+    pll_locked => pll_locked,
 
     uart_rx      => uart_rx,
     uart_tx      => uart_tx,

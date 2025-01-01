@@ -2,8 +2,9 @@ library ieee;
     use ieee.std_logic_1164.all;
 
     use work.fpga_interconnect_pkg.all;
+    use work.ads7056_pkg.all;
 
-entity top is
+entity titanium_top is
     port (
         main_clock : in std_logic;
         pll_locked   : in std_logic;
@@ -56,9 +57,9 @@ entity top is
 
         -- leds         : out std_logic_vector(3 downto 0)
     );
-end entity top;
+end entity titanium_top;
 
-architecture rtl of top is
+architecture rtl of titanium_top is
 
     signal r_grid_inu_sdm_data   : std_logic;
     signal r_output_inu_sdm_data : std_logic;
@@ -68,6 +69,13 @@ architecture rtl of top is
     signal bus_from_communications : fpga_interconnect_record := init_fpga_interconnect;
 
     signal bus_from_top : fpga_interconnect_record := init_fpga_interconnect;
+
+    signal test_data : natural range 0 to 2**16-1 := 44252;
+
+    signal pri_ads7056 : ads7056_record := init_ads7056;
+    signal sec_ads7056 : ads7056_record := init_ads7056;
+    signal mux_selection : std_logic_vector(15 downto 0) := (others => '0');
+    signal adc_counter : natural range 0 to 1023 := 0;
 
 begin
 
@@ -101,12 +109,12 @@ begin
     dab_sdm_clock        <= '0';
 
     ad_mux1_io           <= "000";
-    ads_7056_clock       <= '0';
-    ads_7056_chip_select <= '1';
+    -- ads_7056_clock       <= '0';
+    -- ads_7056_chip_select <= '1';
 
     ad_mux2_io               <= "000";
-    ads_7056_clock_pri       <= '0';
-    ads_7056_chip_select_pri <= '1';
+    -- ads_7056_clock_pri       <= '0';
+    -- ads_7056_chip_select_pri <= '1';
 
     r_grid_inu_sdm_data   <= grid_inu_sdm_data;
     r_output_inu_sdm_data <= output_inu_sdm_data;
@@ -117,13 +125,26 @@ begin
     begin
         if rising_edge(main_clock) then
             init_bus(bus_from_top);
-
             
-            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 1, 44252);
-
-
-
+            connect_data_to_address(bus_from_communications, bus_from_top, 1, test_data);
             bus_to_communications <= bus_from_top;
+            adc_counter <= adc_counter + 1;
+
+            create_ads7056_driver(pri_ads7056         
+                                  ,cs            => ads_7056_chip_select_pri 
+                                  ,spi_clock_out => ads_7056_clock_pri       
+                                  ,serial_io     => ads_7056_input_data_pri);
+
+            create_ads7056_driver(sec_ads7056                   
+                                  ,cs            => ads_7056_chip_select    
+                                  ,spi_clock_out => ads_7056_clock
+                                  ,serial_io     => ads_7056_input_data);
+
+            if adc_counter > 1000 then
+                adc_counter <= 0;
+                request_conversion(pri_ads7056);
+                request_conversion(sec_ads7056);
+            end if;
         end if;
     end process;
 ------------------------------------------------------------------------

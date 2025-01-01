@@ -6,10 +6,6 @@
 	path = source/hVHDL_math_library
 	url = https://github.com/hVHDL/hVHDL_math_library.git 
 	main = origin/main
-[submodule "source/dynamic_simulation_library"]
-	path = source/hVHDL_dynamic_model_verification_library
-    url = https://github.com/hVHDL/hVHDL_dynamic_model_verification_library.git
-    main = origin/main
 [submodule "source/vhdl_float"]
 	path = source/hVHDL_floating_point
 	url = https://github.com/hVHDL/hVHDL_floating_point.git 
@@ -37,3 +33,6 @@
 [submodule "source/fpga_communication"]
 	path = source/fpga_communication
 	url = https://github.com/johonkanen/fpga_communication.git
+[submodule "source/vhdl_serial"]
+	path = source/vhdl_serial
+	url = https://github.com/johonkanen/vhdl_serial.git
