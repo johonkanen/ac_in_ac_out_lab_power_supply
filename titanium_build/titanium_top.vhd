@@ -108,13 +108,8 @@ begin
     output_inu_sdm_clock <= '0';
     dab_sdm_clock        <= '0';
 
-    ad_mux1_io           <= "000";
-    -- ads_7056_clock       <= '0';
-    -- ads_7056_chip_select <= '1';
-
-    ad_mux2_io               <= "000";
-    -- ads_7056_clock_pri       <= '0';
-    -- ads_7056_chip_select_pri <= '1';
+    ad_mux1_io <= "000";
+    ad_mux2_io <= "001";
 
     r_grid_inu_sdm_data   <= grid_inu_sdm_data;
     r_output_inu_sdm_data <= output_inu_sdm_data;
@@ -127,8 +122,9 @@ begin
             init_bus(bus_from_top);
             
             connect_data_to_address(bus_from_communications, bus_from_top, 1, test_data);
+            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 2, get_converted_measurement(pri_ads7056));
+            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 3, get_converted_measurement(sec_ads7056));
             bus_to_communications <= bus_from_top;
-            adc_counter <= adc_counter + 1;
 
             create_ads7056_driver(pri_ads7056         
                                   ,cs            => ads_7056_chip_select_pri 
@@ -140,6 +136,7 @@ begin
                                   ,spi_clock_out => ads_7056_clock
                                   ,serial_io     => ads_7056_input_data);
 
+            adc_counter <= adc_counter + 1;
             if adc_counter > 1000 then
                 adc_counter <= 0;
                 request_conversion(pri_ads7056);
@@ -151,11 +148,11 @@ begin
     u_fpga_communications : entity work.fpga_communications
     generic map(fpga_interconnect_pkg => work.fpga_interconnect_pkg)
         port map(
-            clock                   => main_clock            ,
-            uart_rx                 => uart_rx               ,
-            uart_tx                 => uart_tx               ,
-            bus_to_communications   => bus_to_communications ,
-            bus_from_communications => bus_from_communications
+            clock                    => main_clock
+            ,uart_rx                 => uart_rx
+            ,uart_tx                 => uart_tx
+            ,bus_to_communications   => bus_to_communications
+            ,bus_from_communications => bus_from_communications
         );
 ------------------------------------------------------------------------
 end rtl;

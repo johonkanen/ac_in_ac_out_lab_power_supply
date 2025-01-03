@@ -26,15 +26,15 @@ package aux_pwm_pkg is
 
 ------------------------------------------------------------------------
     procedure create_aux_pwm (
-        signal aux_pwm_object : inout aux_pwm_record);
+        signal self : inout aux_pwm_record);
 
 ------------------------------------------------------------------------
     procedure start_aux_pwm (
-        signal aux_pwm_object : out aux_pwm_record);
+        signal self : out aux_pwm_record);
 
 ------------------------------------------------------------------------
     procedure stop_aux_pwm (
-        signal aux_pwm_object : out aux_pwm_record);
+        signal self : out aux_pwm_record);
 
 ------------------------------------------------------------------------
 end package aux_pwm_pkg;
@@ -44,25 +44,24 @@ package body aux_pwm_pkg is
 ------------------------------------------------------------------------
     procedure create_aux_pwm
     (
-        signal aux_pwm_object : inout aux_pwm_record
+        signal self : inout aux_pwm_record
     ) is
-        alias m is aux_pwm_object;
     begin
-        if m.pwm_counter > 0 then
-            m.pwm_counter <= m.pwm_counter -1;
+        if self.pwm_counter > 0 then
+            self.pwm_counter <= self.pwm_counter -1;
         else
-            m.pwm_counter <= m.period;
+            self.pwm_counter <= self.period;
         end if;
 
-        if m.pwm_counter < m.duty_ratio then
-            m.pwm_out <= '1';
+        if self.pwm_counter < self.duty_ratio then
+            self.pwm_out <= '1';
         else
-            m.pwm_out <= '0';
+            self.pwm_out <= '0';
         end if;
 
-        if not m.pwm_is_requested then
-            m.pwm_counter <= 0;
-            m.pwm_out <= '0';
+        if not self.pwm_is_requested then
+            self.pwm_counter <= 0;
+            self.pwm_out <= '0';
         end if;
 
     end create_aux_pwm;
@@ -70,19 +69,19 @@ package body aux_pwm_pkg is
 ------------------------------------------------------------------------
     procedure start_aux_pwm
     (
-        signal aux_pwm_object : out aux_pwm_record
+        signal self : out aux_pwm_record
     ) is
     begin
-        aux_pwm_object.pwm_is_requested <= true;
+        self.pwm_is_requested <= true;
     end start_aux_pwm;
 
 ------------------------------------------------------------------------
     procedure stop_aux_pwm
     (
-        signal aux_pwm_object : out aux_pwm_record
+        signal self : out aux_pwm_record
     ) is
     begin
-        aux_pwm_object.pwm_is_requested <= false;
+        self.pwm_is_requested <= false;
     end stop_aux_pwm;
 
 ------------------------------------------------------------------------
