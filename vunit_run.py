@@ -24,6 +24,7 @@ top_lib.add_source_files(ROOT / "source/vhdl_serial/source/ads7056/ads7056_pkg.v
 
 top_lib.add_source_files(ROOT / "source/aux_pwm/aux_pwm_pkg.vhd")
 
+top_lib.add_source_files(ROOT / "simulation/git_hash_pkg.vhd")
 top_lib.add_source_files(ROOT / "simulation/top_tb.vhd")
 
 aux = VU.add_library("auxiliary_pwm")

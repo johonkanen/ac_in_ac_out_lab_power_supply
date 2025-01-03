@@ -159,12 +159,12 @@ architecture vunit_simulation of top_tb is
     signal ad_mux1_io           : std_logic_vector(2 downto 0);
     signal ads_7056_clock       : std_logic;
     signal ads_7056_chip_select : std_logic;
-    signal ads_7056_input_data  : std_logic;
+    signal ads_7056_input_data  : std_logic := '1';
 
     signal ad_mux2_io               : std_logic_vector(2 downto 0);
     signal ads_7056_clock_pri       : std_logic;
     signal ads_7056_chip_select_pri : std_logic;
-    signal ads_7056_input_data_pri  : std_logic;
+    signal ads_7056_input_data_pri  : std_logic := '1';
 
     signal grid_inu_sdm_data   : std_logic;
     signal output_inu_sdm_data : std_logic;
@@ -242,54 +242,54 @@ begin
 
     u_top : entity work.titanium_top
     port map(
-    main_clock => clock_120Mhz,
-    pll_locked => pll_locked,
+    main_clock => clock_120Mhz
+    ,pll_locked => pll_locked
 
-    uart_rx      => uart_tx,
-    uart_tx      => uart_rx,
+    ,uart_rx      => uart_tx
+    ,uart_tx      => uart_rx
 
-    grid_inu_leg1_hi  => grid_inu_leg1_hi,
-    grid_inu_leg1_low => grid_inu_leg1_low,
-    grid_inu_leg2_hi  => grid_inu_leg2_hi,
-    grid_inu_leg2_low => grid_inu_leg2_low,
+    ,grid_inu_leg1_hi  => grid_inu_leg1_hi
+    ,grid_inu_leg1_low => grid_inu_leg1_low
+    ,grid_inu_leg2_hi  => grid_inu_leg2_hi
+    ,grid_inu_leg2_low => grid_inu_leg2_low
 
-    dab_primary_hi    => dab_primary_hi,
-    dab_primary_low   => dab_primary_low,
-    dab_secondary_hi  => dab_secondary_hi,
-    dab_secondary_low => dab_secondary_low,
+    ,dab_primary_hi    => dab_primary_hi
+    ,dab_primary_low   => dab_primary_low
+    ,dab_secondary_hi  => dab_secondary_hi
+    ,dab_secondary_low => dab_secondary_low
 
-    output_inu_leg1_hi  => output_inu_leg1_hi,
-    output_inu_leg1_low => output_inu_leg1_low,
-    output_inu_leg2_hi  => output_inu_leg2_hi,
-    output_inu_leg2_low => output_inu_leg2_low,
+    ,output_inu_leg1_hi  => output_inu_leg1_hi
+    ,output_inu_leg1_low => output_inu_leg1_low
+    ,output_inu_leg2_hi  => output_inu_leg2_hi
+    ,output_inu_leg2_low => output_inu_leg2_low
 
-    primary_bypass_relay   => primary_bypass_relay,
-    secondary_bypass_relay => secondary_bypass_relay,
+    ,primary_bypass_relay   => primary_bypass_relay
+    ,secondary_bypass_relay => secondary_bypass_relay
 
-    gate_power1_pwm => gate_power1_pwm,
-    gate_power2_pwm => gate_power2_pwm,
-    gate_power3_pwm => gate_power3_pwm,
-    gate_power4_pwm => gate_power4_pwm,
-    gate_power5_pwm => gate_power5_pwm,
-    gate_power6_pwm => gate_power6_pwm,
+    ,gate_power1_pwm => gate_power1_pwm
+    ,gate_power2_pwm => gate_power2_pwm
+    ,gate_power3_pwm => gate_power3_pwm
+    ,gate_power4_pwm => gate_power4_pwm
+    ,gate_power5_pwm => gate_power5_pwm
+    ,gate_power6_pwm => gate_power6_pwm
 
-    grid_inu_sdm_clock   => grid_inu_sdm_clock,
-    output_inu_sdm_clock => output_inu_sdm_clock,
-    dab_sdm_clock        => dab_sdm_clock,
+    ,grid_inu_sdm_clock   => grid_inu_sdm_clock
+    ,output_inu_sdm_clock => output_inu_sdm_clock
+    ,dab_sdm_clock        => dab_sdm_clock
 
-    ad_mux1_io           => ad_mux1_io,
-    ads_7056_clock       => ads_7056_clock,
-    ads_7056_chip_select => ads_7056_chip_select,
-    ads_7056_input_data  => ads_7056_input_data,
+    ,ad_mux1_io           => ad_mux1_io
+    ,ads_7056_clock       => ads_7056_clock
+    ,ads_7056_chip_select => ads_7056_chip_select
+    ,ads_7056_input_data  => ads_7056_input_data
 
-    ad_mux2_io               => ad_mux2_io,
-    ads_7056_clock_pri       => ads_7056_clock_pri,
-    ads_7056_chip_select_pri => ads_7056_chip_select_pri,
-    ads_7056_input_data_pri  => ads_7056_input_data_pri,
+    ,ad_mux2_io               => ad_mux2_io
+    ,ads_7056_clock_pri       => ads_7056_clock_pri
+    ,ads_7056_chip_select_pri => ads_7056_chip_select_pri
+    ,ads_7056_input_data_pri  => ads_7056_input_data_pri
 
-    grid_inu_sdm_data   => grid_inu_sdm_data,
-    output_inu_sdm_data => output_inu_sdm_data,
-    dab_sdm_data        => dab_sdm_data
+    ,grid_inu_sdm_data   => grid_inu_sdm_data
+    ,output_inu_sdm_data => output_inu_sdm_data
+    ,dab_sdm_data        => dab_sdm_data
 );
 ------------------------------------------------------------------------
 end vunit_simulation;
