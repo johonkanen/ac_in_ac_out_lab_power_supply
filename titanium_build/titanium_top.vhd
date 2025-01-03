@@ -3,6 +3,7 @@ library ieee;
 
     use work.fpga_interconnect_pkg.all;
     use work.ads7056_pkg.all;
+    use work.aux_pwm_pkg.all;
 
 entity titanium_top is
     port (
@@ -71,11 +72,14 @@ architecture rtl of titanium_top is
     signal bus_from_top : fpga_interconnect_record := init_fpga_interconnect;
 
     signal test_data : natural range 0 to 2**16-1 := 44252;
+    signal test_data2 : STD_LOGIC_VECTOR(15 downto 0) := (others => '0');
 
     signal pri_ads7056 : ads7056_record := init_ads7056;
     signal sec_ads7056 : ads7056_record := init_ads7056;
     signal mux_selection : std_logic_vector(15 downto 0) := (others => '0');
     signal adc_counter : natural range 0 to 1023 := 0;
+
+    signal aux_pwm : aux_pwm_record := init_aux_pwm_with_duty_cycle(75);
 
 begin
 
@@ -97,12 +101,6 @@ begin
     primary_bypass_relay   <= '0';
     secondary_bypass_relay <= '0';
 
-    gate_power1_pwm <= '0';
-    gate_power2_pwm <= '0';
-    gate_power3_pwm <= '0';
-    gate_power4_pwm <= '0';
-    gate_power5_pwm <= '0';
-    gate_power6_pwm <= '0';
 
     grid_inu_sdm_clock   <= '0';
     output_inu_sdm_clock <= '0';
@@ -120,10 +118,23 @@ begin
     begin
         if rising_edge(main_clock) then
             init_bus(bus_from_top);
+
+            gate_power1_pwm <= aux_pwm.pwm_out and test_data2(1);
+            gate_power2_pwm <= aux_pwm.pwm_out and test_data2(2);
+            gate_power3_pwm <= aux_pwm.pwm_out and test_data2(3);
+            gate_power4_pwm <= aux_pwm.pwm_out and test_data2(4);
+            gate_power5_pwm <= aux_pwm.pwm_out and test_data2(5);
+            gate_power6_pwm <= aux_pwm.pwm_out and test_data2(6);
+
+            create_aux_pwm(aux_pwm);
+            if test_data2(0) then
+                start_aux_pwm(aux_pwm);
+            end if;
             
             connect_data_to_address(bus_from_communications, bus_from_top, 1, test_data);
             connect_read_only_data_to_address(bus_from_communications, bus_from_top, 2, get_converted_measurement(pri_ads7056));
             connect_read_only_data_to_address(bus_from_communications, bus_from_top, 3, get_converted_measurement(sec_ads7056));
+            connect_data_to_address(bus_from_communications, bus_from_top, 4, test_data2);
             bus_to_communications <= bus_from_top;
 
             create_ads7056_driver(pri_ads7056         

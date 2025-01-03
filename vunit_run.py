@@ -22,6 +22,8 @@ top_lib.add_source_files(ROOT / "source/vhdl_serial/source/spi_adc_generic/spi_a
 top_lib.add_source_files(ROOT / "source/vhdl_serial/source/clock_divider/clock_divider_generic_pkg.vhd")
 top_lib.add_source_files(ROOT / "source/vhdl_serial/source/ads7056/ads7056_pkg.vhd")
 
+top_lib.add_source_files(ROOT / "source/aux_pwm/aux_pwm_pkg.vhd")
+
 top_lib.add_source_files(ROOT / "simulation/top_tb.vhd")
 
 aux = VU.add_library("auxiliary_pwm")

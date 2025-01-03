@@ -210,6 +210,10 @@ begin
                     transmit_words_with_serial(uart_protocol,stream_frame(5));
             end if;
 
+            if simulation_counter = 11e3 then
+                    transmit_words_with_serial(uart_protocol,write_frame(4, x"00ff"));
+            end if;
+
             init_bus(bus_to_communications);
             connect_data_to_address(bus_from_communications, bus_to_communications, 1, test_data(1));
             connect_data_to_address(bus_from_communications, bus_to_communications, 2, test_data(2));

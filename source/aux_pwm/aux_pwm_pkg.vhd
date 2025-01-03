@@ -28,6 +28,7 @@ package aux_pwm_pkg is
     procedure create_aux_pwm (
         signal self : inout aux_pwm_record);
 
+    function create_aux_pwm(self : aux_pwm_record) return aux_pwm_record;
 ------------------------------------------------------------------------
     procedure start_aux_pwm (
         signal self : out aux_pwm_record);
@@ -42,6 +43,30 @@ end package aux_pwm_pkg;
 package body aux_pwm_pkg is
 
 ------------------------------------------------------------------------
+    function create_aux_pwm(self : aux_pwm_record) return aux_pwm_record is
+        variable retval : aux_pwm_record := self;
+    begin
+        if self.pwm_counter > 0 then
+            retval.pwm_counter := self.pwm_counter -1;
+        else
+            retval.pwm_counter := self.period;
+        end if;
+
+        if self.pwm_counter < self.duty_ratio then
+            retval.pwm_out := '1';
+        else
+            retval.pwm_out := '0';
+        end if;
+
+        if not self.pwm_is_requested then
+            retval.pwm_counter := 0;
+            retval.pwm_out := '0';
+        end if;
+
+        return self;
+
+    end function;
+
     procedure create_aux_pwm
     (
         signal self : inout aux_pwm_record
