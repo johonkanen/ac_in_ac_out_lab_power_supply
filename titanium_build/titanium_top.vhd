@@ -81,7 +81,8 @@ architecture rtl of titanium_top is
     signal mux_selection : std_logic_vector(15 downto 0) := (others => '0');
     signal adc_counter : natural range 0 to 1023 := 0;
 
-    signal aux_pwm : aux_pwm_record := init_aux_pwm_with_duty_cycle(75);
+    -- signal aux_pwm : aux_pwm_record := init_aux_pwm_with_duty_cycle(75);
+    signal aux_pwm : aux_pwm_record := init_aux_period_and_duty(period => 500, duty_cycle => 220);
 
 begin
 

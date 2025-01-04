@@ -31,6 +31,10 @@ aux = VU.add_library("auxiliary_pwm")
 aux.add_source_files(ROOT / "source/aux_pwm/aux_pwm_pkg.vhd")
 aux.add_source_files(ROOT / "simulation/tb_aux_pwm.vhd")
 
+sdm = VU.add_library("sdm")
+sdm.add_source_files(ROOT / "source/hVHDL_analog_to_digital_drivers/sigma_delta/sigma_delta_simulation_model_pkg.vhd")
+sdm.add_source_files(ROOT / "simulation/sigma_delta_tb.vhd")
+
 VU.set_sim_option("nvc.sim_flags", ["-w"])
 
 VU.main()
