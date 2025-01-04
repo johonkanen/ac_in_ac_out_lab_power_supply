@@ -134,7 +134,7 @@ begin
             connect_read_only_data_to_address(bus_from_communications, bus_from_top, 101, git_hash_pkg.git_hash(15 downto 0));
             
             connect_read_only_data_to_address(bus_from_communications, bus_from_top, 2, get_converted_measurement(pri_ads7056));
-            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 3, get_converted_measurement(sec_ads7056));
+            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 3, sec_ads7056.ad_conversion);
             connect_data_to_address(bus_from_communications, bus_from_top, 4, test_data2);
             connect_data_to_address(bus_from_communications, bus_from_top, 5, test_data3);
             bus_to_communications <= bus_from_top;
