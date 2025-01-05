@@ -16,6 +16,7 @@ top_lib.add_source_files(ROOT / "source/fpga_communication/communications.vhd")
 top_lib.add_source_files(ROOT / "source/fpga_communication/hVHDL_fpga_interconnect/fpga_interconnect_generic_pkg.vhd")
 top_lib.add_source_files(ROOT / "source/fpga_communication/hVHDL_uart/uart_rx/uart_rx_pkg.vhd")
 top_lib.add_source_files(ROOT / "source/fpga_communication/hVHDL_uart/uart_tx/uart_tx_pkg.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_analog_to_digital_drivers/sigma_delta/sigma_delta_cic_filter_pkg.vhd")
 
 top_lib.add_source_files(ROOT / "source/vhdl_serial/bit_operations_pkg.vhd")
 top_lib.add_source_files(ROOT / "source/vhdl_serial/source/spi_adc_generic/spi_adc_type_generic_pkg.vhd")
@@ -33,7 +34,9 @@ aux.add_source_files(ROOT / "simulation/tb_aux_pwm.vhd")
 
 sdm = VU.add_library("sdm")
 sdm.add_source_files(ROOT / "source/hVHDL_analog_to_digital_drivers/sigma_delta/sigma_delta_simulation_model_pkg.vhd")
+sdm.add_source_files(ROOT / "source/hVHDL_analog_to_digital_drivers/sigma_delta/sigma_delta_cic_filter_pkg.vhd")
 sdm.add_source_files(ROOT / "simulation/sigma_delta_tb.vhd")
+sdm.add_source_files(ROOT / "simulation/sigma_delta_rtl_tb.vhd")
 
 VU.set_sim_option("nvc.sim_flags", ["-w"])
 

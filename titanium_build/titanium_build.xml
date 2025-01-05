@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<efx:project name="titanium_build" description="" last_change="1736002269" sw_version="2024.2.294.1.19" last_run_state="pass" last_run_flow="bitstream" config_result_in_sync="true" design_ood="sync" place_ood="sync" route_ood="sync" xmlns:efx="http://www.efinixinc.com/enf_proj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/enf_proj enf_proj.xsd">
+<efx:project name="titanium_build" description="" last_change="1736088581" sw_version="2024.2.294.1.19" last_run_state="pass" last_run_flow="bitstream" config_result_in_sync="true" design_ood="change" place_ood="sync" route_ood="sync" xmlns:efx="http://www.efinixinc.com/enf_proj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/enf_proj enf_proj.xsd">
     <efx:device_info>
         <efx:family name="Titanium"/>
         <efx:device name="Ti60F225"/>
@@ -21,6 +21,7 @@
         <efx:design_file name="../source/vhdl_serial/source/spi_adc_generic/spi_adc_type_generic_pkg.vhd" version="default" library="default"/>
         <efx:design_file name="../source/aux_pwm/aux_pwm_pkg.vhd" version="default" library="default"/>
         <efx:design_file name="../git_hash_pkg.vhd" version="default" library="default"/>
+        <efx:design_file name="../source/hVHDL_analog_to_digital_drivers/sigma_delta/sigma_delta_cic_filter_pkg.vhd" version="default" library="default"/>
         <efx:top_vhdl_arch name="rtl"/>
     </efx:design_info>
     <efx:constraint_info>

@@ -5,6 +5,7 @@ library ieee;
     use work.ads7056_pkg.all;
     use work.aux_pwm_pkg.all;
     use work.git_hash_pkg;
+    use work.sigma_delta_cic_filter_pkg.all;
 
 entity titanium_top is
     port (
@@ -81,8 +82,12 @@ architecture rtl of titanium_top is
     signal mux_selection : std_logic_vector(15 downto 0) := (others => '0');
     signal adc_counter : natural range 0 to 1023 := 0;
 
-    -- signal aux_pwm : aux_pwm_record := init_aux_pwm_with_duty_cycle(75);
     signal aux_pwm : aux_pwm_record := init_aux_period_and_duty(period => 500, duty_cycle => 220);
+
+    signal grid_inu_filter : cic_filter_record := init_cic_filter;
+    signal output_inu_filter : cic_filter_record := init_cic_filter;
+    signal dab_filter : cic_filter_record := init_cic_filter;
+    signal sdm_counter : natural range 0 to 15 := 0;
 
 begin
 
@@ -103,12 +108,6 @@ begin
 
     primary_bypass_relay   <= '0';
     secondary_bypass_relay <= '0';
-
-
-    grid_inu_sdm_clock   <= '0';
-    output_inu_sdm_clock <= '0';
-    dab_sdm_clock        <= '0';
-
 
     r_grid_inu_sdm_data   <= grid_inu_sdm_data;
     r_output_inu_sdm_data <= output_inu_sdm_data;
@@ -138,6 +137,10 @@ begin
             connect_read_only_data_to_address(bus_from_communications, bus_from_top, 3, sec_ads7056.ad_conversion);
             connect_data_to_address(bus_from_communications, bus_from_top, 4, test_data2);
             connect_data_to_address(bus_from_communications, bus_from_top, 5, test_data3);
+
+            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 6, 2**15 + get_cic_filter_output(grid_inu_filter));
+            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 7, 2**15 + get_cic_filter_output(output_inu_filter));
+            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 8, 2**15 + get_cic_filter_output(dab_filter));
             bus_to_communications <= bus_from_top;
 
             ad_mux1_io <= test_data3(2 downto 0);
@@ -160,6 +163,26 @@ begin
             gate_power4_pwm <= aux_pwm.pwm_out and test_data2(4);
             gate_power5_pwm <= aux_pwm.pwm_out and test_data2(5);
             gate_power6_pwm <= aux_pwm.pwm_out and test_data2(6);
+
+            if sdm_counter < 5 then
+                sdm_counter <= sdm_counter + 1;
+            else
+                sdm_counter <= 0;
+                calculate_cic_filter(grid_inu_filter   , grid_inu_sdm_data);
+                calculate_cic_filter(output_inu_filter , output_inu_sdm_data);
+                calculate_cic_filter(dab_filter        , dab_sdm_data);
+            end if;
+
+            if sdm_counter > 5/2 then
+                grid_inu_sdm_clock   <= '0';
+                output_inu_sdm_clock <= '0';
+                dab_sdm_clock        <= '0';
+            else
+                grid_inu_sdm_clock   <= '1';
+                output_inu_sdm_clock <= '1';
+                dab_sdm_clock        <= '1';
+            end if;
+
 
         end if;
     end process;
