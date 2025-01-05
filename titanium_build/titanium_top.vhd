@@ -129,18 +129,21 @@ begin
                                   ,spi_clock_out => ads_7056_clock
                                   ,serial_io     => ads_7056_input_data);
             
-            connect_data_to_address(bus_from_communications, bus_from_top, 1, test_data);
-            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 100, git_hash_pkg.git_hash(31 downto 16));
-            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 101, git_hash_pkg.git_hash(15 downto 0));
-            
-            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 2, get_converted_measurement(pri_ads7056));
-            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 3, sec_ads7056.ad_conversion);
-            connect_data_to_address(bus_from_communications, bus_from_top, 4, test_data2);
-            connect_data_to_address(bus_from_communications, bus_from_top, 5, test_data3);
+            connect_data_to_address(bus_from_communications , bus_from_top , 1 , test_data);
 
-            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 6, 2**15 + get_cic_filter_output(grid_inu_filter));
-            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 7, 2**15 + get_cic_filter_output(output_inu_filter));
-            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 8, 2**15 + get_cic_filter_output(dab_filter));
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 2 , get_converted_measurement(pri_ads7056));
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 3 , sec_ads7056.ad_conversion);
+
+            connect_data_to_address(bus_from_communications , bus_from_top , 4 , test_data2);
+            connect_data_to_address(bus_from_communications , bus_from_top , 5 , test_data3);
+
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 6 , 2**15 + get_cic_filter_output(grid_inu_filter));
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 7 , 2**15 + get_cic_filter_output(output_inu_filter));
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 8 , 2**15 + get_cic_filter_output(dab_filter));
+
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 100 , git_hash_pkg.git_hash(31 downto 16));
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 101 , git_hash_pkg.git_hash(15 downto 0));
+            
             bus_to_communications <= bus_from_top;
 
             ad_mux1_io <= test_data3(2 downto 0);
@@ -182,7 +185,6 @@ begin
                 output_inu_sdm_clock <= '1';
                 dab_sdm_clock        <= '1';
             end if;
-
 
         end if;
     end process;

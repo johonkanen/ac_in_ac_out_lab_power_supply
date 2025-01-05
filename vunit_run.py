@@ -38,6 +38,9 @@ sdm.add_source_files(ROOT / "source/hVHDL_analog_to_digital_drivers/sigma_delta/
 sdm.add_source_files(ROOT / "simulation/sigma_delta_tb.vhd")
 sdm.add_source_files(ROOT / "simulation/sigma_delta_rtl_tb.vhd")
 
+pwm = VU.add_library("pwm")
+pwm.add_source_files(ROOT / "simulation/inu/inu_pwm_tb.vhd")
+
 VU.set_sim_option("nvc.sim_flags", ["-w"])
 
 VU.main()

@@ -16,3 +16,8 @@ deleteme/
 *.bak
 *.dat
 *.plt
+*.fst*
+git_hash_pkg.vhd
+
+*.json
+*.toml
