@@ -11,6 +11,8 @@ package pwm_pkg is
         duty : natural range 0 to 2**16-1;
     end record;
 
+    constant init_pwm : pwm_record := (false,'0', 0, 100);
+
     procedure create_pwm (
         signal self : inout pwm_record;
         signal pwm_out : out std_logic);

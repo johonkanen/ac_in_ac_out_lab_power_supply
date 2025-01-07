@@ -88,7 +88,7 @@ end;
 architecture vunit_simulation of top_tb is
 
     constant clock_period      : time    := 1 ns;
-    constant simtime_in_clocks : integer := 15000;
+    constant simtime_in_clocks : integer := 25000;
     
     signal simulator_clock     : std_logic := '0';
     signal simulation_counter  : natural   := 0;
@@ -206,13 +206,13 @@ begin
                 end if;
             end if;
 
-            if simulation_counter = 8500 then
-                    transmit_words_with_serial(uart_protocol,stream_frame(5));
-            end if;
-
-            if simulation_counter = 11e3 then
-                    transmit_words_with_serial(uart_protocol,write_frame(4, x"00ff"));
-            end if;
+            CASE simulation_counter is
+                WHEN 8500 => transmit_words_with_serial(uart_protocol,stream_frame(5));
+                WHEN 11e3 => transmit_words_with_serial(uart_protocol,write_frame(4, x"00ff"));
+                WHEN 13e3 => transmit_words_with_serial(uart_protocol,write_frame(10, x"0001"));
+                WHEN 20e3 => transmit_words_with_serial(uart_protocol,write_frame(10, x"0000"));
+                WHEN others => -- do nothing
+            end case;
 
             init_bus(bus_to_communications);
             connect_data_to_address(bus_from_communications, bus_to_communications, 1, test_data(1));

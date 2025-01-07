@@ -6,6 +6,7 @@ library ieee;
     use work.aux_pwm_pkg.all;
     use work.git_hash_pkg;
     use work.sigma_delta_cic_filter_pkg.all;
+    use work.pwm_pkg.all;
 
 entity titanium_top is
     port (
@@ -89,6 +90,8 @@ architecture rtl of titanium_top is
     signal dab_filter : cic_filter_record := init_cic_filter;
     signal sdm_counter : natural range 0 to 15 := 0;
 
+    signal pwm : pwm_record := init_pwm;
+
 begin
 
     output_inu_leg1_hi  <= '0';
@@ -102,7 +105,7 @@ begin
     dab_secondary_low <= '0';
 
     output_inu_leg1_hi  <= '0';
-    output_inu_leg1_low <= '0';
+    -- output_inu_leg1_low <= '0';
     output_inu_leg2_hi  <= '0';
     output_inu_leg2_low <= '0';
 
@@ -128,6 +131,8 @@ begin
                                   ,cs            => ads_7056_chip_select    
                                   ,spi_clock_out => ads_7056_clock
                                   ,serial_io     => ads_7056_input_data);
+
+            create_pwm(pwm,grid_inu_leg1_low);
             
             connect_data_to_address(bus_from_communications , bus_from_top , 1 , test_data);
 
@@ -136,6 +141,13 @@ begin
 
             connect_data_to_address(bus_from_communications , bus_from_top , 4 , test_data2);
             connect_data_to_address(bus_from_communications , bus_from_top , 5 , test_data3);
+
+            if write_is_requested_to_address(bus_from_communications, 10) and get_data(bus_from_communications) = 1 then
+                pwm.is_enabled <= true;
+            end if;
+            if write_is_requested_to_address(bus_from_communications, 10) and (get_data(bus_from_communications) /= 1) then
+                pwm.is_enabled <= false;
+            end if;
 
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 6 , 2**15 + get_cic_filter_output(grid_inu_filter));
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 7 , 2**15 + get_cic_filter_output(output_inu_filter));
