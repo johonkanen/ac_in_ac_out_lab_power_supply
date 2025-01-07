@@ -94,10 +94,10 @@ architecture rtl of titanium_top is
 
 begin
 
-    output_inu_leg1_hi  <= '0';
-    output_inu_leg1_low <= '0';
-    output_inu_leg2_hi  <= '0';
-    output_inu_leg2_low <= '0';
+    grid_inu_leg1_hi  <= '0';
+    grid_inu_leg1_low <= '0';
+    grid_inu_leg2_hi  <= '0';
+    -- grid_inu_leg2_low <= '0';
 
     dab_primary_hi    <= '0';
     dab_primary_low   <= '0';
@@ -105,7 +105,7 @@ begin
     dab_secondary_low <= '0';
 
     output_inu_leg1_hi  <= '0';
-    -- output_inu_leg1_low <= '0';
+    output_inu_leg1_low <= '0';
     output_inu_leg2_hi  <= '0';
     output_inu_leg2_low <= '0';
 
@@ -132,7 +132,7 @@ begin
                                   ,spi_clock_out => ads_7056_clock
                                   ,serial_io     => ads_7056_input_data);
 
-            create_pwm(pwm,grid_inu_leg1_low);
+            create_pwm(pwm,grid_inu_leg2_low);
             
             connect_data_to_address(bus_from_communications , bus_from_top , 1 , test_data);
 
