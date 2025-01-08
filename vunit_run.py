@@ -42,6 +42,7 @@ sdm.add_source_files(ROOT / "simulation/sigma_delta_rtl_tb.vhd")
 pwm = VU.add_library("pwm")
 pwm.add_source_files(ROOT / "simulation/inu/pwm_pkg.vhd")
 pwm.add_source_files(ROOT / "simulation/inu/inu_pwm_tb.vhd")
+pwm.add_source_files(ROOT / "simulation/dab/dab_pwm_tb.vhd")
 
 ode = VU.add_library("ode")
 ode.add_source_files(ROOT / "source/hVHDL_ode/write_pkg.vhd")
@@ -51,7 +52,8 @@ ode.add_source_files(ROOT / "source/hVHDL_ode/ode_solvers/adaptive_ode_pkg.vhd")
 
 ode.add_source_files(ROOT / "source/hVHDL_ode/testbenches/lcr_models_pkg.vhd")
 ode.add_source_files(ROOT / "source/hVHDL_ode/testbenches/lcr_3ph_tb.vhd")
+ode.add_source_files(ROOT / "simulation/dab/dab_simulation_tb.vhd")
 
-VU.set_sim_option("nvc.sim_flags", ["-w"])
+# VU.set_sim_option("nvc.sim_flags", ["-w"])
 
 VU.main()

@@ -1,3 +1,4 @@
+
 LIBRARY ieee  ; 
     USE ieee.std_logic_1164.all  ; 
     USE ieee.NUMERIC_STD.all  ; 
@@ -8,11 +9,11 @@ context vunit_lib.vunit_context;
 
     use work.pwm_pkg.all;
 
-entity inu_pwm_tb is
+entity dab_pwm_tb is
   generic (runner_cfg : string);
 end;
 
-architecture vunit_simulation of inu_pwm_tb is
+architecture vunit_simulation of dab_pwm_tb is
 
     signal simulator_clock : std_logic := '0';
     constant clock_per : time := 8.3333333 ns;
@@ -22,11 +23,17 @@ architecture vunit_simulation of inu_pwm_tb is
     -----------------------------------
     -- simulation specific signals ----
 
-    signal pwm_out : std_logic := '0';
-    signal carrier : natural range 0 to 2**16-1 := 0;
-    signal duty : natural range 0 to 2**16-1 := 100;
+    signal deadtime  : natural range 0 to 2**16-1 := 5999/2-100;
+    signal deadtime2 : natural range 0 to 2**16-1 := 5999/2-100;
 
-    signal pwm : pwm_record := init_pwm;
+    signal pwm_out  : std_logic                  := '0';
+    signal pwm_out2 : std_logic                  := '0';
+    signal carrier  : natural range 0 to 2**16-1 := 0;
+    signal duty     : natural range 0 to 2**16-1 := 100;
+
+    signal pwm : pwm_record  := init_pwm(5999 , 5999/2 , 0);
+    signal pwm2 : pwm_record := init_pwm(5999 , 5999/2 , 0);
+
 
 begin
 
@@ -49,17 +56,21 @@ simulator_clock <= not simulator_clock after clock_per/2.0;
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
 
-            create_pwm(self => pwm, pwm_out => pwm_out);
+            create_pwm(self => pwm  , pwm_out => pwm_out);
+            create_pwm(self => pwm2 , pwm_out => pwm_out2);
 
             CASE simulation_counter is
-                WHEN 1000 => pwm.is_enabled <= true;
-                WHEN 15e3 => pwm.duty <= 750;
+                WHEN 1000 => 
+                    pwm.is_enabled  <= true;
+                    pwm2.is_enabled <= true;
+                WHEN 15e3 => 
+                    pwm.duty  <= 5999/2;
+                    pwm2.duty <= 5999/2;
                 WHEN others => --do nothing
             end CASE;
 
         end if; -- rising_edge
     end process stimulus;	
 
-    carrier <= pwm.carrier;
 ------------------------------------------------------------------------
 end vunit_simulation;
