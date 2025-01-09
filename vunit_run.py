@@ -53,6 +53,9 @@ ode.add_source_files(ROOT / "source/hVHDL_ode/ode_solvers/adaptive_ode_pkg.vhd")
 ode.add_source_files(ROOT / "source/hVHDL_ode/testbenches/lcr_models_pkg.vhd")
 ode.add_source_files(ROOT / "source/hVHDL_ode/testbenches/lcr_3ph_tb.vhd")
 ode.add_source_files(ROOT / "simulation/dab/dab_simulation_tb.vhd")
+ode.add_source_files(ROOT / "source/hVHDL_fixed_point/multiplier/multiplier_generic_pkg.vhd")
+ode.add_source_files(ROOT / "source/hVHDL_fixed_point/pi_controller/pi_controller_generic_pkg.vhd")
+ode.add_source_files(ROOT / "source/hVHDL_fixed_point/real_to_fixed/real_to_fixed_pkg.vhd")
 
 # VU.set_sim_option("nvc.sim_flags", ["-w"])
 

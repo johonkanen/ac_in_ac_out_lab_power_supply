@@ -26,6 +26,14 @@ architecture vunit_simulation of dab_simulation_tb is
     signal realtime   : real := 0.0;
     constant stoptime : real := 20.0e-3;
 
+    package multiplier_pkg is new work.multiplier_generic_pkg generic map(24,1,1);
+    package pi_control_pkg is new work.pi_controller_generic_pkg generic map(multiplier_pkg);
+    use multiplier_pkg.all;
+    use pi_control_pkg.all;
+    
+    signal multiplier : multiplier_record := init_multiplier;
+    signal pi_controller : pi_controller_record := pi_controller_init;
+
 begin
 
 ------------------------------------------------------------------------
