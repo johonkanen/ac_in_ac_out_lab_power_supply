@@ -9,6 +9,7 @@ context vunit_lib.vunit_context;
 
     use work.write_pkg.all;
     use work.ode_pkg.all;
+    use work.real_to_fixed_pkg.all;
 
 entity dab_simulation_tb is
   generic (runner_cfg : string);
@@ -159,6 +160,19 @@ begin
                 ,"B_ph"
                 ,"B_st"
                 ));
+
+                request_pi_control(pi_controller, to_fixed(205.0 - state_variables(1),12));
+            end if;
+
+            create_multiplier(multiplier);
+            create_pi_controller(pi_controller
+                , multiplier
+                , to_fixed(0.5, mpy_signed'length, 14)
+                , to_fixed(0.025, mpy_signed'length, 14));
+
+            if pi_control_is_ready(pi_controller) then
+                phase := to_real(get_pi_control_output(pi_controller),15);
+                request_pi_control(pi_controller, to_fixed(205.0 - state_variables(1),12));
             end if;
 
             if simulation_counter > 0 then
@@ -176,19 +190,6 @@ begin
                 rk(realtime , state_variables , timestep);
                 realtime <= realtime + timestep;
                 timestep := next_timestep;
-
-                err := 202.0 - state_variables(1);
-                phase := 0.5 * err + integrator;
-                integrator := 0.025 * err + integrator;
-                if phase > 1.0 then
-                    phase := 1.0;
-                    integrator := 1.0 - 0.5 *err;
-                end if;
-
-                if phase < -1.0 then
-                    phase := -1.0;
-                    integrator := -1.0 - 0.5 *err;
-                end if;
 
                 if realtime > 5.0e-3 then
                     load_resistor := -400.0;
