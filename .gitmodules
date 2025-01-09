@@ -3,7 +3,7 @@
 	url = https://github.com/hVHDL/hVHDL_fpga_interconnect.git 
 	main = origin/main
 [submodule "source/math_library"]
-	path = source/hVHDL_math_library
+	path = source/hVHDL_fixed_point
 	url = https://github.com/hVHDL/hVHDL_math_library.git 
 	main = origin/main
 [submodule "source/vhdl_float"]
