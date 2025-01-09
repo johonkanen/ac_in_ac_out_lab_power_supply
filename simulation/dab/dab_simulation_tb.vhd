@@ -9,7 +9,6 @@ context vunit_lib.vunit_context;
 
     use work.write_pkg.all;
     use work.ode_pkg.all;
-    use work.lcr_models_pkg.all;
 
 entity dab_simulation_tb is
   generic (runner_cfg : string);
@@ -25,7 +24,7 @@ architecture vunit_simulation of dab_simulation_tb is
     -- simulation specific signals ----
 
     signal realtime   : real := 0.0;
-    constant stoptime : real := 200.0e-3;
+    constant stoptime : real := 20.0e-3;
 
 begin
 
@@ -56,7 +55,7 @@ begin
         variable phi_old : real := tsw/4.0*phase;
         variable phi_new : real := tsw/4.0*phase;
 
-        variable dab_inductor : real := 75.0e-6;
+        variable dab_inductor     : real := 75.0e-6;
         variable output_capacitor : real := 100.0e-6;
 
         variable uin : real := 200.0;
@@ -85,10 +84,6 @@ begin
                     next_st_dab_voltage_states := t0;
             end CASE;
 
-            if realtime > 0.1 then
-                phase := -0.2;
-            end if;
-
             return step_length;
         end next_timestep;
 
@@ -96,6 +91,20 @@ begin
         impure function deriv(t : real; states : real_vector) return real_vector is
             alias uout is states(1);
             variable i_out : real := 0.0;
+
+            -- define sign function to return only {-1.0, 1.0} to make 0 phase work correctly
+            function sign(a : real) return real is
+                variable retval : real := 1.0;
+            begin
+                if a < 0.0 then
+                    retval := -1.0;
+                else
+                    retval := 1.0;
+                end if;
+                return retval;
+
+            end function;
+
         begin
 
             CASE st_dab_voltage_states is
@@ -123,9 +132,13 @@ begin
         end deriv;
         ------------
 
-        procedure rk4 is new generic_rk4 generic map(deriv);
+        procedure rk is new generic_rk4 generic map(deriv);
 
         file file_handler : text open write_mode is "dab_simulation_tb.dat";
+
+        variable integrator : real := 0.0;
+        variable pi_out : real := 0.0;
+        variable err : real := 0.0;
 
     begin
         if rising_edge(simulator_clock) then
@@ -135,6 +148,7 @@ begin
                 ("time"
                 ,"T_u0"
                 ,"B_i0"
+                ,"B_ph"
                 ,"B_st"
                 ));
             end if;
@@ -145,12 +159,40 @@ begin
                         (realtime
                         ,state_variables(0)
                         ,state_variables(1)
+                        ,phase
                         ,timestep
                     ));
 
-                rk4(realtime , state_variables , timestep);
+                
+
+                rk(realtime , state_variables , timestep);
                 realtime <= realtime + timestep;
                 timestep := next_timestep;
+
+                err := 202.0 - state_variables(1);
+                phase := 0.5 * err + integrator;
+                integrator := 0.025 * err + integrator;
+                if phase > 1.0 then
+                    phase := 1.0;
+                    integrator := 1.0 - 0.5 *err;
+                end if;
+
+                if phase < -1.0 then
+                    phase := -1.0;
+                    integrator := -1.0 - 0.5 *err;
+                end if;
+
+                if realtime > 5.0e-3 then
+                    load_resistor := -400.0;
+                end if;
+
+                if realtime > 10.0e-3 then
+                    load_resistor := 400.0;
+                end if;
+
+                if realtime > 15.25e-3 then
+                    tsw := 18.0e-6;
+                end if;
 
             end if;
 
