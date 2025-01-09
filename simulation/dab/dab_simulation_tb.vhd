@@ -63,25 +63,31 @@ begin
         variable state_variables : real_vector(0 to 1) := (-2.0, 200.0);
 
         variable sw1_current : real := 0.0;
+        variable load_resistor : real := 2000.0;
 
         impure function next_timestep return real is
             variable step_length : real := 1.0;
         begin
             st_dab_voltage_states := next_st_dab_voltage_states;
+            phi := tsw/4.0*phase;
             CASE st_dab_voltage_states is
                 WHEN t0 => 
-                    step_length := tsw/2.0-phi_old/2.0-phi_new/2.0;
+                    step_length := tsw/2.0-abs(phi)/2.0-abs(phi)/2.0;
                     next_st_dab_voltage_states := t1;
                 WHEN t1 => 
-                    step_length := phi;
+                    step_length := abs(phi);
                     next_st_dab_voltage_states := t2;
                 WHEN t2 => 
-                    step_length := tsw/2.0-phi_old/2.0-phi_new/2.0;
+                    step_length := tsw/2.0-abs(phi)/2.0-abs(phi)/2.0;
                     next_st_dab_voltage_states := t3;
                 WHEN t3 =>
-                    step_length := phi;
+                    step_length := abs(phi);
                     next_st_dab_voltage_states := t0;
             end CASE;
+
+            if realtime > 0.1 then
+                phase := -0.2;
+            end if;
 
             return step_length;
         end next_timestep;
@@ -94,16 +100,16 @@ begin
 
             CASE st_dab_voltage_states is
                 WHEN t0 => 
-                    voltage_over_dab_inductor := uin-uout;
+                    voltage_over_dab_inductor := sign(phi) * (uin-uout);
                     i_out := -states(0);
                 WHEN t1 => 
-                    voltage_over_dab_inductor := uin+uout; 
+                    voltage_over_dab_inductor := sign(phi) * (uin+uout); 
                     i_out := states(0);
                 WHEN t2 => 
-                    voltage_over_dab_inductor := -(uin-uout);
+                    voltage_over_dab_inductor := -sign(phi) * (uin-uout);
                     i_out := states(0);
                 WHEN t3 => 
-                    voltage_over_dab_inductor := -(uin+uout);
+                    voltage_over_dab_inductor := -sign(phi) * (uin+uout);
                     i_out := -states(0);
             end CASE;
 
@@ -111,7 +117,8 @@ begin
 
             return (
                 (voltage_over_dab_inductor - states(0) * 0.1)/dab_inductor 
-                ,(i_out/2.0 - states(1)/200.0)/output_capacitor);
+                ,(i_out/2.0 - states(1)/load_resistor)/output_capacitor
+            );
 
         end deriv;
         ------------
