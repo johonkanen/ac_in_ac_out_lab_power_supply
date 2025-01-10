@@ -58,8 +58,8 @@ begin
         variable st_dab_voltage_states : dab_voltage_states := t0;
         variable next_st_dab_voltage_states : dab_voltage_states := t0;
 
-        variable tsw     : real := 10.0e-6;
-        variable phase   : real := 0.4;
+        variable tsw     : real := 1.0/135.0e3;
+        variable phase   : real := 0.0;
         variable phi     : real := tsw/4.0*phase;
         variable phi_old : real := tsw/4.0*phase;
         variable phi_new : real := tsw/4.0*phase;
@@ -68,7 +68,7 @@ begin
         variable output_capacitor : real := 100.0e-6;
 
         variable uin : real := 200.0;
-        variable state_variables : real_vector(0 to 1) := (-2.0, 200.0);
+        variable state_variables : real_vector(0 to 2) := (0.0, 200.0, 200.0);
 
         variable sw1_current : real := 0.0;
         variable load_resistor : real := 2000.0;
@@ -136,6 +136,7 @@ begin
             return (
                 (voltage_over_dab_inductor - states(0) * 0.1)/dab_inductor 
                 ,(i_out/2.0 - states(1)/load_resistor)/output_capacitor
+                ,states(0) / 8.0e-6
             );
 
         end deriv;
@@ -171,8 +172,9 @@ begin
                 , to_fixed(0.025, mpy_signed'length, 14));
 
             if pi_control_is_ready(pi_controller) then
-                phase := to_real(get_pi_control_output(pi_controller),15);
-                request_pi_control(pi_controller, to_fixed(205.0 - state_variables(1),12));
+                phase := to_real(get_pi_control_output(pi_controller), 15);
+                request_pi_control(pi_controller
+                    , pi_control_input => to_fixed(205.0 - state_variables(1) , 12));
             end if;
 
             if simulation_counter > 0 then
@@ -200,7 +202,7 @@ begin
                 end if;
 
                 if realtime > 15.25e-3 then
-                    tsw := 18.0e-6;
+                    tsw := 10.0e-6;
                 end if;
 
             end if;
