@@ -52,7 +52,6 @@ begin
     stimulus : process(simulator_clock)
 
         variable timestep : real := 1.0e-6;
-        variable carrier : real := 0.0;
         variable voltage_over_dab_inductor : real := 0.0;
         type dab_voltage_states is (t0, t1, t2, t3);
         variable st_dab_voltage_states : dab_voltage_states := t0;
@@ -64,11 +63,16 @@ begin
         variable phi_old : real := tsw/4.0*phase;
         variable phi_new : real := tsw/4.0*phase;
 
-        variable dab_inductor     : real := 75.0e-6;
-        variable output_capacitor : real := 100.0e-6;
+        variable iload : real := 0.0;
+
+        variable dab_inductor          : real := 10.0e-6;
+        variable output_capacitor      : real := 100.0e-6;
+        variable half_bridge_capacitor : real := 4.0e-6;
 
         variable uin : real := 200.0;
-        variable state_variables : real_vector(0 to 2) := (0.0, 200.0, 200.0);
+
+        -- states = ac inductor, output capacitor, hb upper capacitor, hb lower capacitor
+        variable state_variables : real_vector(0 to 3) := (0.0, 200.0, 200.0, 200.0);
 
         variable sw1_current : real := 0.0;
         variable load_resistor : real := 2000.0;
@@ -100,6 +104,10 @@ begin
         impure function deriv(t : real; states : real_vector) return real_vector is
             alias uout is states(1);
             variable i_out : real := 0.0;
+            variable i_cm : real := 0.0;
+            variable i_hb_current : real := 0.0;
+            variable i_out_current : real := 0.0;
+
 
             -- define sign function to return only {-1.0, 1.0} to make 0 phase work correctly
             function sign(a : real) return real is
@@ -114,29 +122,35 @@ begin
 
             end function;
 
+            variable out_parallel_gain : real := output_capacitor/(output_capacitor+half_bridge_capacitor);
+            variable hb_parallel_gain : real := half_bridge_capacitor/(output_capacitor+half_bridge_capacitor);
+
         begin
 
             CASE st_dab_voltage_states is
                 WHEN t0 => 
-                    voltage_over_dab_inductor := sign(phi) * (uin-uout);
-                    i_out := -states(0);
+                    voltage_over_dab_inductor := sign(phi) * (uin-states(1));
+                    i_out := -states(0)*out_parallel_gain;
+                    i_hb_current := -states(0) * hb_parallel_gain;
                 WHEN t1 => 
-                    voltage_over_dab_inductor := sign(phi) * (uin+uout); 
-                    i_out := states(0);
+                    voltage_over_dab_inductor := sign(phi) * (uin+states(1)); 
+                    i_out := states(0)*out_parallel_gain;
+                    i_hb_current := states(0) * hb_parallel_gain;
                 WHEN t2 => 
-                    voltage_over_dab_inductor := -sign(phi) * (uin-uout);
-                    i_out := states(0);
+                    voltage_over_dab_inductor := -sign(phi) * (uin-states(1));
+                    i_out := states(0)*out_parallel_gain;
+                    i_hb_current := states(0) * hb_parallel_gain;
                 WHEN t3 => 
-                    voltage_over_dab_inductor := -sign(phi) * (uin+uout);
-                    i_out := -states(0);
+                    voltage_over_dab_inductor := -sign(phi) * (uin+states(1));
+                    i_out := -states(0)*out_parallel_gain;
+                    i_hb_current := -states(0) * hb_parallel_gain;
             end CASE;
-
-            carrier := (carrier + timestep) mod 0.001;
 
             return (
                 (voltage_over_dab_inductor - states(0) * 0.1)/dab_inductor 
-                ,(i_out/2.0 - states(1)/load_resistor)/output_capacitor
-                ,states(0) / 8.0e-6
+                ,(i_out/2.0 - iload * out_parallel_gain/2.0)/output_capacitor * out_parallel_gain
+                ,(i_hb_current - iload * hb_parallel_gain) / 8.0e-6
+                ,(i_hb_current - iload * hb_parallel_gain) / 8.0e-6
             );
 
         end deriv;
@@ -146,10 +160,6 @@ begin
 
         file file_handler : text open write_mode is "dab_simulation_tb.dat";
 
-        variable integrator : real := 0.0;
-        variable pi_out : real := 0.0;
-        variable err : real := 0.0;
-
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
@@ -158,6 +168,7 @@ begin
                 ("time"
                 ,"T_u0"
                 ,"B_i0"
+                ,"T_vc"
                 ,"B_ph"
                 ,"B_st"
                 ));
@@ -174,36 +185,41 @@ begin
             if pi_control_is_ready(pi_controller) then
                 phase := to_real(get_pi_control_output(pi_controller), 15);
                 request_pi_control(pi_controller
-                    , pi_control_input => to_fixed(205.0 - state_variables(1) , 12));
+                    , pi_control_input => to_fixed(200.0 - state_variables(1) , 12));
             end if;
 
             if simulation_counter > 0 then
 
                 write_to(file_handler,
                         (realtime
-                        ,state_variables(0)
                         ,state_variables(1)
+                        ,state_variables(0)
+                        ,state_variables(2)
                         ,phase
                         ,timestep
                     ));
-
-                
 
                 rk(realtime , state_variables , timestep);
                 realtime <= realtime + timestep;
                 timestep := next_timestep;
 
-                if realtime > 5.0e-3 then
-                    load_resistor := -400.0;
-                end if;
+                if (realtime > 3.0e-3) then iload := -1.0 ; end if ;
+                if (realtime > 4.5e-3) then iload := 1.0  ; end if ;
+                if (realtime > 5.5e-3) then iload := -5.0 ; end if ;
+                if (realtime > 7.5e-3) then iload := 5.0  ; end if ;
+                if (realtime > 9.5e-3) then iload := -6.0 ; end if ;
 
-                if realtime > 10.0e-3 then
-                    load_resistor := 400.0;
-                end if;
-
-                if realtime > 15.25e-3 then
-                    tsw := 10.0e-6;
-                end if;
+                -- if realtime > 5.0e-3 then
+                --     load_resistor := -400.0;
+                -- end if;
+                --
+                -- if realtime > 10.0e-3 then
+                --     load_resistor := 400.0;
+                -- end if;
+                --
+                -- if realtime > 15.25e-3 then
+                --     tsw := 10.0e-6;
+                -- end if;
 
             end if;
 
