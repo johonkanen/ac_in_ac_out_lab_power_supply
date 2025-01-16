@@ -80,6 +80,7 @@ begin
         constant ipri : natural := 0;
         constant isec : natural := 6;
         constant im : natural := 7;
+        constant uout : natural := 1;
         variable state_variables : real_vector(0 to 7) := (
               0 => 0.0    -- ac inductor
             , 1 => 200.0  -- output capacitor
@@ -217,8 +218,8 @@ begin
 
                 write_to(file_handler,
                         (realtime
-                        ,state_variables(1)
-                        ,state_variables(0)
+                        ,state_variables(uout)
+                        ,state_variables(ipri)
                         ,state_variables(2)
                         ,phase
                         ,timestep
