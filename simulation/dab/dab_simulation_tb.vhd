@@ -65,14 +65,31 @@ begin
 
         variable iload : real := 0.0;
 
-        variable dab_inductor          : real := 10.0e-6;
+        variable dab_inductor : real := 10.0e-6;
+
+        variable lpri : real := 5.0e-6;
+        variable lsec : real := 5.0e-6;
+        variable lm   : real := 500.0e-6;
+
         variable output_capacitor      : real := 100.0e-6;
         variable half_bridge_capacitor : real := 4.0e-6;
 
         variable uin : real := 200.0;
 
         -- states = ac inductor, output capacitor, hb upper capacitor, hb lower capacitor
-        variable state_variables : real_vector(0 to 3) := (0.0, 200.0, 200.0, 200.0);
+        constant ipri : natural := 0;
+        constant isec : natural := 6;
+        constant im : natural := 7;
+        variable state_variables : real_vector(0 to 7) := (
+              0 => 0.0    -- ac inductor
+            , 1 => 200.0  -- output capacitor
+            , 2 => 200.0  -- pri upper capacitor
+            , 3 => 200.0  -- pri lower capacitor
+            , 4 => 200.0  -- sec upper capacitor
+            , 5 => 200.0  -- sec lower capacitor
+            , 6 => 0.0  -- isec
+            , 7 => 0.0  -- lm
+        );
 
         variable sw1_current : real := 0.0;
         variable load_resistor : real := 2000.0;
@@ -123,35 +140,43 @@ begin
             end function;
 
             variable out_parallel_gain : real := output_capacitor/(output_capacitor+half_bridge_capacitor);
-            variable hb_parallel_gain : real := half_bridge_capacitor/(output_capacitor+half_bridge_capacitor);
+            variable hb_parallel_gain  : real := half_bridge_capacitor/(output_capacitor+half_bridge_capacitor);
+
+            variable retval : state_variables'subtype;
 
         begin
 
             CASE st_dab_voltage_states is
                 WHEN t0 => 
-                    voltage_over_dab_inductor := sign(phi) * (uin-states(1));
-                    i_out := -states(0)*out_parallel_gain;
-                    i_hb_current := -states(0) * hb_parallel_gain;
+                    voltage_over_dab_inductor := sign(phi) * (uin-(uout - 0.0*states(3)));
+                    i_out := -states(ipri)*out_parallel_gain;
+                    i_hb_current := -states(ipri) * hb_parallel_gain;
                 WHEN t1 => 
-                    voltage_over_dab_inductor := sign(phi) * (uin+states(1)); 
-                    i_out := states(0)*out_parallel_gain;
-                    i_hb_current := states(0) * hb_parallel_gain;
+                    voltage_over_dab_inductor := sign(phi) * (uin+(uout - 0.0*states(3))); 
+                    i_out := states(ipri)*out_parallel_gain;
+                    i_hb_current := states(ipri) * hb_parallel_gain;
                 WHEN t2 => 
-                    voltage_over_dab_inductor := -sign(phi) * (uin-states(1));
-                    i_out := states(0)*out_parallel_gain;
-                    i_hb_current := states(0) * hb_parallel_gain;
+                    voltage_over_dab_inductor := -sign(phi) * (uin-(uout - 0.0*states(3)));
+                    i_out := states(ipri)*out_parallel_gain;
+                    i_hb_current := states(ipri) * hb_parallel_gain;
                 WHEN t3 => 
-                    voltage_over_dab_inductor := -sign(phi) * (uin+states(1));
-                    i_out := -states(0)*out_parallel_gain;
-                    i_hb_current := -states(0) * hb_parallel_gain;
+                    voltage_over_dab_inductor := -sign(phi) * (uin+(uout - 0.0*states(3)));
+                    i_out := -states(ipri)*out_parallel_gain;
+                    i_hb_current := -states(ipri) * hb_parallel_gain;
             end CASE;
 
-            return (
-                (voltage_over_dab_inductor - states(0) * 0.1)/dab_inductor 
-                ,(i_out/2.0 - iload * out_parallel_gain/2.0)/output_capacitor * out_parallel_gain
-                ,(i_hb_current - iload * hb_parallel_gain) / 8.0e-6
-                ,(i_hb_current - iload * hb_parallel_gain) / 8.0e-6
+            retval := (
+                 0 => (voltage_over_dab_inductor - states(ipri) * 0.1)/dab_inductor 
+                ,1 => (i_out/2.0 - iload * out_parallel_gain/2.0)/output_capacitor * out_parallel_gain
+                ,2 => (i_hb_current - iload * hb_parallel_gain) / 8.0e-6
+                ,3 => (i_hb_current - iload * hb_parallel_gain) / 8.0e-6
+                ,4 => 0.0
+                ,5 => 0.0
+                ,6 => 0.0
+                ,7 => 0.0
             );
+
+            return retval;
 
         end deriv;
         ------------
