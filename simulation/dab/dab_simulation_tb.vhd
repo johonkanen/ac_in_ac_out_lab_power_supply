@@ -25,7 +25,7 @@ architecture vunit_simulation of dab_simulation_tb is
     -- simulation specific signals ----
 
     signal realtime   : real := 0.0;
-    constant stoptime : real := 20.0e-3;
+    constant stoptime : real := 25.0e-3;
 
     package multiplier_pkg is new work.multiplier_generic_pkg generic map(24,1,1);
     package pi_control_pkg is new work.pi_controller_generic_pkg generic map(multiplier_pkg);
@@ -33,7 +33,7 @@ architecture vunit_simulation of dab_simulation_tb is
     use pi_control_pkg.all;
     
     signal multiplier : multiplier_record := init_multiplier;
-    signal pi_controller : pi_controller_record := pi_controller_init;
+    signal pi_controller : pi_controller_record := init_pi_controller(symmetric_limit => 2**15);
 
 begin
 
@@ -78,9 +78,11 @@ begin
 
         -- states = ac inductor, output capacitor, hb upper capacitor, hb lower capacitor
         constant ipri : natural := 0;
-        constant isec : natural := 6;
-        constant im : natural := 7;
         constant uout : natural := 1;
+        constant isec : natural := 6;
+        constant im   : natural := 7;
+
+        constant sec_lower_cap   : natural := 2;
         variable state_variables : real_vector(0 to 7) := (
               0 => 0.0    -- ac inductor
             , 1 => 200.0  -- output capacitor
@@ -92,7 +94,7 @@ begin
             , 7 => 0.0  -- lm
         );
 
-        variable sw1_current : real := 0.0;
+        variable sw1_current   : real := 0.0;
         variable load_resistor : real := 2000.0;
 
         impure function next_timestep return real is
@@ -121,11 +123,10 @@ begin
         ------------
         impure function deriv(t : real; states : real_vector) return real_vector is
             alias uout is states(1);
-            variable i_out : real := 0.0;
-            variable i_cm : real := 0.0;
-            variable i_hb_current : real := 0.0;
+            variable i_out         : real := 0.0;
+            variable i_cm          : real := 0.0;
+            variable i_hb_current  : real := 0.0;
             variable i_out_current : real := 0.0;
-
 
             -- define sign function to return only {-1.0, 1.0} to make 0 phase work correctly
             function sign(a : real) return real is
@@ -144,37 +145,57 @@ begin
             variable hb_parallel_gain  : real := half_bridge_capacitor/(output_capacitor+half_bridge_capacitor);
 
             variable retval : state_variables'subtype;
+            variable un : real;
+
+            function calculate_un (u : real_vector; l : real_vector) return real is
+            begin
+                return (u(0) * l(1)*l(2) + u(1)*l(0)*l(2) + u(2)*l(0)*l(1)) 
+                        / (l(0)*l(1) + l(0)*l(2) + l(1)*l(2));
+            end function;
+
+            variable upri : real;
+            variable usec : real;
 
         begin
 
             CASE st_dab_voltage_states is
                 WHEN t0 => 
-                    voltage_over_dab_inductor := sign(phi) * (uin-(uout - 0.0*states(3)));
+                    voltage_over_dab_inductor := sign(phi) * (uin-uout);
                     i_out := -states(ipri)*out_parallel_gain;
                     i_hb_current := -states(ipri) * hb_parallel_gain;
+                    upri := sign(phi) *uin;
+                    usec := -sign(phi) *uout;
                 WHEN t1 => 
-                    voltage_over_dab_inductor := sign(phi) * (uin+(uout - 0.0*states(3))); 
+                    voltage_over_dab_inductor := sign(phi) * (uin+uout);
                     i_out := states(ipri)*out_parallel_gain;
                     i_hb_current := states(ipri) * hb_parallel_gain;
+                    upri := sign(phi) *uin;
+                    usec := sign(phi) *uout;
                 WHEN t2 => 
-                    voltage_over_dab_inductor := -sign(phi) * (uin-(uout - 0.0*states(3)));
+                    voltage_over_dab_inductor := sign(phi) * (-uin+uout);
                     i_out := states(ipri)*out_parallel_gain;
                     i_hb_current := states(ipri) * hb_parallel_gain;
+                    upri := -sign(phi) *uin;
+                    usec := sign(phi) *uout;
                 WHEN t3 => 
-                    voltage_over_dab_inductor := -sign(phi) * (uin+(uout - 0.0*states(3)));
+                    voltage_over_dab_inductor := sign(phi) * (-uin-uout);
                     i_out := -states(ipri)*out_parallel_gain;
                     i_hb_current := -states(ipri) * hb_parallel_gain;
+                    upri := -sign(phi) *uin;
+                    usec := -sign(phi) *uout;
             end CASE;
 
+            un := calculate_un((upri, -usec, 0.0),(lpri, lsec, lm));
+
             retval := (
-                 0 => (voltage_over_dab_inductor - states(ipri) * 0.1)/dab_inductor 
-                ,1 => (i_out/2.0 - iload * out_parallel_gain/2.0)/output_capacitor * out_parallel_gain
-                ,2 => (i_hb_current - iload * hb_parallel_gain) / 8.0e-6
-                ,3 => (i_hb_current - iload * hb_parallel_gain) / 8.0e-6
-                ,4 => 0.0
-                ,5 => 0.0
-                ,6 => 0.0
-                ,7 => 0.0
+                0     => ((upri - un) - states(ipri) * 0.1)/lpri
+                ,1    => (i_out/2.0 - iload * out_parallel_gain/2.0)/output_capacitor * out_parallel_gain
+                ,2    => (i_hb_current - iload * hb_parallel_gain) / 8.0e-6
+                ,3    => (i_hb_current - iload * hb_parallel_gain) / 8.0e-6
+                ,4    => 0.0
+                ,5    => 0.0
+                ,isec => (un - usec - states(isec) * 0.1) / dab_inductor
+                ,im   => (un)/lm
             );
 
             return retval;
@@ -204,9 +225,9 @@ begin
 
             create_multiplier(multiplier);
             create_pi_controller(pi_controller
-                , multiplier
-                , to_fixed(0.5, mpy_signed'length, 14)
-                , to_fixed(0.025, mpy_signed'length, 14));
+                 , multiplier
+                 , to_fixed(0.25   , mpy_signed'length , 14)
+                 , to_fixed(0.025 , mpy_signed'length , 14));
 
             if pi_control_is_ready(pi_controller) then
                 phase := to_real(get_pi_control_output(pi_controller), 15);
@@ -218,11 +239,11 @@ begin
 
                 write_to(file_handler,
                         (realtime
-                        ,state_variables(uout)
-                        ,state_variables(ipri)
-                        ,state_variables(2)
-                        ,phase
-                        ,timestep
+                         , state_variables(uout)
+                         , state_variables(ipri)
+                         , state_variables(sec_lower_cap)
+                         , phase
+                         , timestep
                     ));
 
                 rk(realtime , state_variables , timestep);
