@@ -81,8 +81,11 @@ begin
         constant uout : natural := 1;
         constant isec : natural := 6;
         constant im   : natural := 7;
+        constant usec_upper   : natural := 4;
+        constant usec_lower   : natural := 5;
 
         constant sec_lower_cap   : natural := 2;
+        constant sec_upper_cap   : natural := 3;
         variable state_variables : real_vector(0 to 7) := (
               0 => 0.0    -- ac inductor
             , 1 => 200.0  -- output capacitor
@@ -96,6 +99,8 @@ begin
 
         variable sw1_current   : real := 0.0;
         variable load_resistor : real := 2000.0;
+
+        variable i_n : real := 0.0;
 
         impure function next_timestep return real is
             variable step_length : real := 1.0;
@@ -155,39 +160,60 @@ begin
 
             variable upri : real;
             variable usec : real;
+            
+            -- variable ipri : real;
+            -- variable isec : real;
 
         begin
 
             CASE st_dab_voltage_states is
                 WHEN t0 => 
-                    i_out := -states(isec)*out_parallel_gain;
+                    upri := sign(phi) * uin;
+                    usec := sign(phi) * uout;
+
+                    i_out        := -states(isec) * out_parallel_gain;
                     i_hb_current := -states(isec) * hb_parallel_gain;
-                    upri := sign(phi) *uin;
-                    usec := sign(phi) *uout;
+
+                    i_n := calculate_un((-states(isec), 0.0, -iload),(half_bridge_capacitor, half_bridge_capacitor, output_capacitor));
+
                 WHEN t1 => 
-                    i_out := states(isec)*out_parallel_gain;
+                    upri := sign(phi)  * uin;
+                    usec := -sign(phi) * uout;
+
+                    i_out        := states(isec) * out_parallel_gain;
                     i_hb_current := states(isec) * hb_parallel_gain;
-                    upri := sign(phi) *uin;
-                    usec := -sign(phi) *uout;
+
+                    i_n := calculate_un((0.0, states(isec), -iload),(half_bridge_capacitor, half_bridge_capacitor, output_capacitor));
+
                 WHEN t2 => 
-                    i_out := states(isec)*out_parallel_gain;
+                    upri := -sign(phi) * uin;
+                    usec := -sign(phi) * uout;
+
+                    i_out        := states(isec) * out_parallel_gain;
                     i_hb_current := states(isec) * hb_parallel_gain;
-                    upri := -sign(phi) *uin;
-                    usec := -sign(phi) *uout;
+
+                    i_n := calculate_un((0.0, states(isec), -iload),(half_bridge_capacitor, half_bridge_capacitor, output_capacitor));
+
                 WHEN t3 => 
-                    i_out := -states(isec)*out_parallel_gain;
+                    upri := -sign(phi) * uin;
+                    usec := sign(phi)  * uout;
+
+                    i_out        := -states(isec) * out_parallel_gain;
                     i_hb_current := -states(isec) * hb_parallel_gain;
-                    upri := -sign(phi) *uin;
-                    usec := sign(phi) *uout;
+
+                    i_n := calculate_un((-states(isec), 0.0, -iload),(half_bridge_capacitor, half_bridge_capacitor, output_capacitor));
+
             end CASE;
 
-            un := calculate_un((upri, usec, 0.0),(lpri, lsec, lm));
+            un := calculate_un((upri- states(ipri) * 0.1, usec- states(isec) * 0.1, 0.0),(lpri, lsec, lm));
+
 
             retval := (
                 0     => ((upri - un) - states(ipri) * 0.1)/lpri
-                ,1    => (i_out/2.0 - iload * out_parallel_gain/2.0)/output_capacitor * out_parallel_gain
-                ,2    => (i_hb_current - iload * hb_parallel_gain) / 8.0e-6
-                ,3    => (i_hb_current - iload * hb_parallel_gain) / 8.0e-6
+                -- ,1    => (i_n)/output_capacitor
+                ,1    => (i_out/2.0    + iload * out_parallel_gain/2.0)/output_capacitor
+                ,2    => (i_hb_current + iload * hb_parallel_gain) / half_bridge_capacitor
+                ,3    => (i_hb_current + iload * hb_parallel_gain) / half_bridge_capacitor
                 ,4    => 0.0
                 ,5    => 0.0
                 ,isec => (un - usec - states(isec) * 0.1) / lsec
@@ -237,20 +263,21 @@ begin
                         (realtime
                          , state_variables(uout)
                          , state_variables(ipri)
-                         , state_variables(sec_lower_cap)
+                         , state_variables(sec_lower_cap) + state_variables(sec_upper_cap) - 200.0
                          , state_variables(isec) - state_variables(ipri)
-                         , state_variables(im)
+                         , i_n
                     ));
 
                 rk(realtime , state_variables , timestep);
                 realtime <= realtime + timestep;
                 timestep := next_timestep;
 
-                if (realtime > 3.0e-3) then iload := -1.0 ; end if ;
-                if (realtime > 4.5e-3) then iload := 1.0  ; end if ;
-                if (realtime > 5.5e-3) then iload := -5.0 ; end if ;
-                if (realtime > 7.5e-3) then iload := 5.0  ; end if ;
-                if (realtime > 9.5e-3) then iload := -6.0 ; end if ;
+                if (realtime > 3.0e-3) then iload := -2.0 ; end if ;
+                -- if (realtime > 4.5e-3) then iload := 1.0  ; end if ;
+                -- if (realtime > 5.5e-3) then iload := -5.0 ; end if ;
+                if (realtime > 7.5e-3) then iload := 2.0  ; end if ;
+                -- if (realtime > 9.5e-3) then iload := -3.0 ; end if ;
+                iload := iload/2.0;
 
                 -- if realtime > 5.0e-3 then
                 --     load_resistor := -400.0;
