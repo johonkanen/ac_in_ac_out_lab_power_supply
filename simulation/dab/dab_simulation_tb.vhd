@@ -81,8 +81,11 @@ begin
         constant uout : natural := 1;
         constant isec : natural := 6;
         constant im   : natural := 7;
+        constant usec_upper   : natural := 4;
+        constant usec_lower   : natural := 5;
 
         constant sec_lower_cap   : natural := 2;
+        constant sec_upper_cap   : natural := 3;
         variable state_variables : real_vector(0 to 7) := (
               0 => 0.0    -- ac inductor
             , 1 => 200.0  -- output capacitor
@@ -160,25 +163,29 @@ begin
 
             CASE st_dab_voltage_states is
                 WHEN t0 => 
-                    i_out := -states(isec)*out_parallel_gain;
-                    i_hb_current := -states(isec) * hb_parallel_gain;
                     upri := sign(phi) *uin;
                     usec := sign(phi) *uout;
+
+                    i_out        := -states(isec) * out_parallel_gain;
+                    i_hb_current := -states(isec) * hb_parallel_gain;
                 WHEN t1 => 
-                    i_out := states(isec)*out_parallel_gain;
-                    i_hb_current := states(isec) * hb_parallel_gain;
                     upri := sign(phi) *uin;
                     usec := -sign(phi) *uout;
-                WHEN t2 => 
-                    i_out := states(isec)*out_parallel_gain;
+
+                    i_out        := states(isec)*out_parallel_gain;
                     i_hb_current := states(isec) * hb_parallel_gain;
+                WHEN t2 => 
                     upri := -sign(phi) *uin;
                     usec := -sign(phi) *uout;
+
+                    i_out        := states(isec)*out_parallel_gain;
+                    i_hb_current := states(isec) * hb_parallel_gain;
                 WHEN t3 => 
-                    i_out := -states(isec)*out_parallel_gain;
-                    i_hb_current := -states(isec) * hb_parallel_gain;
                     upri := -sign(phi) *uin;
                     usec := sign(phi) *uout;
+
+                    i_out        := -states(isec)*out_parallel_gain;
+                    i_hb_current := -states(isec) * hb_parallel_gain;
             end CASE;
 
             un := calculate_un((upri, usec, 0.0),(lpri, lsec, lm));
@@ -186,8 +193,8 @@ begin
             retval := (
                 0     => ((upri - un) - states(ipri) * 0.1)/lpri
                 ,1    => (i_out/2.0 - iload * out_parallel_gain/2.0)/output_capacitor * out_parallel_gain
-                ,2    => (i_hb_current - iload * hb_parallel_gain) / 8.0e-6
-                ,3    => (i_hb_current - iload * hb_parallel_gain) / 8.0e-6
+                ,2    => (i_hb_current - iload * hb_parallel_gain) / half_bridge_capacitor
+                ,3    => (i_hb_current - iload * hb_parallel_gain) / half_bridge_capacitor
                 ,4    => 0.0
                 ,5    => 0.0
                 ,isec => (un - usec - states(isec) * 0.1) / lsec
@@ -237,7 +244,7 @@ begin
                         (realtime
                          , state_variables(uout)
                          , state_variables(ipri)
-                         , state_variables(sec_lower_cap)
+                         , state_variables(sec_lower_cap) + state_variables(sec_upper_cap) - 200.0
                          , state_variables(isec) - state_variables(ipri)
                          , state_variables(im)
                     ));
