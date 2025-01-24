@@ -1,13 +1,6 @@
 library ieee;
     use ieee.std_logic_1164.all;
 
-    use work.fpga_interconnect_pkg.all;
-    use work.ads7056_pkg.all;
-    use work.aux_pwm_pkg.all;
-    use work.git_hash_pkg;
-    use work.sigma_delta_cic_filter_pkg.all;
-    use work.pwm_pkg.all;
-
 entity titanium_top is
     port (
         main_clock : in std_logic;
@@ -64,6 +57,23 @@ entity titanium_top is
 end entity titanium_top;
 
 architecture rtl of titanium_top is
+
+    use work.fpga_interconnect_pkg.all;
+    use work.ads7056_pkg.all;
+    use work.aux_pwm_pkg.all;
+    use work.git_hash_pkg;
+    use work.sigma_delta_cic_filter_pkg.all;
+    use work.pwm_pkg.all;
+
+    package ram_port_pkg is new work.ram_port_generic_pkg generic map(g_ram_bit_width => 16, g_ram_depth_pow2 => 12);
+    use ram_port_pkg.all;
+    --------------------
+    signal ram_a_in  : ram_in_record;
+    signal ram_a_out : ram_out_record;
+    --------------------
+    signal ram_b_in  : ram_in_record;
+    signal ram_b_out : ram_out_record;
+    --------------------
 
     signal r_grid_inu_sdm_data   : std_logic;
     signal r_output_inu_sdm_data : std_logic;
@@ -155,6 +165,15 @@ begin
 
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 100 , git_hash_pkg.git_hash(31 downto 16));
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 101 , git_hash_pkg.git_hash(15 downto 0));
+
+            if data_is_requested_from_address_range(bus_from_communications, 4096, 8191) then
+                request_data_from_ram(ram_a_in, get_address(bus_from_communications)-4096);
+            end if;
+
+            if ram_read_is_ready(ram_a_out) then
+                write_data_to_address(bus_from_top, 0, get_ram_data(ram_a_out));
+            end if;
+
             
             bus_to_communications <= bus_from_top;
 
@@ -200,6 +219,16 @@ begin
 
         end if;
     end process;
+------------------------------------------------------------------------
+    u_dpram : entity work.generic_dual_port_ram
+    generic map(ram_port_pkg)
+    port map(
+    main_clock ,
+    ram_a_in   ,
+    ram_a_out  ,
+    --------------
+    ram_b_in  ,
+    ram_b_out);
 ------------------------------------------------------------------------
     u_fpga_communications : entity work.fpga_communications
     generic map(fpga_interconnect_pkg => work.fpga_interconnect_pkg)

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<efx:project name="ac_in_ac_out_lab_power_supply" description="" last_change_date="Wed October 5 2022 01:27:06" location="C:/Users/Jari/mycodeprojects/ac_in_ac_out_lab_power_supply/efinix_build" sw_version="2022.1.226" last_run_state="pass" last_run_tool="efx_pgm" last_run_flow="bitstream" config_result_in_sync="sync" design_ood="change" place_ood="sync" route_ood="sync" xmlns:efx="http://www.efinixinc.com/enf_proj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/enf_proj enf_proj.xsd">
+<efx:project name="ac_in_ac_out_lab_power_supply" description="" last_change="1737721113" sw_version="2024.2.294.2.12" last_run_state="pass" last_run_flow="bitstream" config_result_in_sync="sync" design_ood="change" place_ood="sync" route_ood="sync" xmlns:efx="http://www.efinixinc.com/enf_proj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/enf_proj enf_proj.xsd">
     <efx:device_info>
         <efx:family name="Trion"/>
         <efx:device name="T120F324"/>
         <efx:timing_model name="C4"/>
     </efx:device_info>
-    <efx:design_info def_veri_version="verilog_2k" def_vhdl_version="vhdl_2008">
+    <efx:design_info def_veri_version="verilog_2k" def_vhdl_version="vhdl_2008" unified_flow="false">
         <efx:top_module name="efinix_top"/>
         <efx:design_file name="efinix_top.vhd" version="default" library="default"/>
         <efx:design_file name="../source/system_control/main_state_machine/main_state_machine_pkg.vhd" version="default" library="default"/>
@@ -19,7 +19,6 @@
         <efx:design_file name="../source/system_control/component_interconnect/power_electronics/power_electronics.vhd" version="default" library="default"/>
         <efx:design_file name="../source/system_control/component_interconnect/power_electronics/power_electronics_pkg.vhd" version="default" library="default"/>
         <efx:design_file name="../source/rtl_counters/rtl_counter_pkg.vhd" version="default" library="default"/>
-        <efx:design_file name="../source/uart/uart_pkg.vhd" version="default" library="default"/>
         <efx:design_file name="../source/uart/uart.vhd" version="default" library="default"/>
         <efx:design_file name="../source/uart/uart_transreceiver/uart_transreceiver.vhd" version="default" library="default"/>
         <efx:design_file name="../source/uart/uart_transreceiver/uart_transreceiver_pkg.vhd" version="default" library="default"/>
@@ -32,41 +31,17 @@
         <efx:design_file name="../source/fpga_interconnect/interconnect_configuration/data_15_address_15_bit_pkg.vhd" version="default" library="default"/>
         <efx:design_file name="../source/fpga_interconnect/fpga_interconnect_pkg.vhd" version="default" library="default"/>
         <efx:design_file name="../source/system_register_addresses_pkg.vhd" version="default" library="default"/>
-        <efx:design_file name="../source/math_library/hVHDL_memory_library/fpga_ram/ram_configuration/ram_configuration_16x1024_pkg.vhd" version="default" library="math_library_18x18"/>
-        <efx:design_file name="../source/math_library/hVHDL_memory_library/fpga_ram/ram_read_port_pkg.vhd" version="default" library="math_library_18x18"/>
-        <efx:design_file name="../source/math_library/hVHDL_memory_library/fpga_ram/ram_write_port_pkg.vhd" version="default" library="math_library_18x18"/>
-        <efx:design_file name="../source/math_library/multiplier/multiplier_base_types_18bit_pkg.vhd" version="default" library="math_library_18x18"/>
-        <efx:design_file name="../source/math_library/sincos/lut_generator_functions/sine_harmonics_lut_generator_pkg.vhd" version="default" library="math_library_18x18"/>
-        <efx:design_file name="../source/math_library/sincos/lut_sine_pkg.vhd" version="default" library="math_library_18x18"/>
-        <efx:design_file name="../source/math_library/multiplier/multiplier_pkg.vhd" version="default" library="math_library_18x18"/>
-        <efx:design_file name="../source/math_library/first_order_filter/first_order_filter_pkg.vhd" version="default" library="math_library_18x18"/>
-        <efx:design_file name="../source/math_library/multiplier/multiplier_base_types_22bit_pkg.vhd" version="default" library="math_library_22x22"/>
-        <efx:design_file name="../source/math_library/multiplier/multiplier_pkg.vhd" version="default" library="math_library_22x22"/>
-        <efx:design_file name="../source/math_library/first_order_filter/first_order_filter_pkg.vhd" version="default" library="math_library_22x22"/>
-        <efx:design_file name="../source/dynamic_simulation_library/state_variable/state_variable_pkg.vhd" version="default" library="math_library_22x22"/>
-        <efx:design_file name="../source/dynamic_simulation_library/lcr_filter_model/lcr_filter_model_pkg.vhd" version="default" library="math_library_22x22"/>
-        <efx:design_file name="../source/math_library/multiplier/multiplier_base_types_26bit_pkg.vhd" version="default" library="math_library_26x26"/>
-        <efx:design_file name="../source/math_library/multiplier/multiplier_pkg.vhd" version="default" library="math_library_26x26"/>
-        <efx:design_file name="../source/math_library/first_order_filter/first_order_filter_pkg.vhd" version="default" library="math_library_26x26"/>
-        <efx:design_file name="../source/dynamic_simulation_library/state_variable/state_variable_pkg.vhd" version="default" library="math_library_26x26"/>
-        <efx:design_file name="../source/dynamic_simulation_library/lcr_filter_model/lcr_filter_model_pkg.vhd" version="default" library="math_library_26x26"/>
-        <efx:design_file name="../source/vhdl_float/float_type_definitions/float_word_length_24_bit_pkg.vhd" version="default" library="float"/>
-        <efx:design_file name="../source/vhdl_float/float_type_definitions/float_type_definitions_pkg.vhd" version="default" library="float"/>
-        <efx:design_file name="../source/vhdl_float/normalizer/normalizer_pkg.vhd" version="default" library="float"/>
-        <efx:design_file name="../source/vhdl_float/denormalizer/denormalizer_pkg.vhd" version="default" library="float"/>
         <efx:design_file name="../source/vhdl_float/float_to_real_conversions/float_to_real_functions_pkg.vhd" version="default" library="float"/>
         <efx:design_file name="../source/vhdl_float/float_to_real_conversions/float_to_real_conversions_pkg.vhd" version="default" library="float"/>
-        <efx:design_file name="../source/vhdl_float/float_arithmetic_operations/float_arithmetic_operations_pkg.vhd" version="default" library="float"/>
-        <efx:design_file name="../source/vhdl_float/float_adder/float_adder_pkg.vhd" version="default" library="float"/>
-        <efx:design_file name="../source/vhdl_float/float_multiplier/float_multiplier_pkg.vhd" version="default" library="float"/>
-        <efx:design_file name="../source/vhdl_float/float_alu/float_alu_pkg.vhd" version="default" library="float"/>
-        <efx:design_file name="../source/vhdl_float/float_first_order_filter/float_first_order_filter_pkg.vhd" version="default" library="float"/>
+        <efx:design_file name="../source/hVHDL_memory_library/fpga_internal_ram/arch_rtl_generic_dual_port_ram.vhd" version="default" library="default"/>
+        <efx:design_file name="../source/hVHDL_memory_library/fpga_internal_ram/dual_port_ram_generic_pkg.vhd" version="default" library="default"/>
         <efx:top_vhdl_arch name="rtl"/>
     </efx:design_info>
     <efx:constraint_info>
         <efx:sdc_file name="ac_in_ac_out_lab_power_supply.pt.sdc"/>
         <efx:inter_file name=""/>
     </efx:constraint_info>
+    <efx:isf_info/>
     <efx:sim_info/>
     <efx:misc_info/>
     <efx:ip_info/>
@@ -93,6 +68,19 @@
         <efx:param name="allow-const-ram-index" value="0" value_type="e_option"/>
         <efx:param name="hdl-compile-unit" value="1" value_type="e_option"/>
         <efx:param name="create-onehot-fsms" value="0" value_type="e_option"/>
+        <efx:param name="bram-push-tco-outreg" value="0" value_type="e_option"/>
+        <efx:param name="hdl-loop-limit" value="20000" value_type="e_integer"/>
+        <efx:param name="max-bit-blast-mem-size" value="10240" value_type="e_integer"/>
+        <efx:param name="min-ce-fanout" value="0" value_type="e_integer"/>
+        <efx:param name="mult-auto-pipeline" value="0" value_type="e_integer"/>
+        <efx:param name="mult-decomp-retime" value="0" value_type="e_option"/>
+        <efx:param name="optimize-zero-init-rom" value="1" value_type="e_option"/>
+        <efx:param name="peri-syn-instantiation" value="0" value_type="e_option"/>
+        <efx:param name="peri-syn-inference" value="0" value_type="e_option"/>
+        <efx:param name="ram-decomp-mode" value="0" value_type="e_option"/>
+        <efx:param name="use-logic-for-small-mem" value="64" value_type="e_integer"/>
+        <efx:param name="use-logic-for-small-rom" value="64" value_type="e_integer"/>
+        <efx:param name="max_threads" value="-1" value_type="e_integer"/>
     </efx:synthesis>
     <efx:place_and_route tool_name="efx_pnr">
         <efx:param name="work_dir" value="work_pnr" value_type="e_string"/>
@@ -102,6 +90,8 @@
         <efx:param name="seed" value="1" value_type="e_integer"/>
         <efx:param name="placer_effort_level" value="2" value_type="e_option"/>
         <efx:param name="max_threads" value="-1" value_type="e_integer"/>
+        <efx:param name="print_critical_path" value="10" value_type="e_integer"/>
+        <efx:param name="classic_flow" value="off" value_type="e_noarg"/>
     </efx:place_and_route>
     <efx:bitstream_generation tool_name="efx_pgm">
         <efx:param name="mode" value="active" value_type="e_option"/>
