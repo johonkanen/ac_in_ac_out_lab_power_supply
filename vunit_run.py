@@ -24,9 +24,13 @@ top_lib.add_source_files(ROOT / "source/vhdl_serial/source/clock_divider/clock_d
 top_lib.add_source_files(ROOT / "source/vhdl_serial/source/ads7056/ads7056_pkg.vhd")
 
 top_lib.add_source_files(ROOT / "source/aux_pwm/aux_pwm_pkg.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_memory_library/fpga_internal_ram/dual_port_ram_generic_pkg.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_memory_library/fpga_internal_ram/arch_sim_generic_dual_port_ram.vhd")
 
 top_lib.add_source_files(ROOT / "simulation/git_hash_pkg.vhd")
 top_lib.add_source_files(ROOT / "simulation/inu/pwm_pkg.vhd")
+
+
 top_lib.add_source_files(ROOT / "simulation/top_tb.vhd")
 
 aux = VU.add_library("auxiliary_pwm")

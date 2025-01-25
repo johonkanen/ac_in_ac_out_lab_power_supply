@@ -65,7 +65,7 @@ architecture rtl of titanium_top is
     use work.sigma_delta_cic_filter_pkg.all;
     use work.pwm_pkg.all;
 
-    package ram_port_pkg is new work.ram_port_generic_pkg generic map(g_ram_bit_width => 16, g_ram_depth_pow2 => 12);
+    package ram_port_pkg is new work.ram_port_generic_pkg generic map(g_ram_bit_width => 16, g_ram_depth_pow2 => 13);
     use ram_port_pkg.all;
     --------------------
     signal ram_a_in  : ram_in_record;
@@ -166,7 +166,7 @@ begin
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 100 , git_hash_pkg.git_hash(31 downto 16));
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 101 , git_hash_pkg.git_hash(15 downto 0));
 
-            if data_is_requested_from_address_range(bus_from_communications, 4096, 8191) then
+            if data_is_requested_from_address_range(bus_from_communications, 4096, 4096+2**13-1) then
                 request_data_from_ram(ram_a_in, get_address(bus_from_communications)-4096);
             end if;
 
