@@ -1,5 +1,6 @@
 library ieee;
     use ieee.std_logic_1164.all;
+    use ieee.numeric_std.all;
 
 entity titanium_top is
     port (
@@ -67,6 +68,11 @@ architecture rtl of titanium_top is
 
     package ram_port_pkg is new work.ram_port_generic_pkg generic map(g_ram_bit_width => 16, g_ram_depth_pow2 => 13);
     use ram_port_pkg.all;
+
+    package sample_trigger_pkg is new work.sample_trigger_generic_pkg generic map(g_ram_depth => ram_depth);
+    use sample_trigger_pkg.all;
+
+    signal sample_trigger : sample_trigger_record := init_trigger;
     --------------------
     signal ram_a_in  : ram_in_record;
     signal ram_a_out : ram_out_record;
@@ -101,6 +107,7 @@ architecture rtl of titanium_top is
     signal sdm_counter : natural range 0 to 15 := 0;
 
     signal pwm : pwm_record := init_pwm;
+    signal test_counter : natural range 0 to 2**16-1 := 0;
 
 begin
 
@@ -217,9 +224,25 @@ begin
                 dab_sdm_clock        <= '1';
             end if;
 
+            if test_counter < 2**16-1 then
+                test_counter <= test_counter;
+            else
+                test_counter <= 0;
+            end if;
+            create_trigger(sample_trigger, test_counter = 30e3);
+
             if data_is_requested_from_address(bus_from_communications, 1000) then
                 write_data_to_address(bus_from_top, address => 0, data => 1);
-                -- prime trigger
+                enable_sampling(sample_trigger);
+            end if;
+
+            if data_is_requested_from_address(bus_from_communications, 1001) then
+                write_data_to_address(bus_from_top, address => 0, data => 1);
+                prime_trigger(sample_trigger, 1500);
+            end if;
+
+            if sampling_enabled(sample_trigger) then
+                write_data_to_ram(ram_b_in, get_sample_address(sample_trigger), std_logic_vector(to_unsigned(test_counter, 16)));
             end if;
 
         end if;
