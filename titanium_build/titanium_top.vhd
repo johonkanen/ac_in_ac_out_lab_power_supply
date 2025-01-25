@@ -217,6 +217,11 @@ begin
                 dab_sdm_clock        <= '1';
             end if;
 
+            if data_is_requested_from_address(bus_from_communications, 1000) then
+                write_data_to_address(bus_from_top, address => 0, data => 1);
+                -- prime trigger
+            end if;
+
         end if;
     end process;
 ------------------------------------------------------------------------

@@ -88,7 +88,7 @@ end;
 architecture vunit_simulation of top_tb is
 
     constant clock_period      : time    := 1 ns;
-    constant simtime_in_clocks : integer := 25000;
+    constant simtime_in_clocks : integer := 40000;
     
     signal simulator_clock     : std_logic := '0';
     signal simulation_counter  : natural   := 0;
@@ -220,7 +220,6 @@ begin
             connect_data_to_address(bus_from_communications, bus_to_communications, 3, test_data(3));
             connect_data_to_address(bus_from_communications, bus_to_communications, 4, test_data(4));
             connect_data_to_address(bus_from_communications, bus_to_communications, 5, test_data(5));
-            connect_data_to_address(bus_from_communications, bus_to_communications, 5, tuitui);
         end if;
     end process;
 
