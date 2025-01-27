@@ -123,27 +123,10 @@ begin
             set_number_of_clocks_per_bit(uart_rx_data_in, g_clock_divider);
             create_serial_protocol(uart_protocol, uart_rx_data_out, uart_tx_data_in, uart_tx_data_out);
 
-            -- if transmit_is_ready(uart_protocol) or simulation_counter = 10 then
-            --     transmit_counter <= transmit_counter + 1;
-            --     if transmit_counter <= data_to_be_transmitted'high then
-            --         transmit_words_with_serial(uart_protocol, write_frame(transmit_counter, data_to_be_transmitted(transmit_counter)));
-            --     elsif transmit_counter <= data_to_be_transmitted'high+1 then
-            --         transmit_words_with_serial(uart_protocol, read_frame(address => 1));
-            --     end if;
-            -- end if;
-            -- if frame_has_been_received(uart_protocol) then
-            --     if get_command(uart_protocol) = 2 then
-            --         transmit_words_with_serial(uart_protocol,write_frame(get_command_address(uart_protocol), test_data(3)));
-            --     end if;
-            -- end if;
-
             CASE simulation_counter is
-                WHEN 1000 => transmit_words_with_serial(uart_protocol,read_frame(1000));
-                WHEN 2200 => transmit_words_with_serial(uart_protocol,read_frame(1001));
-            --     WHEN 8500 => transmit_words_with_serial(uart_protocol,stream_frame(5));
-            --     WHEN 11e3 => transmit_words_with_serial(uart_protocol,write_frame(4, x"00ff"));
-            --     WHEN 13e3 => transmit_words_with_serial(uart_protocol,write_frame(10, x"0001"));
-            --     WHEN 20e3 => transmit_words_with_serial(uart_protocol,write_frame(10, x"0000"));
+                WHEN 100 => transmit_words_with_serial(uart_protocol,read_frame(1000));
+                WHEN 4600 => transmit_words_with_serial(uart_protocol,read_frame(1001));
+                WHEN 6000 => transmit_words_with_serial(uart_protocol,stream_frame(1002, 40));
                 WHEN others => -- do nothing
             end case;
 

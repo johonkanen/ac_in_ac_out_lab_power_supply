@@ -66,10 +66,14 @@ architecture rtl of titanium_top is
     use work.sigma_delta_cic_filter_pkg.all;
     use work.pwm_pkg.all;
 
-    package ram_port_pkg is new work.ram_port_generic_pkg generic map(g_ram_bit_width => 16, g_ram_depth_pow2 => 13);
+    package ram_port_pkg is new work.ram_port_generic_pkg 
+        generic map(
+            g_ram_bit_width => 16
+            , g_ram_depth_pow2 => 4);
     use ram_port_pkg.all;
 
-    package sample_trigger_pkg is new work.sample_trigger_generic_pkg generic map(g_ram_depth => ram_depth);
+    package sample_trigger_pkg is new work.sample_trigger_generic_pkg 
+        generic map(g_ram_depth => ram_depth);
     use sample_trigger_pkg.all;
 
     signal sample_trigger : sample_trigger_record := init_trigger;
@@ -135,6 +139,39 @@ begin
 
 ------------------------------------------------------------------------
     process(main_clock) is
+
+        procedure create_scope(
+          signal trigger          : inout sample_trigger_record
+          ; bus_in                : in fpga_interconnect_record
+          ; signal bus_out        : out fpga_interconnect_record
+          ; sample_event          : in boolean
+          ; signal ram_port_in_a  : out ram_in_record
+          ; signal ram_port_out_a : in ram_out_record
+          ; signal ram_port_in_b  : out ram_in_record
+
+        ) is
+        begin
+            create_trigger(trigger, sample_event);
+
+            if sampling_enabled(trigger) then
+                write_data_to_ram(ram_port_in_b, get_sample_address(trigger), std_logic_vector(to_unsigned(test_counter, 16)));
+            end if;
+
+            if data_is_requested_from_address(bus_in, 1000) then
+                write_data_to_address(bus_out, address => 0, data => 1);
+                prime_trigger(trigger, ram_depth/2);
+            end if;
+
+            if data_is_requested_from_address(bus_in, 1001) then
+                calculate_read_address(trigger);
+                request_data_from_ram(ram_port_in_a, get_sample_address(trigger));
+            end if;
+
+            if ram_read_is_ready(ram_port_out_a) then
+                write_data_to_address(bus_out, address => 0, data => get_ram_data(ram_port_out_a));
+            end if;
+        end create_scope;
+
     begin
         if rising_edge(main_clock) then
             init_bus(bus_from_top);
@@ -180,10 +217,6 @@ begin
                 request_data_from_ram(ram_a_in, get_address(bus_from_communications)-4096);
             end if;
 
-            if ram_read_is_ready(ram_a_out) then
-                write_data_to_address(bus_from_top, 0, get_ram_data(ram_a_out));
-            end if;
-
             ad_mux1_io <= test_data3(2 downto 0);
             ad_mux2_io <= test_data3(2 downto 0);
 
@@ -224,26 +257,20 @@ begin
                 dab_sdm_clock        <= '1';
             end if;
 
-            if test_counter < 2**16-1 then
+            if test_counter < 4000 then
                 test_counter <= test_counter + 1;
             else
                 test_counter <= 0;
             end if;
-            create_trigger(sample_trigger, test_counter = 30e3);
 
-            if data_is_requested_from_address(bus_from_communications, 1000) then
-                write_data_to_address(bus_from_top, address => 0, data => 1);
-                enable_sampling(sample_trigger);
-            end if;
-
-            if data_is_requested_from_address(bus_from_communications, 1001) then
-                write_data_to_address(bus_from_top, address => 0, data => 1);
-                prime_trigger(sample_trigger, 1500);
-            end if;
-
-            if sampling_enabled(sample_trigger) then
-                write_data_to_ram(ram_b_in, get_sample_address(sample_trigger), std_logic_vector(to_unsigned(test_counter, 16)));
-            end if;
+            create_scope(sample_trigger
+            , bus_from_communications
+            , bus_from_top
+            , test_counter = 3e3
+            , ram_a_in
+            , ram_a_out
+            , ram_b_in
+        );
 
         end if;
     end process;
