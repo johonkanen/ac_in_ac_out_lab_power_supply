@@ -2,6 +2,26 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
+entity signal_scope is
+    generic(package scope_ram_port_pkg is new work.ram_port_generic_pkg generic map(<>)
+            ;package scope_sample_trigger_pkg is new work.sample_trigger_generic_pkg generic map(<>)
+           );
+    port (
+        main_clock : in std_logic
+      ; bus_in                : in work.fpga_interconnect_pkg.fpga_interconnect_record
+      ; signal bus_out        : out work.fpga_interconnect_pkg.fpga_interconnect_record
+      ; sample_event          : in boolean
+      ; sampled_data          : in std_logic_vector
+    );
+    use scope_ram_port_pkg.all;
+    use scope_sample_trigger_pkg.all;
+end entity signal_scope;
+
+------------------------------------------------
+library ieee;
+    use ieee.std_logic_1164.all;
+    use ieee.numeric_std.all;
+
 entity titanium_top is
     port (
         main_clock : in std_logic;
@@ -76,6 +96,41 @@ architecture rtl of titanium_top is
         generic map(g_ram_depth => ram_depth);
     use sample_trigger_pkg.all;
 
+    -----------------------
+    procedure create_scope(
+      signal trigger          : inout sample_trigger_record
+      ; bus_in                : in fpga_interconnect_record
+      ; signal bus_out        : out fpga_interconnect_record
+      ; signal ram_port_in_a  : out ram_in_record
+      ; signal ram_port_out_a : in ram_out_record
+      ; signal ram_port_in_b  : out ram_in_record
+      ; sample_event          : in boolean
+      ; sampled_data          : in std_logic_vector
+
+    ) is
+    begin
+        create_trigger(trigger, sample_event);
+
+        if sampling_enabled(trigger) then
+            write_data_to_ram(ram_port_in_b, get_sample_address(trigger), sampled_data);
+        end if;
+
+        if data_is_requested_from_address(bus_in, 1000) then
+            write_data_to_address(bus_out, address => 0, data => 1);
+            prime_trigger(trigger, ram_depth/2);
+        end if;
+
+        if data_is_requested_from_address(bus_in, 1001) then
+            calculate_read_address(trigger);
+            request_data_from_ram(ram_port_in_a, get_sample_address(trigger));
+        end if;
+
+        if ram_read_is_ready(ram_port_out_a) then
+            write_data_to_address(bus_out, address => 0, data => get_ram_data(ram_port_out_a));
+        end if;
+    end create_scope;
+    -----------------------
+
     signal sample_trigger : sample_trigger_record := init_trigger;
     --------------------
     signal ram_a_in  : ram_in_record;
@@ -140,37 +195,6 @@ begin
 ------------------------------------------------------------------------
     process(main_clock) is
 
-        procedure create_scope(
-          signal trigger          : inout sample_trigger_record
-          ; bus_in                : in fpga_interconnect_record
-          ; signal bus_out        : out fpga_interconnect_record
-          ; sample_event          : in boolean
-          ; signal ram_port_in_a  : out ram_in_record
-          ; signal ram_port_out_a : in ram_out_record
-          ; signal ram_port_in_b  : out ram_in_record
-
-        ) is
-        begin
-            create_trigger(trigger, sample_event);
-
-            if sampling_enabled(trigger) then
-                write_data_to_ram(ram_port_in_b, get_sample_address(trigger), std_logic_vector(to_unsigned(test_counter, 16)));
-            end if;
-
-            if data_is_requested_from_address(bus_in, 1000) then
-                write_data_to_address(bus_out, address => 0, data => 1);
-                prime_trigger(trigger, ram_depth/2);
-            end if;
-
-            if data_is_requested_from_address(bus_in, 1001) then
-                calculate_read_address(trigger);
-                request_data_from_ram(ram_port_in_a, get_sample_address(trigger));
-            end if;
-
-            if ram_read_is_ready(ram_port_out_a) then
-                write_data_to_address(bus_out, address => 0, data => get_ram_data(ram_port_out_a));
-            end if;
-        end create_scope;
 
     begin
         if rising_edge(main_clock) then
@@ -266,11 +290,12 @@ begin
             create_scope(sample_trigger
             , bus_from_communications
             , bus_from_top
-            , test_counter = 3e3
             , ram_a_in
             , ram_a_out
             , ram_b_in
-        );
+            , test_counter = 3e3
+            , std_logic_vector(to_unsigned(test_counter, 16))
+            );
 
         end if;
     end process;
