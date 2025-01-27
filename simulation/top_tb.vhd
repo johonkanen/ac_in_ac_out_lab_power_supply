@@ -1,73 +1,4 @@
 LIBRARY ieee  ; 
-    USE ieee.std_logic_1164.all  ; 
-
-    use work.uart_protocol_pkg.all;
-
-package uart_protocol_test_pkg is
-
-    function write_frame (
-        address : natural;
-        data : std_logic_vector(15 downto 0))
-    return base_array;
-
-    function read_frame ( address : natural)
-        return base_array;
-
-    function stream_frame ( address : natural)
-        return base_array;
-
-end package uart_protocol_test_pkg;
-
-package body uart_protocol_test_pkg is
-
-    function write_frame
-    (
-        address : natural;
-        data : std_logic_vector(15 downto 0)
-    )
-    return base_array
-    is
-        variable retval : base_array(0 to 4);
-    begin
-        retval(0) := std_logic_vector'(x"04");
-        retval(1 to 2) := int_to_bytes(address);
-        retval(3 to 4) := (data(15 downto 8), data(7 downto 0));
-
-        return retval;
-    end write_frame;
-
-    function read_frame
-    (
-        address : natural
-    )
-    return base_array
-    is
-        variable retval : base_array(0 to 2);
-    begin
-        retval(0) := std_logic_vector'(x"02");
-        retval(1 to 2) := int_to_bytes(address);
-
-        return retval;
-    end read_frame;
-
-    function stream_frame
-    (
-        address : natural
-    )
-    return base_array
-    is
-        variable retval : base_array(0 to 5);
-    begin
-        retval(0) := std_logic_vector'(x"05");
-        retval(1 to 2) := int_to_bytes(address);
-        retval(3 to 5) := (x"00", x"00", x"01");
-
-        return retval;
-    end stream_frame;
-
-end package body;
-
-LIBRARY ieee  ; 
     USE ieee.NUMERIC_STD.all  ; 
     USE ieee.std_logic_1164.all  ; 
     use ieee.math_real.all;
@@ -192,25 +123,27 @@ begin
             set_number_of_clocks_per_bit(uart_rx_data_in, g_clock_divider);
             create_serial_protocol(uart_protocol, uart_rx_data_out, uart_tx_data_in, uart_tx_data_out);
 
-            if transmit_is_ready(uart_protocol) or simulation_counter = 10 then
-                transmit_counter <= transmit_counter + 1;
-                if transmit_counter <= data_to_be_transmitted'high then
-                    transmit_words_with_serial(uart_protocol, write_frame(transmit_counter, data_to_be_transmitted(transmit_counter)));
-                elsif transmit_counter <= data_to_be_transmitted'high+1 then
-                    transmit_words_with_serial(uart_protocol, read_frame(address => 1));
-                end if;
-            end if;
-            if frame_has_been_received(uart_protocol) then
-                if get_command(uart_protocol) = 2 then
-                    transmit_words_with_serial(uart_protocol,write_frame(get_command_address(uart_protocol), test_data(3)));
-                end if;
-            end if;
+            -- if transmit_is_ready(uart_protocol) or simulation_counter = 10 then
+            --     transmit_counter <= transmit_counter + 1;
+            --     if transmit_counter <= data_to_be_transmitted'high then
+            --         transmit_words_with_serial(uart_protocol, write_frame(transmit_counter, data_to_be_transmitted(transmit_counter)));
+            --     elsif transmit_counter <= data_to_be_transmitted'high+1 then
+            --         transmit_words_with_serial(uart_protocol, read_frame(address => 1));
+            --     end if;
+            -- end if;
+            -- if frame_has_been_received(uart_protocol) then
+            --     if get_command(uart_protocol) = 2 then
+            --         transmit_words_with_serial(uart_protocol,write_frame(get_command_address(uart_protocol), test_data(3)));
+            --     end if;
+            -- end if;
 
             CASE simulation_counter is
-                WHEN 8500 => transmit_words_with_serial(uart_protocol,stream_frame(5));
-                WHEN 11e3 => transmit_words_with_serial(uart_protocol,write_frame(4, x"00ff"));
-                WHEN 13e3 => transmit_words_with_serial(uart_protocol,write_frame(10, x"0001"));
-                WHEN 20e3 => transmit_words_with_serial(uart_protocol,write_frame(10, x"0000"));
+                WHEN 1000 => transmit_words_with_serial(uart_protocol,read_frame(1000));
+                WHEN 2200 => transmit_words_with_serial(uart_protocol,read_frame(1001));
+            --     WHEN 8500 => transmit_words_with_serial(uart_protocol,stream_frame(5));
+            --     WHEN 11e3 => transmit_words_with_serial(uart_protocol,write_frame(4, x"00ff"));
+            --     WHEN 13e3 => transmit_words_with_serial(uart_protocol,write_frame(10, x"0001"));
+            --     WHEN 20e3 => transmit_words_with_serial(uart_protocol,write_frame(10, x"0000"));
                 WHEN others => -- do nothing
             end case;
 
@@ -231,15 +164,15 @@ begin
     	  uart_rx_data_out => uart_rx_data_out); 
 ------------------------------------------------------------------------
     u_uart_tx : entity work.uart_tx
-        port map(clock => simulator_clock               ,
-          uart_tx_fpga_out.uart_tx => uart_tx ,
-    	  uart_tx_data_in => uart_tx_data_in  ,
-    	  uart_tx_data_out => uart_tx_data_out);
+        port map(clock           => simulator_clock ,
+        uart_tx_fpga_out.uart_tx => uart_tx         ,
+        uart_tx_data_in          => uart_tx_data_in ,
+        uart_tx_data_out         => uart_tx_data_out);
 ------------------------------------------------------------------------
 ------------------------------------------------------------------------
     clock_120Mhz <= simulator_clock;
 
-    u_top : entity work.titanium_top
+    u_titanium_top : entity work.titanium_top
     port map(
     main_clock => clock_120Mhz
     ,pll_locked => pll_locked

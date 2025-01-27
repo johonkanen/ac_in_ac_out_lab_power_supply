@@ -24,10 +24,13 @@ top_lib.add_source_files(ROOT / "source/vhdl_serial/source/clock_divider/clock_d
 top_lib.add_source_files(ROOT / "source/vhdl_serial/source/ads7056/ads7056_pkg.vhd")
 
 top_lib.add_source_files(ROOT / "source/aux_pwm/aux_pwm_pkg.vhd")
+
+top_lib.add_source_files(ROOT / "source/hVHDL_memory_library/testbench/sample_buffer/sample_trigger_generic_pkg.vhd")
 top_lib.add_source_files(ROOT / "source/hVHDL_memory_library/fpga_internal_ram/dual_port_ram_generic_pkg.vhd")
 top_lib.add_source_files(ROOT / "source/hVHDL_memory_library/fpga_internal_ram/arch_sim_generic_dual_port_ram.vhd")
 
 top_lib.add_source_files(ROOT / "simulation/git_hash_pkg.vhd")
+top_lib.add_source_files(ROOT / "source/fpga_communication/serial_protocol_test_pkg.vhd")
 top_lib.add_source_files(ROOT / "simulation/inu/pwm_pkg.vhd")
 
 
@@ -61,6 +64,6 @@ ode.add_source_files(ROOT / "source/hVHDL_fixed_point/multiplier/multiplier_gene
 ode.add_source_files(ROOT / "source/hVHDL_fixed_point/pi_controller/pi_controller_generic_pkg.vhd")
 ode.add_source_files(ROOT / "source/hVHDL_fixed_point/real_to_fixed/real_to_fixed_pkg.vhd")
 
-# VU.set_sim_option("nvc.sim_flags", ["-w"])
+VU.set_sim_option("nvc.sim_flags", ["-w"])
 
 VU.main()

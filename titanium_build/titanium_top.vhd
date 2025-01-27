@@ -138,6 +138,9 @@ begin
     begin
         if rising_edge(main_clock) then
             init_bus(bus_from_top);
+            init_ram(ram_a_in);
+            init_ram(ram_b_in);
+
 
             create_ads7056_driver(pri_ads7056         
                                   ,cs            => ads_7056_chip_select_pri 
@@ -181,9 +184,6 @@ begin
                 write_data_to_address(bus_from_top, 0, get_ram_data(ram_a_out));
             end if;
 
-            
-            bus_to_communications <= bus_from_top;
-
             ad_mux1_io <= test_data3(2 downto 0);
             ad_mux2_io <= test_data3(2 downto 0);
 
@@ -225,7 +225,7 @@ begin
             end if;
 
             if test_counter < 2**16-1 then
-                test_counter <= test_counter;
+                test_counter <= test_counter + 1;
             else
                 test_counter <= 0;
             end if;
@@ -258,6 +258,8 @@ begin
     ram_b_in  ,
     ram_b_out);
 ------------------------------------------------------------------------
+    bus_to_communications <= bus_from_top when rising_edge(main_clock);
+
     u_fpga_communications : entity work.fpga_communications
     generic map(fpga_interconnect_pkg => work.fpga_interconnect_pkg)
         port map(
