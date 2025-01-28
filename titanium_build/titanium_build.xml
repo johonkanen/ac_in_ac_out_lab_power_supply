@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<efx:project name="titanium_build" description="" last_change="1738039661" sw_version="2024.2.294.2.12" last_run_state="pass" last_run_flow="place" config_result_in_sync="true" design_ood="sync" place_ood="sync" route_ood="sync" xmlns:efx="http://www.efinixinc.com/enf_proj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/enf_proj enf_proj.xsd">
+<efx:project name="titanium_build" description="" last_change="1738048298" sw_version="2024.2.294.2.12" last_run_state="pass" last_run_flow="bitstream" config_result_in_sync="true" design_ood="change" place_ood="sync" route_ood="sync" xmlns:efx="http://www.efinixinc.com/enf_proj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/enf_proj enf_proj.xsd">
     <efx:device_info>
         <efx:family name="Titanium"/>
         <efx:device name="Ti60F225"/>
@@ -29,7 +29,7 @@
         <efx:design_file name="../source/hVHDL_fixed_point/pi_controller/pi_controller_generic_pkg.vhd" version="default" library="default"/>
         <efx:design_file name="../source/hVHDL_fixed_point/real_to_fixed/real_to_fixed_pkg.vhd" version="default" library="default"/>
         <efx:design_file name="../source/hVHDL_memory_library/testbench/sample_buffer/sample_trigger_generic_pkg.vhd" version="default" library="default"/>
-        <efx:design_file name="signal_scope.vhd" version="default" library="default"/>
+        <efx:design_file name="../source/fpga_communication/signal_scope/signal_scope.vhd" version="default" library="default"/>
         <efx:top_vhdl_arch name="rtl"/>
     </efx:design_info>
     <efx:constraint_info>

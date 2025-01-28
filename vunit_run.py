@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parent
 VU = VUnit.from_argv()
 
 top_lib = VU.add_library("top_lib")
-top_lib.add_source_files(ROOT / "titanium_build/signal_scope.vhd")
+top_lib.add_source_files(ROOT / "source/fpga_communication/signal_scope/signal_scope.vhd")
 top_lib.add_source_files(ROOT / "titanium_build/titanium_top.vhd")
 top_lib.add_source_files(ROOT / "source/fpga_communication/uart_protocol_pkg.vhd")
 top_lib.add_source_files(ROOT / "source/fpga_communication/fpga_interconnect_16bit_pkg.vhd")

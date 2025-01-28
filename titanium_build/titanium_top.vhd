@@ -75,7 +75,7 @@ architecture rtl of titanium_top is
 
     signal bus_from_top : fpga_interconnect_record := init_fpga_interconnect;
     signal bus_from_signal_scope : fpga_interconnect_record := init_fpga_interconnect;
-    signal sample_event : boolean;
+    signal trigger_event : boolean;
     signal sampled_data : std_logic_vector(15 downto 0);
 
     signal test_data : natural range 0 to 2**16-1 := 44252;
@@ -219,12 +219,13 @@ begin
             main_clock
             ,bus_from_communications
             ,bus_from_signal_scope
-            ,sample_event
+            ,trigger_event
+            ,true
             ,sampled_data
         );
 
     sampled_data <= std_logic_vector(to_unsigned(test_counter, 16));
-    sample_event <= test_counter = 3e3;
+    trigger_event <= test_counter = 3e3;
 
 ------------------------------------------------------------------------
     bus_to_communications <= bus_from_top and bus_from_signal_scope when rising_edge(main_clock);
