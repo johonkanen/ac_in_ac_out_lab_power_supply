@@ -7,26 +7,28 @@ entity signal_scope is
             ;package scope_sample_trigger_pkg is new work.sample_trigger_generic_pkg generic map(<>)
            );
     port (
-      main_clock                     : in std_logic
-      ; bus_in                       : in work.fpga_interconnect_pkg.fpga_interconnect_record
+      main_clock              : in std_logic
+      ; bus_in                : in work.fpga_interconnect_pkg.fpga_interconnect_record
       ; bus_from_signal_scope : out work.fpga_interconnect_pkg.fpga_interconnect_record
-      ; sample_event                 : in boolean
-      ; sampled_data                 : in std_logic_vector
+      ; sample_event          : in boolean
+      ; sampled_data          : in std_logic_vector
+      ; ram_b_in              : out scope_ram_port_pkg.ram_in_record
+      ; ram_b_out             : in scope_ram_port_pkg.ram_out_record
     );
     use scope_ram_port_pkg.all;
     use scope_sample_trigger_pkg.all;
 end entity signal_scope;
 
 architecture rtl of signal_scope is
+
     use work.fpga_interconnect_pkg.all;
 
     procedure create_scope(
       signal trigger          : inout sample_trigger_record
       ; bus_in                : in fpga_interconnect_record
       ; signal bus_out        : out fpga_interconnect_record
-      ; signal ram_port_in_a  : out ram_in_record
-      ; signal ram_port_out_a : in ram_out_record
       ; signal ram_port_in_b  : out ram_in_record
+      ; signal ram_port_out_b : in ram_out_record
       ; sample_event          : in boolean
       ; sampled_data          : in std_logic_vector
 
@@ -36,6 +38,11 @@ architecture rtl of signal_scope is
 
         if sampling_enabled(trigger) then
             write_data_to_ram(ram_port_in_b, get_sample_address(trigger), sampled_data);
+        else
+            if data_is_requested_from_address(bus_in, 1001) then
+                calculate_read_address(trigger);
+                request_data_from_ram(ram_port_in_b, get_sample_address(trigger));
+            end if;
         end if;
 
         if data_is_requested_from_address(bus_in, 1000) then
@@ -43,41 +50,28 @@ architecture rtl of signal_scope is
             prime_trigger(trigger, ram_depth/2);
         end if;
 
-        if data_is_requested_from_address(bus_in, 1001) then
-            calculate_read_address(trigger);
-            request_data_from_ram(ram_port_in_a, get_sample_address(trigger));
-        end if;
-
-        if ram_read_is_ready(ram_port_out_a) then
-            write_data_to_address(bus_out, address => 0, data => get_ram_data(ram_port_out_a));
+        if ram_read_is_ready(ram_port_out_b) then
+            write_data_to_address(bus_out, address => 0, data => get_ram_data(ram_port_out_b));
         end if;
     end create_scope;
 
     signal sample_trigger : sample_trigger_record := init_trigger;
-    --------------------
-    signal ram_a_in  : ram_in_record;
-    signal ram_a_out : ram_out_record;
-    --------------------
-    signal ram_b_in  : ram_in_record;
-    signal ram_b_out : ram_out_record;
-    --------------------
 
 begin
 
     process(main_clock) is
-        variable test_counter : natural := 0;
     begin
         if rising_edge(main_clock) then
+            init_ram(ram_b_in);
+            init_bus(bus_from_signal_scope);
 
-            test_counter := to_integer(unsigned(sampled_data));
             create_scope(sample_trigger
             , bus_in
             , bus_from_signal_scope
-            , ram_a_in
-            , ram_a_out
             , ram_b_in
-            , test_counter = 3e3
-            , std_logic_vector(to_unsigned(test_counter, 16))
+            , ram_b_out
+            , sample_event
+            , sampled_data
             );
         end if;
     end process;
@@ -156,46 +150,13 @@ architecture rtl of titanium_top is
     package ram_port_pkg is new work.ram_port_generic_pkg 
         generic map(
             g_ram_bit_width => 16
-            , g_ram_depth_pow2 => 4);
+            , g_ram_depth_pow2 => 12);
     use ram_port_pkg.all;
 
     package sample_trigger_pkg is new work.sample_trigger_generic_pkg 
-        generic map(g_ram_depth => ram_depth);
+        generic map(g_ram_depth => ram_port_pkg.ram_depth);
     use sample_trigger_pkg.all;
 
-    -----------------------
-    procedure create_scope(
-      signal trigger          : inout sample_trigger_record
-      ; bus_in                : in fpga_interconnect_record
-      ; signal bus_out        : out fpga_interconnect_record
-      ; signal ram_port_in_a  : out ram_in_record
-      ; signal ram_port_out_a : in ram_out_record
-      ; signal ram_port_in_b  : out ram_in_record
-      ; sample_event          : in boolean
-      ; sampled_data          : in std_logic_vector
-
-    ) is
-    begin
-        create_trigger(trigger, sample_event);
-
-        if sampling_enabled(trigger) then
-            write_data_to_ram(ram_port_in_b, get_sample_address(trigger), sampled_data);
-        end if;
-
-        if data_is_requested_from_address(bus_in, 1000) then
-            write_data_to_address(bus_out, address => 0, data => 1);
-            prime_trigger(trigger, ram_depth/2);
-        end if;
-
-        if data_is_requested_from_address(bus_in, 1001) then
-            calculate_read_address(trigger);
-            request_data_from_ram(ram_port_in_a, get_sample_address(trigger));
-        end if;
-
-        if ram_read_is_ready(ram_port_out_a) then
-            write_data_to_address(bus_out, address => 0, data => get_ram_data(ram_port_out_a));
-        end if;
-    end create_scope;
     -----------------------
 
     signal sample_trigger : sample_trigger_record := init_trigger;
@@ -215,6 +176,9 @@ architecture rtl of titanium_top is
     signal bus_from_communications : fpga_interconnect_record := init_fpga_interconnect;
 
     signal bus_from_top : fpga_interconnect_record := init_fpga_interconnect;
+    signal bus_from_signal_scope : fpga_interconnect_record := init_fpga_interconnect;
+    signal sample_event : boolean;
+    signal sampled_data : std_logic_vector(15 downto 0);
 
     signal test_data : natural range 0 to 2**16-1 := 44252;
     signal test_data2 : STD_LOGIC_VECTOR(15 downto 0) := (others => '0');
@@ -267,7 +231,6 @@ begin
         if rising_edge(main_clock) then
             init_bus(bus_from_top);
             init_ram(ram_a_in);
-            init_ram(ram_b_in);
 
 
             create_ads7056_driver(pri_ads7056         
@@ -354,18 +317,23 @@ begin
                 test_counter <= 0;
             end if;
 
-            create_scope(sample_trigger
-            , bus_from_communications
-            , bus_from_top
-            , ram_a_in
-            , ram_a_out
-            , ram_b_in
-            , test_counter = 3e3
-            , std_logic_vector(to_unsigned(test_counter, 16))
-            );
-
         end if;
     end process;
+------------------------------------------------------------------------
+    u_signal_scope : entity work.signal_scope
+        generic map( ram_port_pkg, sample_trigger_pkg)
+        port map(
+            main_clock
+            ,bus_from_communications
+            ,bus_from_signal_scope
+            ,sample_event
+            ,sampled_data
+            ,ram_b_in
+            ,ram_b_out);
+
+    sampled_data <= std_logic_vector(to_unsigned(test_counter, 16));
+    sample_event <= test_counter = 3e3;
+
 ------------------------------------------------------------------------
     u_dpram : entity work.generic_dual_port_ram
     generic map(ram_port_pkg)
@@ -377,7 +345,7 @@ begin
     ram_b_in  ,
     ram_b_out);
 ------------------------------------------------------------------------
-    bus_to_communications <= bus_from_top when rising_edge(main_clock);
+    bus_to_communications <= bus_from_top and bus_from_signal_scope when rising_edge(main_clock);
 
     u_fpga_communications : entity work.fpga_communications
     generic map(fpga_interconnect_pkg => work.fpga_interconnect_pkg)
