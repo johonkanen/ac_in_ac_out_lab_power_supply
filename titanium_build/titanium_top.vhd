@@ -4,8 +4,8 @@ library ieee;
     use ieee.numeric_std.all;
 
 entity signal_scope is
-    generic(g_ram_bit_width    : positive
-            ;g_ram_depth_pow2  : positive
+    generic(g_ram_bit_width    : natural
+            ;g_ram_depth_pow2  : natural
             ;g_trigger_address : positive := 1000
             ;g_data_address    : positive := 1001
             ;g_samples_after_trigger_address : positive := 1002
