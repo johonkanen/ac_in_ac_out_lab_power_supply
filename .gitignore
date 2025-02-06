@@ -21,3 +21,4 @@ git_hash_pkg.vhd
 
 *.json
 *.toml
+work/

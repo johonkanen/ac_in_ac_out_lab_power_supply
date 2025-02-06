@@ -66,10 +66,6 @@ architecture rtl of titanium_top is
     use work.sigma_delta_cic_filter_pkg.all;
     use work.pwm_pkg.all;
 
-    signal r_grid_inu_sdm_data   : std_logic;
-    signal r_output_inu_sdm_data : std_logic;
-    signal r_dab_sdm_data        : std_logic;
-
     signal bus_to_communications   : fpga_interconnect_record := init_fpga_interconnect;
     signal bus_from_communications : fpga_interconnect_record := init_fpga_interconnect;
 
@@ -116,10 +112,6 @@ begin
 
     primary_bypass_relay   <= '0';
     secondary_bypass_relay <= '0';
-
-    r_grid_inu_sdm_data   <= grid_inu_sdm_data;
-    r_output_inu_sdm_data <= output_inu_sdm_data;
-    r_dab_sdm_data        <= dab_sdm_data;
 
 ------------------------------------------------------------------------
     process(main_clock) is
