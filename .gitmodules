@@ -36,3 +36,6 @@
 [submodule "source/vhdl_serial"]
 	path = source/vhdl_serial
 	url = https://github.com/johonkanen/vhdl_serial.git
+[submodule "source/hVHDL_ode"]
+	path = source/hVHDL_ode
+	url = https://github.com/hVHDL/hVHDL_ode.git
