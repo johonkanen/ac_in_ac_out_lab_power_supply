@@ -2,6 +2,12 @@ LIBRARY ieee  ;
     USE ieee.NUMERIC_STD.all  ; 
     USE ieee.std_logic_1164.all  ; 
     use ieee.math_real.all;
+
+-------------------------
+LIBRARY ieee  ; 
+    USE ieee.NUMERIC_STD.all  ; 
+    USE ieee.std_logic_1164.all  ; 
+    use ieee.math_real.all;
     use std.textio.all;
 
 library vunit_lib;
@@ -52,26 +58,62 @@ begin
 
         type buck_sw_model_record is record
             sw_state       : sw_states;
+            next_sw_state  : sw_states;
             buck_sim_event : event_record;
+            was_updated    : boolean;
+            t_sw           : real;
+            duty           : real;
+
             u_in           : real;
             i_load         : real;
             l              : real;
             c              : real;
-            duty           : real;
-            t_sw           : real;
         end record;
 
-        variable buck_sw_model : buck_sw_model_record := (
-            sw_state                     => hi
-            , buck_sim_event             => (buck1, 0.0)
-            , u_in                       => 48.0
-            , i_load                     => 0.0
-            , l                          => 1.0e-6
-            , c                          => 100.0e-6
-            , duty                       => 10.0/48.0
-            , t_sw                       => 1.0/500.0e3
-        );
+        procedure update(variable self : inout buck_sw_model_record; step_length : in real) is
+        begin
 
+            if self.was_updated then
+                self.was_updated := false;
+            end if;
+
+            self.buck_sim_event.time_until_event := self.buck_sim_event.time_until_event - step_length;
+            if (self.buck_sim_event.time_until_event) < 1.0e-12 then
+                self.was_updated := true;
+                self.sw_state := self.next_sw_state;
+                case self.sw_state is
+                    WHEN hi => 
+                        self.buck_sim_event.time_until_event := self.t_sw * self.duty;
+                        self.next_sw_state := lo;
+                    WHEN lo => 
+                        self.buck_sim_event.time_until_event := self.t_sw * (1.0-self.duty);
+                        self.next_sw_state := hi;
+                end CASE;
+            end if;
+
+        end update;
+        ------------------------------------
+        function get_time_until_event(self : buck_sw_model_record) return real is
+        begin
+
+            return self.buck_sim_event.time_until_event;
+
+        end get_time_until_event;
+        ------------------------------------
+        variable buck_sw_model : buck_sw_model_record := (
+            sw_state         => hi
+            , next_sw_state  => lo
+            , buck_sim_event => (buck1, 0.0)
+            , was_updated    => true
+            , duty           => 10.0/48.0
+            , t_sw           => 1.0/500.0e3
+
+            , u_in           => 48.0
+            , i_load         => 0.0
+            , l              => 1.0e-6
+            , c              => 100.0e-6
+        );
+        ------------------------------------
         alias u_in   is buck_sw_model.u_in;
         alias i_load is buck_sw_model.i_load;
         alias l      is buck_sw_model.l;
@@ -79,37 +121,12 @@ begin
         alias duty   is buck_sw_model.duty;
         alias t_sw   is buck_sw_model.t_sw;
 
-        variable previous_current : real := 0.0;
-        variable sampled_current  : real := 0.0;
-
-        variable buck_sw_state      : sw_states := hi;
-        variable next_buck_sw_state : sw_states := lo;
-
-        ------------------------------------
-        impure function get_step_length(self : buck_sw_model_record) return real is
-            variable step_length : real := 1.0e-9;
-        begin
-
-            buck_sw_state := next_buck_sw_state;
-            case buck_sw_state is
-                WHEN hi => 
-                    step_length := t_sw * duty;
-                    next_buck_sw_state := lo;
-                WHEN lo => 
-                    step_length := t_sw * (1.0-duty);
-                    next_buck_sw_state := hi;
-            end CASE;
-
-            return step_length;
-
-        end get_step_length;
-        ------------------------------------
         ------------------------------------
         impure function deriv (t : real; states : real_vector) return real_vector is
             variable retval : real_vector(0 to 2) := (others => 0.0);
         begin
             
-            retval(0) := deriv_lcr_model( (l,c,i_load) , buck_sw_state, states(0), states(1), u_in);
+            retval(0) := deriv_lcr_model( (l,c,i_load) , buck_sw_model.sw_state, states(0), states(1), u_in);
             -- retval(2) := deriv_lcr_model( (l,c,i_load) , buck_sw_state, states(2), states(1), u_in*0.9);
             -- retval(2) := (states(0) - states(2))/2.0e-6;
             retval(1) := (states(0) + states(2) - i_load) * (1.0/c);
@@ -117,6 +134,9 @@ begin
             return retval;
 
         end function;
+        ------------------------------------
+        variable previous_current : real := 0.0;
+        variable sampled_current  : real := 0.0;
         ------------------------------------
 
         procedure rk1 is new generic_rk1 generic map(deriv);
@@ -142,31 +162,31 @@ begin
                 ));
             end if;
 
-            -- if (realtime > 3.0) and (realtime < 3.0+10.0e-3) then
-                write_to(file_handler
-                        ,(realtime
-                        ,buck_states(1) 
-                        ,0.0
-                        ,0.0
-                        ,0.0
-                        ,buck_states(0) 
-                        ,0.0
-                        ,sampled_current
-                        ,0.0
-                    ));
-            -- end if;
+            write_to(file_handler
+                    ,(realtime
+                    ,buck_states(1) 
+                    ,0.0
+                    ,0.0
+                    ,0.0
+                    ,buck_states(0) 
+                    ,0.0
+                    ,sampled_current
+                    ,0.0
+                ));
 
-            timestep := get_step_length(buck_sw_model);
+            update(buck_sw_model, timestep);
+            if buck_sw_model.was_updated then
+                timestep := get_time_until_event(buck_sw_model) / 1.0;
+                sampled_current  := (buck_states(0) + previous_current)/2.0;
+                previous_current := buck_states(0);
+            end if;
             rk4(realtime , buck_states , timestep);
-
-            sampled_current  := (buck_states(0) + previous_current)/2.0;
-            previous_current := buck_states(0);
 
             realtime := realtime + timestep;
 
             duty := 0.5;
 
-            -- if realtime > 3.0e-3 then buck_states(1) := 5.0; end if;
+            if realtime > 0.6e-3 then duty := 0.1; end if;
             -- if realtime > 2.0e-3 then duty := 0.5; end if;
             -- if realtime > 3.0e-3 then duty := 1.0/u_in; end if;
 

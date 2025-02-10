@@ -65,7 +65,7 @@ ode.add_source_files(ROOT / "source/hVHDL_fixed_point/multiplier/multiplier_gene
 ode.add_source_files(ROOT / "source/hVHDL_fixed_point/pi_controller/pi_controller_generic_pkg.vhd")
 ode.add_source_files(ROOT / "source/hVHDL_fixed_point/real_to_fixed/real_to_fixed_pkg.vhd")
 
-ode.add_source_files(ROOT / "simulation/inu/half_bridge_sw_model_pkg.vhd")
+ode.add_source_files(ROOT / "simulation/inu/buck_sw_model_pkg.vhd")
 ode.add_source_files(ROOT / "simulation/inu/half_bridge_tb.vhd")
 
 # VU.set_sim_option("nvc.sim_flags", ["-w"])
