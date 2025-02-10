@@ -3,28 +3,37 @@ LIBRARY ieee  ;
     USE ieee.std_logic_1164.all  ; 
     use ieee.math_real.all;
 
-    use work.buck_sw_model_pkg.all;
-
 package sw_model_generic_pkg is
     generic(package event_pkg is new work.sort_generic_pkg generic map(<>));
     use event_pkg.all;
 
+    type sw_states is (hi, lo);
+    ----------------------------------
     type buck_sw_model_record is record
+        buck_sim_event : event_record;
         sw_state       : sw_states;
         next_sw_state  : sw_states;
-        buck_sim_event : event_record;
         was_updated    : boolean;
         t_sw           : real;
         duty           : real;
     end record;
 
+    ----------------------------------
     procedure update(variable self : inout buck_sw_model_record; step_length : in real);
+    ----------------------------------
     function get_time_until_event(self : buck_sw_model_record) return real;
-
+    ----------------------------------
+    function half_bridge_sw_model(
+        sw_state : sw_states 
+        ; inductor_current : real
+        ; dc_link_voltage : real) 
+        return real_vector;
+    ------------------------------------------
 end package sw_model_generic_pkg;
 
 package body sw_model_generic_pkg is
 
+    ----------------------------------
     procedure update(variable self : inout buck_sw_model_record; step_length : in real) is
     begin
 
@@ -45,7 +54,6 @@ package body sw_model_generic_pkg is
                     self.next_sw_state := hi;
             end CASE;
         end if;
-
     end update;
     ------------------------------------
     function get_time_until_event(self : buck_sw_model_record) return real is
@@ -54,6 +62,25 @@ package body sw_model_generic_pkg is
         return self.buck_sim_event.time_until_event;
 
     end get_time_until_event;
+    ----------------------------------
+    function half_bridge_sw_model(sw_state : sw_states ; inductor_current : real; dc_link_voltage : real) return real_vector is
+        variable hb_voltage : real;
+        variable dc_link_current : real;
+    begin
+
+        CASE sw_state is
+            WHEN hi =>
+                hb_voltage      := dc_link_voltage;
+                dc_link_current := inductor_current;
+            WHEN lo =>
+                hb_voltage      := 0.0;
+                dc_link_current := 0.0;
+        end CASE;
+
+        return (1 => hb_voltage, 0 => dc_link_current);
+
+    end half_bridge_sw_model;
+    ------------------------------------------
 
 end package body sw_model_generic_pkg;
 
@@ -110,34 +137,42 @@ begin
 
     stimulus : process(simulator_clock)
 
-        variable timestep : real := 1.0e-9;
+        variable timestep : real := 1.0e-7;
         variable realtime : real := 0.0;
 
         ------------------------------------
         variable buck_sw_model : buck_sw_model_record := (
-            sw_state         => hi
-            , next_sw_state  => lo
-            , buck_sim_event => (buck1, 0.0)
-            , was_updated    => true
-            , duty           => 10.0/48.0
-            , t_sw           => 1.0/500.0e3
+            buck_sim_event  => (buck1, 0.0)
+            , sw_state      => hi
+            , next_sw_state => lo
+            , was_updated   => true
+            , duty          => 10.0/48.0
+            , t_sw          => 1.0/500.0e3
         );
         ------------------------------------
 
-        variable u_in   : real := 48.0;
-        variable i_load : real := 0.0;
-        variable l      : real := 1.0e-6;
-        variable c      : real := 100.0e-6;
+        variable u_in   : real := 48.0     ;
+        variable i_load : real := 0.0      ;
+        variable l      : real := 1.0e-6   ;
+        variable c      : real := 100.0e-6 ;
 
-        alias duty   is buck_sw_model.duty   ;
-        alias t_sw   is buck_sw_model.t_sw   ;
+        alias duty is buck_sw_model.duty ;
+        alias t_sw is buck_sw_model.t_sw ;
 
         ------------------------------------
         impure function deriv (t : real; states : real_vector) return real_vector is
             variable retval : real_vector(0 to 2) := (others => 0.0);
+            variable hb_current_and_voltage : real_vector(0 to 1);
+            alias hb_current is hb_current_and_voltage(0);
+            alias hb_voltage is hb_current_and_voltage(1);
         begin
+
+            hb_current_and_voltage := half_bridge_sw_model(
+                buck_sw_model.sw_state
+                , states(0)
+                , u_in);
             
-            retval(0) := deriv_lcr_model( (l,c,i_load) , buck_sw_model.sw_state, states(0), states(1), u_in);
+            retval(0) := ( hb_voltage - states(0) * 10.0e-3 - states(1) ) * (1.0/l);
             -- retval(2) := deriv_lcr_model( (l,c,i_load) , buck_sw_state, states(2), states(1), u_in*0.9);
             -- retval(2) := (states(0) - states(2))/2.0e-6;
             retval(1) := (states(0) + states(2) - i_load) * (1.0/c);
@@ -149,12 +184,11 @@ begin
         variable previous_current : real := 0.0;
         variable sampled_current  : real := 0.0;
         ------------------------------------
-
         procedure rk1 is new generic_rk1 generic map(deriv);
         procedure rk2 is new generic_rk2 generic map(deriv);
         procedure rk4 is new generic_rk4 generic map(deriv);
 
-        variable buck_states : real_vector(0 to 2) := (0.0, 0.0, 0.0);
+        variable buck_states : real_vector(0 to 2) := (1.0, 0.0, 0.0);
         file file_handler : text open write_mode is "half_bridge_tb.dat";
 
     begin
@@ -182,7 +216,7 @@ begin
                     ,buck_states(0) 
                     ,0.0
                     ,sampled_current
-                    ,0.0
+                    ,timestep
                 ));
 
             update(buck_sw_model, timestep);
