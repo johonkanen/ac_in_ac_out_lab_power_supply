@@ -1,4 +1,3 @@
-
 library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
@@ -14,9 +13,9 @@ entity signal_scope is
       main_clock              : in std_logic
       ; bus_in                : in work.fpga_interconnect_pkg.fpga_interconnect_record
       ; bus_from_signal_scope : out work.fpga_interconnect_pkg.fpga_interconnect_record
-      ; trigger_event1         : in boolean
-      ; sample_event1          : in boolean
-      ; sampled_data1          : in std_logic_vector
+      ; trigger_event1        : in boolean
+      ; sample_event1         : in boolean
+      ; sampled_data1         : in std_logic_vector
     );
 end entity signal_scope;
 
@@ -212,7 +211,22 @@ architecture rtl of titanium_top is
 
     signal pwm : pwm_record := init_pwm;
     signal test_counter : natural range 0 to 2**16-1 := 0;
+    
+    use ieee.fixed_pkg.all;
+    signal a : std_logic_vector(15 downto 0);
+    signal b : std_logic_vector(15 downto 0);
+    signal adivb : std_logic_vector(15 downto 0);
+    signal diva : ufixed(4 downto -11);
+    signal divb : ufixed(4 downto -11);
+    signal diva1 : ufixed(4 downto -11);
+    signal divb1 : ufixed(4 downto -11);
 
+    constant divdummy : ufixed := to_ufixed(3.0, 4, -11) / to_ufixed(2.0,4,-11);
+    signal res1 : ufixed(divdummy'range) := to_ufixed(3.0, 4, -11) / to_ufixed(2.0,4,-11);
+    signal res2 : ufixed(divdummy'range) := to_ufixed(3.0, 4, -11) / to_ufixed(2.0,4,-11);
+    
+    signal res : ufixed(divdummy'range) := to_ufixed(3.0, 4, -11) / to_ufixed(2.0,4,-11);
+        
 begin
 
     grid_inu_leg1_hi  <= '0';
@@ -237,6 +251,7 @@ begin
     process(main_clock) is
 
 
+        
     begin
         if rising_edge(main_clock) then
             init_bus(bus_from_top);
@@ -276,6 +291,21 @@ begin
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 100 , git_hash_pkg.git_hash(31 downto 16));
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 101 , git_hash_pkg.git_hash(15 downto 0));
 
+            connect_data_to_address(bus_from_communications , bus_from_top , 10 , a);
+            connect_data_to_address(bus_from_communications , bus_from_top , 11 , b);
+            
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 12 , adivb);
+
+            diva1 <= ufixed(a);
+            divb1 <= ufixed(b);
+            diva <= diva1;
+            divb <= divb1;
+            res1 <= diva/divb;
+            res2 <= res1;
+            res <= res2;
+            adivb <= to_slv(resize(res,diva));
+            
+            
             ad_mux1_io <= test_data3(2 downto 0);
             ad_mux2_io <= test_data3(2 downto 0);
 

@@ -56,6 +56,7 @@ ode.add_source_files(ROOT / "source/hVHDL_ode/write_pkg.vhd")
 ode.add_source_files(ROOT / "source/hVHDL_ode/ode_solvers/real_vector_pkg.vhd")
 ode.add_source_files(ROOT / "source/hVHDL_ode/ode_solvers/ode_pkg.vhd")
 ode.add_source_files(ROOT / "source/hVHDL_ode/ode_solvers/adaptive_ode_pkg.vhd")
+ode.add_source_files(ROOT / "source/hVHDL_ode/ode_solvers/sort_pkg.vhd")
 
 ode.add_source_files(ROOT / "source/hVHDL_ode/testbenches/lcr_models_pkg.vhd")
 ode.add_source_files(ROOT / "source/hVHDL_ode/testbenches/lcr_3ph_tb.vhd")
@@ -64,6 +65,9 @@ ode.add_source_files(ROOT / "source/hVHDL_fixed_point/multiplier/multiplier_gene
 ode.add_source_files(ROOT / "source/hVHDL_fixed_point/pi_controller/pi_controller_generic_pkg.vhd")
 ode.add_source_files(ROOT / "source/hVHDL_fixed_point/real_to_fixed/real_to_fixed_pkg.vhd")
 
-VU.set_sim_option("nvc.sim_flags", ["-w"])
+ode.add_source_files(ROOT / "simulation/inu/half_bridge_sw_model_pkg.vhd")
+ode.add_source_files(ROOT / "simulation/inu/half_bridge_tb.vhd")
+
+# VU.set_sim_option("nvc.sim_flags", ["-w"])
 
 VU.main()
