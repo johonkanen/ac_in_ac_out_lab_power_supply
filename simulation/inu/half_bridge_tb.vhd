@@ -3,6 +3,60 @@ LIBRARY ieee  ;
     USE ieee.std_logic_1164.all  ; 
     use ieee.math_real.all;
 
+    use work.buck_sw_model_pkg.all;
+
+package sw_model_generic_pkg is
+    generic(package event_pkg is new work.sort_generic_pkg generic map(<>));
+    use event_pkg.all;
+
+    type buck_sw_model_record is record
+        sw_state       : sw_states;
+        next_sw_state  : sw_states;
+        buck_sim_event : event_record;
+        was_updated    : boolean;
+        t_sw           : real;
+        duty           : real;
+    end record;
+
+    procedure update(variable self : inout buck_sw_model_record; step_length : in real);
+    function get_time_until_event(self : buck_sw_model_record) return real;
+
+end package sw_model_generic_pkg;
+
+package body sw_model_generic_pkg is
+
+    procedure update(variable self : inout buck_sw_model_record; step_length : in real) is
+    begin
+
+        if self.was_updated then
+            self.was_updated := false;
+        end if;
+
+        self.buck_sim_event.time_until_event := self.buck_sim_event.time_until_event - step_length;
+        if (self.buck_sim_event.time_until_event) < 1.0e-12 then
+            self.was_updated := true;
+            self.sw_state := self.next_sw_state;
+            case self.sw_state is
+                WHEN hi => 
+                    self.buck_sim_event.time_until_event := self.t_sw * self.duty;
+                    self.next_sw_state := lo;
+                WHEN lo => 
+                    self.buck_sim_event.time_until_event := self.t_sw * (1.0-self.duty);
+                    self.next_sw_state := hi;
+            end CASE;
+        end if;
+
+    end update;
+    ------------------------------------
+    function get_time_until_event(self : buck_sw_model_record) return real is
+    begin
+
+        return self.buck_sim_event.time_until_event;
+
+    end get_time_until_event;
+
+end package body sw_model_generic_pkg;
+
 -------------------------
 LIBRARY ieee  ; 
     USE ieee.NUMERIC_STD.all  ; 
@@ -34,7 +88,10 @@ architecture vunit_simulation of half_bridge_tb is
     constant stoptime : real := 1.0e-3;
 
     type buck_list is (buck1, buck2);
-    package buck_state_pkg is new work.sort_generic_pkg generic map(buck_list);
+    package sort_pkg is new work.sort_generic_pkg generic map(buck_list);
+    use sort_pkg.all;
+    
+    package buck_state_pkg is new work.sw_model_generic_pkg generic map(sort_pkg);
     use buck_state_pkg.all;
 
 begin
@@ -56,49 +113,6 @@ begin
         variable timestep : real := 1.0e-9;
         variable realtime : real := 0.0;
 
-        type buck_sw_model_record is record
-            sw_state       : sw_states;
-            next_sw_state  : sw_states;
-            buck_sim_event : event_record;
-            was_updated    : boolean;
-            t_sw           : real;
-            duty           : real;
-
-            u_in           : real;
-            i_load         : real;
-            l              : real;
-            c              : real;
-        end record;
-
-        procedure update(variable self : inout buck_sw_model_record; step_length : in real) is
-        begin
-
-            if self.was_updated then
-                self.was_updated := false;
-            end if;
-
-            self.buck_sim_event.time_until_event := self.buck_sim_event.time_until_event - step_length;
-            if (self.buck_sim_event.time_until_event) < 1.0e-12 then
-                self.was_updated := true;
-                self.sw_state := self.next_sw_state;
-                case self.sw_state is
-                    WHEN hi => 
-                        self.buck_sim_event.time_until_event := self.t_sw * self.duty;
-                        self.next_sw_state := lo;
-                    WHEN lo => 
-                        self.buck_sim_event.time_until_event := self.t_sw * (1.0-self.duty);
-                        self.next_sw_state := hi;
-                end CASE;
-            end if;
-
-        end update;
-        ------------------------------------
-        function get_time_until_event(self : buck_sw_model_record) return real is
-        begin
-
-            return self.buck_sim_event.time_until_event;
-
-        end get_time_until_event;
         ------------------------------------
         variable buck_sw_model : buck_sw_model_record := (
             sw_state         => hi
@@ -107,19 +121,16 @@ begin
             , was_updated    => true
             , duty           => 10.0/48.0
             , t_sw           => 1.0/500.0e3
-
-            , u_in           => 48.0
-            , i_load         => 0.0
-            , l              => 1.0e-6
-            , c              => 100.0e-6
         );
         ------------------------------------
-        alias u_in   is buck_sw_model.u_in;
-        alias i_load is buck_sw_model.i_load;
-        alias l      is buck_sw_model.l;
-        alias c      is buck_sw_model.c;
-        alias duty   is buck_sw_model.duty;
-        alias t_sw   is buck_sw_model.t_sw;
+
+        variable u_in   : real := 48.0;
+        variable i_load : real := 0.0;
+        variable l      : real := 1.0e-6;
+        variable c      : real := 100.0e-6;
+
+        alias duty   is buck_sw_model.duty   ;
+        alias t_sw   is buck_sw_model.t_sw   ;
 
         ------------------------------------
         impure function deriv (t : real; states : real_vector) return real_vector is
