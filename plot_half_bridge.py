@@ -11,6 +11,8 @@ vhdl_data.plot(ax=axT, x="time", y="T_u2", label="vhdl u2")
 vhdl_data.plot(ax=axB, x="time", y="B_i0", label="vhdl i0")
 vhdl_data.plot(ax=axB, x="time", y="B_i1", label="vhdl i1")
 vhdl_data.plot(ax=axB, x="time", y="B_i2", label="vhdl i2")
+vhdl_data.plot(ax=axB, x="time", y="B_i3", label="vhdl i3")
+vhdl_data.plot(ax=axB, x="time", y="B_i4", label="sum current")
 
 plt.show()
 plt.close('all')
