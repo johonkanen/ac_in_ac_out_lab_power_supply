@@ -10,7 +10,6 @@ package sw_model_generic_pkg is
     type sw_states is (hi, lo);
     ----------------------------------
     type buck_sw_model_record is record
-        buck_sim_event : event_record;
         sw_state       : sw_states;
         next_sw_state  : sw_states;
         was_updated    : boolean;
@@ -19,68 +18,50 @@ package sw_model_generic_pkg is
     end record;
 
     ----------------------------------
-    procedure update(variable self : inout buck_sw_model_record; step_length : in real);
+    procedure update(variable self : inout buck_sw_model_record; sim_event : inout event_record; step_length : in real);
     ----------------------------------
-    function get_time_until_event(self : buck_sw_model_record) return real;
-    ----------------------------------
-    function half_bridge_sw_model(
-        sw_state : sw_states 
-        ; inductor_current : real
-        ; dc_link_voltage : real) 
-        return real_vector;
+    function get_modulated(sw_state : sw_states; current_or_voltage : real) return real;
     ------------------------------------------
 end package sw_model_generic_pkg;
 
 package body sw_model_generic_pkg is
 
     ----------------------------------
-    procedure update(variable self : inout buck_sw_model_record; step_length : in real) is
+    procedure update(variable self : inout buck_sw_model_record; sim_event : inout event_record; step_length : in real) is
     begin
 
         if self.was_updated then
             self.was_updated := false;
         end if;
 
-        self.buck_sim_event.time_until_event := self.buck_sim_event.time_until_event - step_length;
-        if (self.buck_sim_event.time_until_event) < 1.0e-12 then
+        sim_event.time_until_event := sim_event.time_until_event - step_length;
+        if (sim_event.time_until_event) < 1.0e-12 then
             self.was_updated := true;
             self.sw_state := self.next_sw_state;
             case self.sw_state is
                 WHEN hi => 
-                    self.buck_sim_event.time_until_event := self.t_sw * self.duty;
+                    sim_event.time_until_event := self.t_sw * self.duty;
                     self.next_sw_state := lo;
                 WHEN lo => 
-                    self.buck_sim_event.time_until_event := self.t_sw * (1.0-self.duty);
+                    sim_event.time_until_event := self.t_sw * (1.0-self.duty);
                     self.next_sw_state := hi;
             end CASE;
         end if;
     end update;
     ------------------------------------
-    function get_time_until_event(self : buck_sw_model_record) return real is
+    function get_modulated(sw_state : sw_states; current_or_voltage : real) return real is
+        variable retval : real;
     begin
-
-        return self.buck_sim_event.time_until_event;
-
-    end get_time_until_event;
-    ----------------------------------
-    function half_bridge_sw_model(sw_state : sw_states ; inductor_current : real; dc_link_voltage : real) return real_vector is
-        variable hb_voltage : real;
-        variable dc_link_current : real;
-    begin
-
         CASE sw_state is
             WHEN hi =>
-                hb_voltage      := dc_link_voltage;
-                dc_link_current := inductor_current;
+                retval := current_or_voltage;
             WHEN lo =>
-                hb_voltage      := 0.0;
-                dc_link_current := 0.0;
+                retval := 0.0;
         end CASE;
 
-        return (1 => hb_voltage, 0 => dc_link_current);
+        return retval;
+    end get_modulated;
 
-    end half_bridge_sw_model;
-    ------------------------------------------
 
 end package body sw_model_generic_pkg;
 
@@ -114,7 +95,7 @@ architecture vunit_simulation of half_bridge_tb is
     signal simtime    : real := 0.0;
     constant stoptime : real := 1.0e-3;
 
-    type buck_list is (buck1, buck2);
+    type buck_list is (hb1, hb2);
     package sort_pkg is new work.sort_generic_pkg generic map(buck_list);
     use sort_pkg.all;
     
@@ -141,41 +122,37 @@ begin
         variable realtime : real := 0.0;
 
         ------------------------------------
-        variable buck_sw_model : buck_sw_model_record := (
-            buck_sim_event  => (buck1, 0.0)
-            , sw_state      => hi
+        variable buck1 : buck_sw_model_record := (
+            sw_state        => hi
             , next_sw_state => lo
-            , was_updated   => true
-            , duty          => 10.0/48.0
+            , was_updated   => false
+            , duty          => 0.5
+            , t_sw          => 1.0/500.0e3
+        );
+        ------------------------------------
+        variable buck2 : buck_sw_model_record := (
+            sw_state        => hi
+            , next_sw_state => lo
+            , was_updated   => false
+            , duty          => 0.5
             , t_sw          => 1.0/500.0e3
         );
         ------------------------------------
 
+        variable sim_events : event_array(0 to 1) := ((hb1, 0.0), (hb2, 0.55/500.0e3));
         variable u_in   : real := 48.0     ;
         variable i_load : real := 0.0      ;
         variable l      : real := 1.0e-6   ;
         variable c      : real := 100.0e-6 ;
 
-        alias duty is buck_sw_model.duty ;
-        alias t_sw is buck_sw_model.t_sw ;
-
         ------------------------------------
         impure function deriv (t : real; states : real_vector) return real_vector is
             variable retval : real_vector(0 to 2) := (others => 0.0);
-            variable hb_current_and_voltage : real_vector(0 to 1);
-            alias hb_current is hb_current_and_voltage(0);
-            alias hb_voltage is hb_current_and_voltage(1);
         begin
 
-            hb_current_and_voltage := half_bridge_sw_model(
-                buck_sw_model.sw_state
-                , states(0)
-                , u_in);
-            
-            retval(0) := ( hb_voltage - states(0) * 10.0e-3 - states(1) ) * (1.0/l);
-            -- retval(2) := deriv_lcr_model( (l,c,i_load) , buck_sw_state, states(2), states(1), u_in*0.9);
-            -- retval(2) := (states(0) - states(2))/2.0e-6;
+            retval(0) := ( get_modulated(buck1.sw_state,u_in) - states(0) * 10.0e-3 - states(1) ) * (1.0/l);
             retval(1) := (states(0) + states(2) - i_load) * (1.0/c);
+            retval(2) := ( get_modulated(buck2.sw_state, u_in) - states(2) * 10.0e-3 - states(1) ) * (1.0/l);
 
             return retval;
 
@@ -214,24 +191,29 @@ begin
                     ,0.0
                     ,0.0
                     ,buck_states(0) 
-                    ,0.0
-                    ,sampled_current
+                    ,(buck_states(0) + buck_states(2))/2.0
+                    ,buck_states(2) 
                     ,timestep
                 ));
 
-            update(buck_sw_model, timestep);
-            if buck_sw_model.was_updated then
-                timestep := get_time_until_event(buck_sw_model) / 1.0;
+            update(buck1 , sim_events(0) , timestep);
+            update(buck2 , sim_events(1) , timestep);
+            if buck1.was_updated or buck2.was_updated then
+                timestep := find_smallest(sim_events);
+            end if;
+            if buck1.was_updated then
                 sampled_current  := (buck_states(0) + previous_current)/2.0;
                 previous_current := buck_states(0);
             end if;
+
             rk4(realtime , buck_states , timestep);
 
             realtime := realtime + timestep;
 
-            duty := 0.5;
+            buck1.duty := 0.5;
+            buck2.duty := 0.5;
 
-            if realtime > 0.6e-3 then duty := 0.1; end if;
+            if realtime > 0.6e-3 then buck1.duty := 0.1; buck2.duty := 0.1; end if;
             -- if realtime > 2.0e-3 then duty := 0.5; end if;
             -- if realtime > 3.0e-3 then duty := 1.0/u_in; end if;
 
