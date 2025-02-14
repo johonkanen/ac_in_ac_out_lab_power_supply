@@ -25,7 +25,7 @@ architecture vunit_simulation of dab_simulation_tb is
     -- simulation specific signals ----
 
     signal realtime   : real := 0.0;
-    constant stoptime : real := 25.0e-3;
+    constant stoptime : real := 5.0e-3;
 
     package multiplier_pkg is new work.multiplier_generic_pkg generic map(24,1,1);
     package pi_control_pkg is new work.pi_controller_generic_pkg generic map(multiplier_pkg);
@@ -54,14 +54,22 @@ begin
         variable timestep : real := 1.0e-6;
         variable voltage_over_dab_inductor : real := 0.0;
         type dab_voltage_states is (t0, t1, t2, t3);
-        variable st_dab_voltage_states : dab_voltage_states := t0;
-        variable next_st_dab_voltage_states : dab_voltage_states := t0;
 
-        variable tsw     : real := 1.0/135.0e3;
-        variable phase   : real := 0.0;
-        variable phi     : real := tsw/4.0*phase;
-        variable phi_old : real := tsw/4.0*phase;
-        variable phi_new : real := tsw/4.0*phase;
+        type dab_model_record is record
+            st_dab_voltage_states      : dab_voltage_states;
+            next_st_dab_voltage_states : dab_voltage_states;
+            tsw   : real;
+            phi   : real;
+            phase : real;
+        end record;
+
+        variable dab : dab_model_record := (t0, t1, 1.0/135.0e3, 0.0, 0.0);
+
+        alias st_dab_voltage_states is dab.st_dab_voltage_states;
+        alias next_st_dab_voltage_states is dab.next_st_dab_voltage_states;
+        alias tsw is dab.tsw;
+        alias phase is dab.phase;
+        alias phi is dab.phi;
 
         variable iload : real := 0.0;
 
@@ -102,7 +110,7 @@ begin
 
         variable i_n : real := 0.0;
 
-        impure function next_timestep return real is
+        impure function update return real is
             variable step_length : real := 1.0;
         begin
             st_dab_voltage_states := next_st_dab_voltage_states;
@@ -123,7 +131,7 @@ begin
             end CASE;
 
             return step_length;
-        end next_timestep;
+        end update;
 
         ------------
         impure function deriv(t : real; states : real_vector) return real_vector is
@@ -160,9 +168,6 @@ begin
 
             variable upri : real;
             variable usec : real;
-            
-            -- variable ipri : real;
-            -- variable isec : real;
 
         begin
 
@@ -210,7 +215,6 @@ begin
 
             retval := (
                 0     => ((upri - un) - states(ipri) * 0.1)/lpri
-                -- ,1    => (i_n)/output_capacitor
                 ,1    => (i_out/2.0    + iload * out_parallel_gain/2.0)/output_capacitor
                 ,2    => (i_hb_current + iload * hb_parallel_gain) / half_bridge_capacitor
                 ,3    => (i_hb_current + iload * hb_parallel_gain) / half_bridge_capacitor
@@ -240,24 +244,21 @@ begin
                 ,"T_vc"
                 ,"B_ph"
                 ,"B_mg"
+                ,"ctrl"
                 ));
 
-                request_pi_control(pi_controller, to_fixed(200.0 - state_variables(1),12));
             end if;
 
             create_multiplier(multiplier);
             create_pi_controller(pi_controller
-                 , multiplier
-                 , to_fixed(0.25   , mpy_signed'length , 14)
-                 , to_fixed(0.025 , mpy_signed'length , 14));
+                  , multiplier
+                  , to_fixed(0.25  , mpy_signed'length , 14)
+                  , to_fixed(0.005 , mpy_signed'length , 14));
 
-            if pi_control_is_ready(pi_controller) then
+            if pi_control_is_ready(pi_controller) or simulation_counter = 0 then
                 phase := to_real(get_pi_control_output(pi_controller), 15);
                 request_pi_control(pi_controller
-                    , pi_control_input => to_fixed(200.0 - state_variables(1) , 12));
-            end if;
-
-            if simulation_counter > 0 then
+                    , pi_control_input => to_fixed(205.0 - state_variables(1) , 12));
 
                 write_to(file_handler,
                         (realtime
@@ -266,32 +267,17 @@ begin
                          , state_variables(sec_lower_cap) + state_variables(sec_upper_cap) - 200.0
                          , state_variables(isec) - state_variables(ipri)
                          , i_n
+                         , phase
                     ));
 
                 rk(realtime , state_variables , timestep);
                 realtime <= realtime + timestep;
-                timestep := next_timestep;
-
-                if (realtime > 3.0e-3) then iload := -2.0 ; end if ;
-                -- if (realtime > 4.5e-3) then iload := 1.0  ; end if ;
-                -- if (realtime > 5.5e-3) then iload := -5.0 ; end if ;
-                if (realtime > 7.5e-3) then iload := 2.0  ; end if ;
-                -- if (realtime > 9.5e-3) then iload := -3.0 ; end if ;
-                iload := iload/2.0;
-
-                -- if realtime > 5.0e-3 then
-                --     load_resistor := -400.0;
-                -- end if;
-                --
-                -- if realtime > 10.0e-3 then
-                --     load_resistor := 400.0;
-                -- end if;
-                --
-                -- if realtime > 15.25e-3 then
-                --     tsw := 10.0e-6;
-                -- end if;
-
+                timestep := update;
             end if;
+
+
+            if (realtime > 3.0e-3) then iload := -2.0 ; end if ;
+            -- if (realtime > 7.5e-3) then iload := 2.0  ; end if ;
 
         end if; -- rising_edge
     end process stimulus;	

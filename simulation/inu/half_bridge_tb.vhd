@@ -1,71 +1,3 @@
-LIBRARY ieee  ; 
-    USE ieee.NUMERIC_STD.all  ; 
-    USE ieee.std_logic_1164.all  ; 
-    use ieee.math_real.all;
-
-package sw_model_generic_pkg is
-    generic(package event_pkg is new work.sort_generic_pkg generic map(<>));
-    use event_pkg.all;
-
-    type sw_states is (hi, lo);
-    ----------------------------------
-    type buck_sw_model_record is record
-        sw_state       : sw_states;
-        next_sw_state  : sw_states;
-        was_updated    : boolean;
-        t_sw           : real;
-        duty           : real;
-    end record;
-
-    ----------------------------------
-    procedure update(variable self : inout buck_sw_model_record; sim_event : inout event_record; step_length : in real);
-    ----------------------------------
-    function get_modulated(sw_state : sw_states; current_or_voltage : real) return real;
-    ------------------------------------------
-end package sw_model_generic_pkg;
-
-package body sw_model_generic_pkg is
-
-    ----------------------------------
-    procedure update(variable self : inout buck_sw_model_record; sim_event : inout event_record; step_length : in real) is
-    begin
-
-        if self.was_updated then
-            self.was_updated := false;
-        end if;
-        
-        sim_event.time_until_event := sim_event.time_until_event - step_length;
-
-        if (sim_event.time_until_event) <= 1.0e-16 then
-            self.was_updated := true;
-            self.sw_state := self.next_sw_state;
-            case self.sw_state is
-                WHEN hi => 
-                    sim_event.time_until_event := self.t_sw * self.duty;
-                    self.next_sw_state := lo;
-                WHEN lo => 
-                    sim_event.time_until_event := self.t_sw * (1.0-self.duty);
-                    self.next_sw_state := hi;
-            end CASE;
-        end if;
-    end update;
-    ------------------------------------
-    function get_modulated(sw_state : sw_states; current_or_voltage : real) return real is
-        variable retval : real;
-    begin
-        CASE sw_state is
-            WHEN hi =>
-                retval := current_or_voltage;
-            WHEN lo =>
-                retval := 0.0;
-        end CASE;
-
-        return retval;
-    end get_modulated;
-
-
-end package body sw_model_generic_pkg;
-
 -------------------------
 LIBRARY ieee  ; 
     USE ieee.NUMERIC_STD.all  ; 
@@ -82,7 +14,6 @@ end;
 
 architecture vunit_simulation of half_bridge_tb is
 
-    use work.buck_sw_model_pkg.all;
     use work.write_pkg.all;
     use work.ode_pkg.all;
 
@@ -153,9 +84,9 @@ begin
         begin
 
             retval(0) := ( get_modulated(buck(0).sw_state , u_in) - states(0) * 10.0e-3 - states(4) ) * (1.0/l);
-            retval(1) := ( get_modulated(buck(1).sw_state , u_in) - states(1) * 10.0e-3 - states(4) ) * (1.0/l);
-            retval(2) := ( get_modulated(buck(2).sw_state , u_in) - states(2) * 10.0e-3 - states(4) ) * (1.0/l);
-            retval(3) := ( get_modulated(buck(3).sw_state , u_in) - states(3) * 10.0e-3 - states(4) ) * (1.0/l);
+            -- retval(1) := ( get_modulated(buck(1).sw_state , u_in) - states(1) * 10.0e-3 - states(4) ) * (1.0/l);
+            -- retval(2) := ( get_modulated(buck(2).sw_state , u_in) - states(2) * 10.0e-3 - states(4) ) * (1.0/l);
+            -- retval(3) := ( get_modulated(buck(3).sw_state , u_in) - states(3) * 10.0e-3 - states(4) ) * (1.0/l);
             retval(4) := (states(0) + states(1) + states(2) + states(3) - i_load) * (1.0/c);
 
             return retval;
@@ -256,12 +187,12 @@ begin
                 i_load := 50.0;
             end if;
             --
-            -- if realtime > 1.5e-3 then 
-            --     buck(0).t_sw := 1.0/300.0e3;
-            --     buck(1).t_sw := 1.0/301.0e3;
-            --     buck(2).t_sw := 1.0/302.0e3;
-            --     buck(3).t_sw := 1.0/303.0e3;
-            -- end if;
+            if realtime > 1.5e-3 then 
+                buck(0).t_sw := 1.0/300.0;
+                buck(1).t_sw := 1.0/300.1e3;
+                buck(2).t_sw := 1.0/300.2e3;
+                buck(3).t_sw := 1.0/300.3e3;
+            end if;
 
             -- if realtime > 2.0e-3 then duty := 0.5; end if;
             -- if realtime > 3.0e-3 then duty := 1.0/u_in; end if;

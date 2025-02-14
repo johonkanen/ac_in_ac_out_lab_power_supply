@@ -9,6 +9,7 @@ vhdl_data.plot(ax=axT, x="time", y="T_vc", label="vhdl vc")
 # vhdl_data.plot(ax=axB, x="time", y="B_i0", label="vhdl i0")
 vhdl_data.plot(ax=axB, x="time", y="B_ph", label="vhdl phase")
 vhdl_data.plot(ax=axB, x="time", y="B_mg", label="vhdl im")
+vhdl_data.plot(ax=axB, x="time", y="ctrl", label="control")
 
 plt.show()
 plt.close('all')
