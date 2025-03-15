@@ -291,19 +291,19 @@ begin
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 100 , git_hash_pkg.git_hash(31 downto 16));
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 101 , git_hash_pkg.git_hash(15 downto 0));
 
-            connect_data_to_address(bus_from_communications , bus_from_top , 10 , a);
-            connect_data_to_address(bus_from_communications , bus_from_top , 11 , b);
-            
-            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 12 , adivb);
-
-            diva1 <= ufixed(a);
-            divb1 <= ufixed(b);
-            diva <= diva1;
-            divb <= divb1;
-            res1 <= diva/divb;
-            res2 <= res1;
-            res <= res2;
-            adivb <= to_slv(resize(res,diva));
+            -- connect_data_to_address(bus_from_communications , bus_from_top , 10 , a);
+            -- connect_data_to_address(bus_from_communications , bus_from_top , 11 , b);
+            --
+            -- connect_read_only_data_to_address(bus_from_communications , bus_from_top , 12 , adivb);
+            --
+            -- diva1 <= ufixed(a);
+            -- divb1 <= ufixed(b);
+            -- diva <= diva1;
+            -- divb <= divb1;
+            -- res1 <= diva/divb;
+            -- res2 <= res1;
+            -- res <= res2;
+            -- adivb <= to_slv(resize(res,diva));
             
             
             ad_mux1_io <= test_data3(2 downto 0);
