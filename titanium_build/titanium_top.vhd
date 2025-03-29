@@ -226,6 +226,14 @@ architecture rtl of titanium_top is
     signal res2 : ufixed(divdummy'range) := to_ufixed(3.0, 4, -11) / to_ufixed(2.0,4,-11);
     
     signal res : ufixed(divdummy'range) := to_ufixed(3.0, 4, -11) / to_ufixed(2.0,4,-11);
+
+    package mpy_pkg is new work.multiplier_generic_pkg generic map(24,1,1);
+        use mpy_pkg.all;
+    package div_pkg is new work.division_generic_pkg generic map(mpy_pkg, g_max_shift => 8);
+        use div_pkg.all;
+
+    signal div_mpy : multiplier_record := init_multiplier;
+    signal divider : division_record := init_division;
         
 begin
 
@@ -272,7 +280,7 @@ begin
             connect_data_to_address(bus_from_communications , bus_from_top , 1 , test_data);
 
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 2 , get_converted_measurement(pri_ads7056));
-            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 3 , sec_ads7056.ad_conversion);
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 3 , get_converted_measurement(sec_ads7056));
 
             connect_data_to_address(bus_from_communications , bus_from_top , 4 , test_data2);
             connect_data_to_address(bus_from_communications , bus_from_top , 5 , test_data3);
