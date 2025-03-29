@@ -16,6 +16,10 @@ print(uart.request_data_from_address(1))
 
 pri_dc_link_meas_gain = 57.08/945
 
+def stream_data(address, number_of_points):
+    uart.request_data_stream_from_address(address, number_of_points)
+    return uart.get_streamed_data(number_of_points)
+
 def set(address, data):
     uart.write_data_to_address(address, int(data))
     print(uart.request_data_from_address(address))
@@ -39,13 +43,20 @@ def linear_fit(x, y):
 
 input_voltages = (60, 59, 58, 57, 56, 55, 54, 53, 52, 51, 50)
 measurements   = (9144, 9127, 9110, 9093, 9077, 9060, 9043, 9026, 9010, 8993, 8976)
-in2_meas = (7174, 7190, 7206, 7222, 7239, 7256, 7272, 7287, 7304, 7321, 7337)
+in2_meas       = (7174, 7190, 7206, 7222, 7239, 7256, 7272, 7287, 7304, 7321, 7337)
 
-offset, gain = linear_fit(input_voltages, measurements)
-offset2, gain2 = linear_fit(input_voltages, in2_meas)
+dc_link_measurements = (947, 930, 913, 896, 879, 862, 845, 828)
+dc_link_voltages     = (57.08, 56.07, 55.06, 54.05, 53.05, 52.03, 51.03, 50.02)
+
+offset        , gain        = linear_fit(input_voltages   , measurements)
+offset2       , gain2       = linear_fit(input_voltages   , in2_meas)
+pri_dc_offset , pri_dc_gain = linear_fit(dc_link_voltages , dc_link_measurements)
 
 def to_input_voltage(data):
     return (data-offset)/gain
 
 def to_bridge_voltage(data):
     return (data-offset2)/gain2
+
+def to_pri_dc_voltage(data):
+    return (data-pri_dc_offset)/pri_dc_gain
