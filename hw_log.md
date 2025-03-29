@@ -6,3 +6,5 @@
 - missing load resistor in aux power
 - too low aux power supply?
 - missing pwm connection
+
+- missing filter capacitors from dc link op amps
