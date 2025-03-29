@@ -23,3 +23,6 @@ def get(address):
 def measure_dc_link():
     print("mux_position :")
     set(5,1)
+
+def to_dc_link(data):
+    return data/470*60
