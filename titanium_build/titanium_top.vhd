@@ -2,125 +2,6 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
-entity signal_scope is
-    generic(g_ram_bit_width    : natural
-            ;g_ram_depth_pow2  : natural
-            ;g_trigger_address : positive := 1000
-            ;g_data_address    : positive := 1001
-            ;g_samples_after_trigger_address : positive := 1002
-           );
-    port (
-      main_clock              : in std_logic
-      ; bus_in                : in work.fpga_interconnect_pkg.fpga_interconnect_record
-      ; bus_from_signal_scope : out work.fpga_interconnect_pkg.fpga_interconnect_record
-      ; trigger_event1        : in boolean
-      ; sample_event1         : in boolean
-      ; sampled_data1         : in std_logic_vector
-    );
-end entity signal_scope;
-
-architecture rtl of signal_scope is
-
-    use work.fpga_interconnect_pkg.all;
-
-    package scope_ram_port_pkg is new work.ram_port_generic_pkg 
-        generic map(
-            g_ram_bit_width    => g_ram_bit_width
-            , g_ram_depth_pow2 => g_ram_depth_pow2);
-
-    package scope_sample_trigger_pkg is new work.sample_trigger_generic_pkg 
-        generic map(g_ram_depth => scope_ram_port_pkg.ram_depth);
-
-    use scope_ram_port_pkg.all;
-    use scope_sample_trigger_pkg.all;
-
-    signal samples_after_trigger : natural range 0 to ram_depth-1 := ram_depth/2;
-
-    procedure create_scope(
-      signal trigger          : inout sample_trigger_record
-      ; bus_in                : in fpga_interconnect_record
-      ; signal bus_out        : out fpga_interconnect_record
-      ; signal ram_port_in_a  : out ram_in_record
-      ; signal ram_port_out_a : in ram_out_record
-      ; signal ram_port_in_b  : out ram_in_record
-      ; signal ram_port_out_b : in ram_out_record
-      ; trigger_event          : in boolean
-      ; sample_event          : in boolean
-      ; sampled_data          : in std_logic_vector
-
-    ) is
-    begin
-        create_trigger(trigger, trigger_event, sample_event);
-
-        if sampling_enabled(trigger) and sample_event then
-            write_data_to_ram(ram_port_in_b, get_write_address(trigger), sampled_data);
-        end if;
-
-        if data_is_requested_from_address(bus_in, g_trigger_address) then
-            write_data_to_address(bus_out, address => 0, data => 3);
-            prime_trigger(trigger, samples_after_trigger);
-        end if;
-        
-        if data_is_requested_from_address(bus_in, g_data_address) then
-            calculate_read_address(trigger);
-            request_data_from_ram(ram_port_in_a, get_sample_address(trigger));
-        end if;
-
-        if ram_read_is_ready(ram_port_out_a) then
-            write_data_to_address(bus_out, address => 0, data => get_ram_data(ram_port_out_a));
-        end if;
-    end create_scope;
-
-    signal sample_trigger : sample_trigger_record := init_trigger;
-
-    signal ram_a_in  : ram_in_record;
-    signal ram_a_out : ram_out_record;
-    --------------------
-    signal ram_b_in  : ram_in_record;
-    signal ram_b_out : ram_out_record;
-
-begin
-
-    process(main_clock) is
-    begin
-        if rising_edge(main_clock) then
-            init_ram(ram_a_in);
-            init_ram(ram_b_in);
-            init_bus(bus_from_signal_scope);
-
-            connect_data_to_address(bus_in, bus_from_signal_scope, g_samples_after_trigger_address, samples_after_trigger);
-
-            create_scope(sample_trigger
-            , bus_in
-            , bus_from_signal_scope
-            , ram_a_in
-            , ram_a_out
-            , ram_b_in
-            , ram_b_out
-            , trigger_event1
-            , sample_event1
-            , sampled_data1
-            );
-        end if;
-    end process;
-
-    u_dpram : entity work.generic_dual_port_ram
-    generic map(scope_ram_port_pkg)
-    port map(
-    main_clock ,
-    ram_a_in   ,
-    ram_a_out  ,
-    --------------
-    ram_b_in  ,
-    ram_b_out);
-------------------------------------------------------------------------
-end rtl;
-------------------------------------------------------------------------
-------------------------------------------------------------------------
-library ieee;
-    use ieee.std_logic_1164.all;
-    use ieee.numeric_std.all;
-
 entity titanium_top is
     port (
         main_clock : in std_logic;
@@ -216,21 +97,6 @@ architecture rtl of titanium_top is
     signal pwm : pwm_record := init_pwm;
     signal test_counter : natural range 0 to 2**16-1 := 0;
     
-    use ieee.fixed_pkg.all;
-    signal a : std_logic_vector(15 downto 0);
-    signal b : std_logic_vector(15 downto 0);
-    signal adivb : std_logic_vector(15 downto 0);
-    signal diva : ufixed(4 downto -11);
-    signal divb : ufixed(4 downto -11);
-    signal diva1 : ufixed(4 downto -11);
-    signal divb1 : ufixed(4 downto -11);
-
-    constant divdummy : ufixed := to_ufixed(3.0, 4, -11) / to_ufixed(2.0,4,-11);
-    signal res1 : ufixed(divdummy'range) := to_ufixed(3.0, 4, -11) / to_ufixed(2.0,4,-11);
-    signal res2 : ufixed(divdummy'range) := to_ufixed(3.0, 4, -11) / to_ufixed(2.0,4,-11);
-    
-    signal res : ufixed(divdummy'range) := to_ufixed(3.0, 4, -11) / to_ufixed(2.0,4,-11);
-
     package mpy_pkg is new work.multiplier_generic_pkg generic map(24,1,1);
         use mpy_pkg.all;
 
@@ -259,15 +125,13 @@ architecture rtl of titanium_top is
     signal pri_bridge_voltage  : mpy_signed := (others => '0');
     signal conversion_is_ready : boolean := false;
 
-    type pri_measurements is (input_voltage, dc_link, bridge_voltage);
-    
     signal sample_and_hold_delay_counter : natural range 0 to 255;
     signal mux_counter : natural range 0 to 3 := 0;
     signal pri_mux_pos : natural range 0 to 7 := 0;
     signal conversion_mux_pos : natural range 0 to 7 := 0;
 
     signal pri_offset : mpy_signed := (others => '0');
-    signal pri_gain : mpy_signed := (others => '0');
+    signal pri_gain   : mpy_signed := (others => '0');
 
     signal conversion_counter : natural range 0 to 7 := 0;
 
@@ -319,20 +183,6 @@ begin
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 100 , git_hash_pkg.git_hash(31 downto 16));
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 101 , git_hash_pkg.git_hash(15 downto 0));
 
-            -- connect_data_to_address(bus_from_communications , bus_from_top , 10 , a);
-            -- connect_data_to_address(bus_from_communications , bus_from_top , 11 , b);
-            --
-            -- connect_read_only_data_to_address(bus_from_communications , bus_from_top , 12 , adivb);
-            --
-            -- diva1 <= ufixed(a);
-            -- divb1 <= ufixed(b);
-            -- diva <= diva1;
-            -- divb <= divb1;
-            -- res1 <= diva/divb;
-            -- res2 <= res1;
-            -- res <= res2;
-            -- adivb <= to_slv(resize(res,diva));
-            
             ad_mux1_io <= test_data3(2 downto 0);
             ad_mux2_io <= test_data3(2 downto 0);
 
