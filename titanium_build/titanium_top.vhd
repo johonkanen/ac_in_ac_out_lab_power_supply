@@ -233,7 +233,7 @@ architecture rtl of titanium_top is
         use div_pkg.all;
 
     signal div_mpy : multiplier_record := init_multiplier;
-    signal divider : division_record := init_division;
+    signal divider : division_record   := init_division;
         
 begin
 
