@@ -32,7 +32,7 @@ architecture vunit_simulation of dab_simulation_tb is
     use multiplier_pkg.all;
     use pi_control_pkg.all;
     
-    signal multiplier : multiplier_record := init_multiplier;
+    signal multiplier    : multiplier_record    := init_multiplier;
     signal pi_controller : pi_controller_record := init_pi_controller(symmetric_limit => 2**15);
 
 begin
@@ -65,14 +65,13 @@ begin
 
         variable dab : dab_model_record := (t0, t1, 1.0/135.0e3, 0.0, 0.0);
 
-        alias st_dab_voltage_states is dab.st_dab_voltage_states;
+        alias st_dab_voltage_states      is dab.st_dab_voltage_states;
         alias next_st_dab_voltage_states is dab.next_st_dab_voltage_states;
-        alias tsw is dab.tsw;
+        alias tsw   is dab.tsw;
         alias phase is dab.phase;
-        alias phi is dab.phi;
+        alias phi   is dab.phi;
 
         variable iload : real := 0.0;
-
         variable dab_inductor : real := 10.0e-6;
 
         variable lpri : real := 8.0e-6;
