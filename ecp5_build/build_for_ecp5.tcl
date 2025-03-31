@@ -50,8 +50,8 @@ add_vhdl_file_to_project $tcl_path/ecp5_top.vhd
 
 #source $tcl_path/vhdl_sources.tcl
 
-prj_src add -exclude $tcl_path/example.lpf
-prj_src enable $tcl_path/example.lpf
+prj_src add -exclude $tcl_path/constraints.lpf
+prj_src enable $tcl_path/constraints.lpf
 prj_src remove hvhdl_example.lpf
 file delete -force hvhdl_example.lpf
 

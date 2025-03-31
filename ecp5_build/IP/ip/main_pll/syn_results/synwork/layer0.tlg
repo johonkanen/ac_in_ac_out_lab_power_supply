@@ -1,0 +1,19 @@
+@N: CD630 :"C:\dev\ac_in_ac_out_lab_power_supply\ecp5_build\IP\ip\main_pll\main_pll.vhd":12:7:12:14|Synthesizing work.main_pll.structure.
+@N: CD630 :"D:\lscc\diamond\3.14\synpbase\lib\lucent\ecp5u.vhd":2083:10:2083:16|Synthesizing ecp5u.ehxplll.syn_black_box.
+Post processing for ecp5u.ehxplll.syn_black_box
+@N: CD630 :"D:\lscc\diamond\3.14\synpbase\lib\lucent\ecp5u.vhd":832:10:832:12|Synthesizing ecp5u.vlo.syn_black_box.
+Post processing for ecp5u.vlo.syn_black_box
+@N: CD630 :"D:\lscc\diamond\3.14\synpbase\lib\lucent\ecp5u.vhd":825:10:825:12|Synthesizing ecp5u.vhi.syn_black_box.
+Post processing for ecp5u.vhi.syn_black_box
+Post processing for work.main_pll.structure
+Running optimization stage 1 on main_pll .......
+@W: CL168 :"C:\dev\ac_in_ac_out_lab_power_supply\ecp5_build\IP\ip\main_pll\main_pll.vhd":41:4:41:17|Removing instance scuba_vhi_inst because it does not drive other instances. To preserve this instance, use the syn_noprune synthesis directive.
+Finished optimization stage 1 on main_pll (CPU Time 0h:00m:00s, Memory Used current: 92MB peak: 93MB)
+Running optimization stage 2 on main_pll .......
+Finished optimization stage 2 on main_pll (CPU Time 0h:00m:00s, Memory Used current: 92MB peak: 93MB)
+
+For a summary of runtime per design unit, please see file:
+==========================================================
+@L: C:\dev\ac_in_ac_out_lab_power_supply\ecp5_build\IP\ip\main_pll\syn_results\synwork\layer0.duruntime
+
+

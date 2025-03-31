@@ -1,0 +1,5 @@
+#List of actual used RTLs.
+
+File                                                                                 Type     IN_PROJECT/INCLUDED/LIBRARY
+
+"C:\dev\ac_in_ac_out_lab_power_supply\ecp5_build\IP\ip\main_pll\main_pll.vhd"        vhdl                      IN PROJECT

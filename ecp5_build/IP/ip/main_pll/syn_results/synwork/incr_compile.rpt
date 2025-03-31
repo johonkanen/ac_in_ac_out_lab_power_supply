@@ -1,0 +1,42 @@
+
+Copyright (C) 1994-2023 Synopsys, Inc.
+This Synopsys software and all associated documentation are proprietary to Synopsys, Inc.
+and may only be used pursuant to the terms and conditions of a written license agreement
+with Synopsys, Inc. All other use, reproduction, modification, or distribution of the
+Synopsys software or the associated documentation is strictly prohibited.
+Tool: Synplify Pro (R)
+Build: V-2023.09L-2
+Install: D:\lscc\diamond\3.14\synpbase
+OS: Windows 10 or later
+Hostname: TEHOIN-PC
+
+Implementation : syn_results
+Synopsys HDL compiler and linker, Version comp202309synp1, Build 349R, Built Sep 17 2024 08:16:26, @
+
+Modified Files: 11
+FID:  path (prevtimestamp, timestamp)
+0        C:\dev\ac_in_ac_out_lab_power_supply\ecp5_build\IP\ip\main_pll\main_pll.vhd (N/A, 2025-03-31 05:57:03)
+1        D:\lscc\diamond\3.14\synpbase\lib\lucent\ecp5u.vhd (N/A, 2024-08-22 23:48:19)
+2        D:\lscc\diamond\3.14\synpbase\lib\vhd\arith.vhd (N/A, 2024-09-24 02:33:31)
+3        D:\lscc\diamond\3.14\synpbase\lib\vhd\hyperents.vhd (N/A, 2024-09-24 02:33:34)
+4        D:\lscc\diamond\3.14\synpbase\lib\vhd\location.map (N/A, 2024-09-24 02:33:34)
+5        D:\lscc\diamond\3.14\synpbase\lib\vhd\numeric.vhd (N/A, 2024-09-24 02:33:34)
+6        D:\lscc\diamond\3.14\synpbase\lib\vhd\snps_haps_pkg.vhd (N/A, 2024-09-24 02:33:34)
+7        D:\lscc\diamond\3.14\synpbase\lib\vhd\std.vhd (N/A, 2024-09-24 02:33:34)
+8        D:\lscc\diamond\3.14\synpbase\lib\vhd\std1164.vhd (N/A, 2024-09-24 02:33:34)
+9        D:\lscc\diamond\3.14\synpbase\lib\vhd\umr_capim.vhd (N/A, 2024-09-24 02:33:34)
+10       D:\lscc\diamond\3.14\synpbase\lib\vhd\unsigned.vhd (N/A, 2024-09-24 02:33:34)
+
+*******************************************************************
+Modules that may have changed as a result of file changes: 1
+MID:  lib.cell.view
+0        work.main_pll.structure may have changed because the following files changed:
+                        C:\dev\ac_in_ac_out_lab_power_supply\ecp5_build\IP\ip\main_pll\main_pll.vhd (N/A, 2025-03-31 05:57:03) <-- (architecture and entity definition)
+
+*******************************************************************
+Unmodified files: 0
+FID:  path (timestamp)
+
+*******************************************************************
+Unchanged modules: 0
+MID:  lib.cell.view

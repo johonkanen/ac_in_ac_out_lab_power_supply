@@ -1,0 +1,1 @@
+@W: MT246 :"c:\dev\ac_in_ac_out_lab_power_supply\ecp5_build\ip\ip\main_pll\main_pll.vhd":47:4:47:12|Blackbox EHXPLLL is missing a user supplied timing model. This may have a negative effect on timing analysis and optimizations (Quality of Results)
