@@ -2,7 +2,7 @@
 -- Module  Version: 5.7
 --D:\lscc\diamond\3.14\ispfpga\bin\nt64\scuba.exe -w -n main_pll -lang vhdl -synth synplify -bus_exp 7 -bb -arch sa5p00 -type pll -fin 50 -fclkop 120.00 -fclkop_tol 0.0 -phase_cntl STATIC -fb_mode 1 -fdc C:/dev/ac_in_ac_out_lab_power_supply/ecp5_build/IP/ip/main_pll/main_pll.fdc 
 
--- Mon Mar 31 05:57:03 2025
+-- Mon Mar 31 07:11:30 2025
 
 library IEEE;
 use IEEE.std_logic_1164.all;

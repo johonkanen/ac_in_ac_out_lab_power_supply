@@ -18,7 +18,7 @@ prj_project new -name hvhdl_example \
     -impl_dir $outputDir \
     -synthesis "Synplify" \
 
-#prj_src add $tcl_path/IP/IP.sbx
+prj_src add $tcl_path/IP/ip/ip.sbx
 
 prj_strgy set_value -strategy Strategy1 syn_arrange_vhdl_files=True
 prj_strgy set_value -strategy Strategy1 par_pathbased_place=On
@@ -35,6 +35,7 @@ prj_strgy set_value -strategy Strategy1 syn_fsm_encoding=True
 prj_strgy set_value -strategy Strategy1 syn_vhdl2008=True
 prj_strgy set_value -strategy Strategy1 {syn_pipelining_retiming=Pipelining and Retiming}
 prj_strgy set_value -strategy Strategy1 syn_output_netlist_format=VHDL
+prj_strgy set_value -strategy Strategy1 map_io_reg=Auto map_overmap_device=True
 
 prj_strgy set_value -strategy Strategy1 par_stop_zero=True
 

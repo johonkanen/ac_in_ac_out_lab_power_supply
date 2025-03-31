@@ -4,7 +4,7 @@
   (keywordMap (keywordLevel 0))
   (status
     (written
-      (timestamp 2025 3 31 5 57 3)
+      (timestamp 2025 3 31 7 11 30)
       (program "SCUBA" (version "Diamond (64-bit) 3.14.0.75.2"))))
       (comment "D:\lscc\diamond\3.14\ispfpga\bin\nt64\scuba.exe -w -n main_pll -lang vhdl -synth synplify -bus_exp 7 -bb -arch sa5p00 -type pll -fin 50 -fclkop 120.00 -fclkop_tol 0.0 -phase_cntl STATIC -fb_mode 1 -fdc C:/dev/ac_in_ac_out_lab_power_supply/ecp5_build/IP/ip/main_pll/main_pll.fdc ")
   (library ORCLIB
