@@ -25,8 +25,8 @@ architecture rtl of ecp5_top is
 
     component main_pll
         port (
-             CLKI: in  std_logic
-            ; CLKOP: out  std_logic);
+            CLKI    : in  std_logic
+            ; CLKOP : out  std_logic);
     end component;
 
     signal main_clock_120MHz : std_logic := '0';
