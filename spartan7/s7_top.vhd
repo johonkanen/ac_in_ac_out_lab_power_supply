@@ -59,7 +59,7 @@ begin
 
     rgb1_r <= led_state;
 
-    u_main_pll : entity work.main_pll
+    u_main_pll : main_pll
     port map (
          clk_in1    => xclock
          , clk_out1 => main_clock_120MHz

@@ -19,6 +19,8 @@ add_vhdl_file_to_project $this_file_path/s7_top.vhd
 
 synth_design -rtl -rtl_skip_mlo -name rtl_1
 
+source $this_file_path/set_io.tcl
+
 launch_runs synth_1 -jobs 32
 wait_on_run synth_1
 
