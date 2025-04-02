@@ -1,3 +1,4 @@
+-------------------------------------------------------------------
 ---------------------------
 library ieee;
     use ieee.std_logic_1164.all;
@@ -11,6 +12,16 @@ entity ecp5_top is
         ;uart_tx : out std_logic
 
         ;rgb1_r : out std_logic
+
+        -- ;ad_mux1_io           : out std_logic_vector(2 downto 0)
+        ;ads_7056_clock       : out std_logic
+        ;ads_7056_chip_select : out std_logic
+        ;ads_7056_input_data  : in std_logic
+
+        -- ;ad_mux2_io               : out std_logic_vector(2 downto 0)
+        ;ads_7056_clock_pri       : out std_logic
+        ;ads_7056_chip_select_pri : out std_logic
+        ;ads_7056_input_data_pri  : in std_logic
     );
 end entity ecp5_top;
 
@@ -36,6 +47,10 @@ architecture rtl of ecp5_top is
     signal led_blink_counter : natural range 0 to 120e6;
     signal led_state : std_logic := '0';
 
+    use work.ads7056_pkg.all;
+    signal pri_ads7056 : ads7056_record := init_ads7056;
+    signal sec_ads7056 : ads7056_record := init_ads7056;
+
 begin
 
     rgb1_r <= led_state;
@@ -52,7 +67,19 @@ begin
         then
             init_bus(bus_to_communications);
             connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 1 , 44252);
-            connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 2 , 37);
+            connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 2  , get_converted_measurement(pri_ads7056));
+            connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 3  , get_converted_measurement(sec_ads7056));
+
+            -- create_ads7056_driver(pri_ads7056         
+            --                       ,cs            => ads_7056_chip_select_pri 
+            --                       ,spi_clock_out => ads_7056_clock_pri       
+            --                       ,serial_io     => ads_7056_input_data_pri);
+            --
+            -- create_ads7056_driver(sec_ads7056                   
+            --                       ,cs            => ads_7056_chip_select    
+            --                       ,spi_clock_out => ads_7056_clock
+            --                       ,serial_io     => ads_7056_input_data);
+
 
             if led_blink_counter < 60e6 then
                 led_blink_counter <= led_blink_counter + 1;
