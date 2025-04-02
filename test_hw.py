@@ -3,7 +3,7 @@ import sys
 from scipy.stats import linregress
 
 abs_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(abs_path + '/fpga_uart_pc_software/')
+sys.path.append(abs_path + '/source/fpga_communication/fpga_uart_pc_software/')
 
 from uart_communication_functions import *
 
