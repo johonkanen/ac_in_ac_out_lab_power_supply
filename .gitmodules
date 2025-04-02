@@ -41,3 +41,6 @@
 	path = source/hVHDL_ode
 	url = https://github.com/hVHDL/hVHDL_ode.git 
 	main = origin/main
+[submodule "spartan7/control_card_build_scripts"]
+	path = spartan7/control_card_build_scripts
+	url = https://github.com/johonkanen/control_card_build_scripts.git
