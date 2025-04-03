@@ -12,12 +12,12 @@ entity s7_top is
         ;uart_rx : in std_logic
         ;uart_tx : out std_logic
 
-        ;ada_mux   : out std_logic_vector(2 downto 0)
+        ;ada_mux   : out std_logic_vector(0 to 2)
         ;ada_clock : out std_logic
         ;ada_cs    : out std_logic
         ;ada_data  : in std_logic
 
-        ;adb_mux   : out std_logic_vector(2 downto 0)
+        ;adb_mux   : out std_logic_vector(0 to 2)
         ;adb_clock : out std_logic
         ;adb_cs    : out std_logic
         ;adb_data  : in std_logic
@@ -58,6 +58,8 @@ architecture rtl of s7_top is
      );
     end component;
 
+    constant ad_channels : integer_vector(0 to 6) := (2,1,0,3,4,6,7);
+
 begin
 
     rgb_led1(0) <= led_state;
@@ -80,7 +82,6 @@ begin
             create_max11115(ada , ada_data , ada_cs , ada_clock);
             create_max11115(adb , adb_data , adb_cs , adb_clock);
 
-
             if led_blink_counter < 60e6 then
                 led_blink_counter <= led_blink_counter + 1;
             else
@@ -96,7 +97,6 @@ begin
             if led_blink_counter = 0 then
                 led_state <= not led_state;
             end if;
-
 
         end if;
     end process;
