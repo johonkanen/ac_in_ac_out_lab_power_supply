@@ -46,8 +46,8 @@ architecture rtl of s7_top is
 
     package max11115_pkg is new work.max11115_generic_pkg;
         use max11115_pkg.all;
-    signal pri_ads7056 : max11115_record := init_max11115;
-    signal sec_ads7056 : max11115_record := init_max11115;
+    signal ada : max11115_record := init_max11115;
+    signal adb : max11115_record := init_max11115;
 
     component main_pll
     port
@@ -74,17 +74,23 @@ begin
         then
             init_bus(bus_to_communications);
             connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 1 , 44252);
-            connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 2  , get_converted_measurement(pri_ads7056));
-            connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 3  , get_converted_measurement(sec_ads7056));
+            connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 2  , get_converted_measurement(ada));
+            connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 3  , get_converted_measurement(adb));
 
-            create_max11115(pri_ads7056 , ada_data , ada_cs , ada_clock);
-            create_max11115(sec_ads7056 , adb_data , adb_cs , adb_clock);
+            create_max11115(ada , ada_data , ada_cs , ada_clock);
+            create_max11115(adb , adb_data , adb_cs , adb_clock);
 
 
             if led_blink_counter < 60e6 then
                 led_blink_counter <= led_blink_counter + 1;
             else
                 led_blink_counter <= 0;
+            end if;
+
+            if (led_blink_counter mod 256) = 0
+            then
+                request_conversion(ada);
+                request_conversion(adb);
             end if;
 
             if led_blink_counter = 0 then
