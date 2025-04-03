@@ -7,22 +7,24 @@ library ieee;
 
 entity s7_top is
     port (
-        xclock : in std_logic
+        xclk : in std_logic
 
         ;uart_rx : in std_logic
         ;uart_tx : out std_logic
 
-        ;rgb1_r : out std_logic
+        ;ada_mux   : out std_logic_vector(2 downto 0)
+        ;ada_clock : out std_logic
+        ;ada_cs    : out std_logic
+        ;ada_data  : in std_logic
 
-        -- ;ad_mux1_io           : out std_logic_vector(2 downto 0)
-        ;ads_7056_clock       : out std_logic
-        ;ads_7056_chip_select : out std_logic
-        ;ads_7056_input_data  : in std_logic
+        ;adb_mux   : out std_logic_vector(2 downto 0)
+        ;adb_clock : out std_logic
+        ;adb_cs    : out std_logic
+        ;adb_data  : in std_logic
 
-        -- ;ad_mux2_io               : out std_logic_vector(2 downto 0)
-        ;ads_7056_clock_pri       : out std_logic
-        ;ads_7056_chip_select_pri : out std_logic
-        ;ads_7056_input_data_pri  : in std_logic
+        ;rgb_led1   : out std_logic_vector(2 downto 0)
+        ;rgb_led2   : out std_logic_vector(2 downto 0)
+        ;rgb_led3   : out std_logic_vector(2 downto 0)
     );
 end entity s7_top;
 
@@ -42,9 +44,10 @@ architecture rtl of s7_top is
     signal led_blink_counter : natural range 0 to 120e6;
     signal led_state : std_logic := '0';
 
-    use work.ads7056_pkg.all;
-    signal pri_ads7056 : ads7056_record := init_ads7056;
-    signal sec_ads7056 : ads7056_record := init_ads7056;
+    package max11115_pkg is new work.max11115_generic_pkg;
+        use max11115_pkg.all;
+    signal pri_ads7056 : max11115_record := init_max11115;
+    signal sec_ads7056 : max11115_record := init_max11115;
 
     component main_pll
     port
@@ -57,11 +60,11 @@ architecture rtl of s7_top is
 
 begin
 
-    rgb1_r <= led_state;
+    rgb_led1(0) <= led_state;
 
     u_main_pll : main_pll
     port map (
-         clk_in1    => xclock
+         clk_in1    => xclk
          , clk_out1 => main_clock_120MHz
      );
 
@@ -74,15 +77,8 @@ begin
             connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 2  , get_converted_measurement(pri_ads7056));
             connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 3  , get_converted_measurement(sec_ads7056));
 
-            create_ads7056_driver(pri_ads7056        
-                                  ,cs            => ads_7056_chip_select_pri 
-                                  ,spi_clock_out => ads_7056_clock_pri       
-                                  ,serial_io     => ads_7056_input_data_pri);
-
-            create_ads7056_driver(sec_ads7056                   
-                                  ,cs            => ads_7056_chip_select    
-                                  ,spi_clock_out => ads_7056_clock
-                                  ,serial_io     => ads_7056_input_data);
+            create_max11115(pri_ads7056 , ada_data , ada_cs , ada_clock);
+            create_max11115(sec_ads7056 , adb_data , adb_cs , adb_clock);
 
 
             if led_blink_counter < 60e6 then

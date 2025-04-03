@@ -20,10 +20,19 @@ add_vhdl_file_to_project $this_file_path/s7_top.vhd
 synth_design -rtl -rtl_skip_mlo -name rtl_1
 
 source $this_file_path/set_io.tcl
+source $this_file_path/control_card_build_scripts/place_io.tcl
 
+close [ open $build_path/constraints.xdc w ]
+add_files -fileset constrs_1 $build_path/constraints.xdc
+set_property target_constrs_file $build_path/constraints.xdc [current_fileset -constrset]
+save_constraints -force
 launch_runs synth_1 -jobs 32
 wait_on_run synth_1
 
 launch_runs impl_1 -jobs 32
 wait_on_run impl_1
 
+launch_runs impl_1 -to_step write_bitstream -jobs 32
+open_run impl_1 -name impl_1
+
+write_bitstream -force jihuu.bit
