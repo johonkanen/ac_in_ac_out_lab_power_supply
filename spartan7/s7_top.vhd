@@ -25,6 +25,14 @@ entity s7_top is
         ;rgb_led1   : out std_logic_vector(2 downto 0)
         ;rgb_led2   : out std_logic_vector(2 downto 0)
         ;rgb_led3   : out std_logic_vector(2 downto 0)
+
+        ;pfc_pwm1 : out std_logic
+        ;pfc_pwm2 : out std_logic
+
+        ;dab_pri_hi  : out std_logic
+        ;dab_pri_low : out std_logic
+        ;dab_sec_hi  : out std_logic
+        ;dab_sec_low : out std_logic
     );
 end entity s7_top;
 
@@ -52,6 +60,7 @@ architecture rtl of s7_top is
         use max11115_pkg.all;
     signal ada : max11115_record := init_max11115;
     signal adb : max11115_record := init_max11115;
+
     component main_pll
     port
      (-- Clock in ports
@@ -84,12 +93,24 @@ architecture rtl of s7_top is
 
     signal adb_timer : natural range 0 to 63 := 0;
 
+    constant carrier_max : natural := integer(128.0e6/135.0e3);
+
+    signal carrier       : natural range 0 to 2**16-1 := 0;
+    signal duty          : natural range 0 to 2**16-1 := 0;
+    signal pwm           : std_logic                  := '0';
+
 begin
 
     rgb_led1(0) <= led_state;
 
+
     ada_mux <= mux_pos(2 downto 0);
     adb_mux <= mux_pos(2 downto 0);
+
+    dab_pri_hi  <= '0';
+    dab_pri_low <= '0';
+    dab_sec_hi  <= '0';
+    dab_sec_low <= '0';
 
     u_main_pll : main_pll
     port map (
@@ -170,8 +191,37 @@ begin
                 write_data_to_address(bus_to_communications, 0, get_ram_data(ram_a_out));
             end if;
 
+
         end if;
     end process;
+-------------------------------------------------------
+    process(main_clock_120MHz)
+    begin
+        if rising_edge(main_clock_120MHz)
+        then
+            pfc_pwm1 <= pwm;
+            pfc_pwm2 <= '0';
+            if carrier < carrier_max
+            then
+                carrier <= carrier + 1;
+            else
+                carrier <= 0;
+            end if;
+
+            pwm <= '1';
+            if carrier < carrier_max/2 - 50
+            then
+                pwm <= '0';
+            end if;
+
+            if carrier > carrier_max/2 + 50
+            then
+                pwm <= '0';
+            end if;
+
+        end if;
+    end process;
+-------------------------------------------------------
 
 ---------------
     u_dpram : entity work.generic_dual_port_ram

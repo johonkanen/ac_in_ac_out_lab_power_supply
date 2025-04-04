@@ -35,4 +35,14 @@ wait_on_run impl_1
 launch_runs impl_1 -to_step write_bitstream -jobs 32
 open_run impl_1 -name impl_1
 
+# #VCCO(zero) = IO = 2.5V || 3.3V, GND IO bank0 = 1.8v
+set_property CFGBVS VCCO [current_design]
+set_property CONFIG_VOLTAGE 3.3 [current_design]
+set_property BITSTREAM.Config.SPI_BUSWIDTH 4 [current_design]
+set_property BITSTREAM.CONFIG.CONFIGRATE 33 [current_design]
+
 write_bitstream -force jihuu.bit
+write_cfgmem -force  -format mcs -size 2 -interface SPIx4        \
+    -loadbit "up 0x0 jihuu.bit" \
+    -file "jihuu.mcs"
+
