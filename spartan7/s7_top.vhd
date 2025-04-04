@@ -61,7 +61,9 @@ architecture rtl of s7_top is
      );
     end component;
 
-    constant ad_channels : integer_vector(0 to 6) := (2,1,0,3,4,6,7);
+    subtype t_ad_channels is natural range 0 to 7;
+    type ad_array is array (natural range <>) of t_ad_channels;
+    constant ad_channels : ad_array(0 to 6) := (2,1,0,3,4,6,7);
 
     signal ram_a_in : ram_in_record;
     signal ram_b_in : ram_in_record;
@@ -69,12 +71,16 @@ architecture rtl of s7_top is
     signal ram_a_out : ram_out_record;
     signal ram_b_out : ram_out_record;
 
+    signal next_mux_pos : natural range 0 to 7 := 0;
     signal mux_pos : std_logic_vector(15 downto 0) := (others => '0');
 
     function to_integer(a : std_logic_vector) return natural is
     begin
         return to_integer(unsigned(a));
     end to_integer;
+
+    signal adb_sh_timer : natural range 0 to 127 := 127;
+    constant sh_max     : natural := 13;
 
 begin
 
@@ -102,7 +108,8 @@ begin
             create_max11115(ada , ada_data , ada_cs , ada_clock);
             create_max11115(adb , adb_data , adb_cs , adb_clock);
 
-            if led_blink_counter < 60e6 then
+            if led_blink_counter < 60e6 
+            then
                 led_blink_counter <= led_blink_counter + 1;
             else
                 led_blink_counter <= 0;
@@ -112,9 +119,29 @@ begin
             then
                 request_conversion(ada);
                 request_conversion(adb);
+                adb_sh_timer <= 0;
             end if;
 
-            if led_blink_counter = 0 then
+            if adb_sh_timer < sh_max
+            then
+                adb_sh_timer <= adb_sh_timer + 1;
+            end if;
+
+            if (adb_sh_timer = sh_max - 1)
+            then
+                if next_mux_pos < 6
+                then
+                    next_mux_pos <= next_mux_pos + 1;
+                else
+                    next_mux_pos <= 0;
+                end if;
+
+                mux_pos(2 downto 0) <= std_logic_vector(to_unsigned(ad_channels(next_mux_pos), 3));
+
+            end if;
+
+            if led_blink_counter = 0 
+            then
                 led_state <= not led_state;
             end if;
 
@@ -126,7 +153,7 @@ begin
                 write_data_to_ram(ram_b_in , to_integer(unsigned(mux_pos(2 downto 0))) , get_converted_measurement(adb));
             end if;
 
-            if data_is_requested_from_address_range(bus_from_communications, 1000, 1006) then
+            if data_is_requested_from_address_range(bus_from_communications, 1000, 1007) then
                 request_data_from_ram(ram_a_in, get_address(bus_from_communications) - 1000);
             end if;
 
