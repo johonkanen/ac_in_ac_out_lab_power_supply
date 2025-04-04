@@ -69,9 +69,19 @@ architecture rtl of s7_top is
     signal ram_a_out : ram_out_record;
     signal ram_b_out : ram_out_record;
 
+    signal mux_pos : std_logic_vector(15 downto 0) := (others => '0');
+
+    function to_integer(a : std_logic_vector) return natural is
+    begin
+        return to_integer(unsigned(a));
+    end to_integer;
+
 begin
 
     rgb_led1(0) <= led_state;
+
+    ada_mux <= mux_pos(2 downto 0);
+    adb_mux <= mux_pos(2 downto 0);
 
     u_main_pll : main_pll
     port map (
@@ -85,8 +95,9 @@ begin
         then
             init_bus(bus_to_communications);
             connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 1 , 44252);
-            connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 2  , get_converted_measurement(ada));
-            connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 3  , get_converted_measurement(adb));
+            connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 2 , get_converted_measurement(ada));
+            connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 3 , get_converted_measurement(adb));
+            connect_data_to_address(bus_from_communications           , bus_to_communications , 4 , mux_pos);
 
             create_max11115(ada , ada_data , ada_cs , ada_clock);
             create_max11115(adb , adb_data , adb_cs , adb_clock);
@@ -112,12 +123,13 @@ begin
 
             if ad_conversion_is_ready(adb)
             then
-                write_data_to_ram(ram_b_in, 0, get_converted_measurement(adb));
+                write_data_to_ram(ram_b_in , to_integer(unsigned(mux_pos(2 downto 0))) , get_converted_measurement(adb));
             end if;
 
             if data_is_requested_from_address_range(bus_from_communications, 1000, 1006) then
                 request_data_from_ram(ram_a_in, get_address(bus_from_communications) - 1000);
             end if;
+
             if ram_read_is_ready(ram_a_out)
             then
                 write_data_to_address(bus_to_communications, 0, get_ram_data(ram_a_out));
