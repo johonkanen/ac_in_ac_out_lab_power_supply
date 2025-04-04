@@ -80,7 +80,9 @@ architecture rtl of s7_top is
     end to_integer;
 
     signal adb_sh_timer : natural range 0 to 127 := 127;
-    constant sh_max     : natural := 13;
+    constant sh_max     : natural := 16;
+
+    signal adb_timer : natural range 0 to 63 := 0;
 
 begin
 
@@ -103,7 +105,6 @@ begin
             connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 1 , 44252);
             connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 2 , get_converted_measurement(ada));
             connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 3 , get_converted_measurement(adb));
-            connect_data_to_address(bus_from_communications           , bus_to_communications , 4 , mux_pos);
 
             create_max11115(ada , ada_data , ada_cs , ada_clock);
             create_max11115(adb , adb_data , adb_cs , adb_clock);
@@ -115,7 +116,14 @@ begin
                 led_blink_counter <= 0;
             end if;
 
-            if (led_blink_counter mod 256) = 0
+            if adb_timer < 63
+            then
+                adb_timer <= adb_timer + 1;
+            else
+                adb_timer <= 0;
+            end if;
+
+            if (adb_timer = 0)
             then
                 request_conversion(ada);
                 request_conversion(adb);
