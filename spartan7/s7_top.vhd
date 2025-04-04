@@ -33,6 +33,11 @@ entity s7_top is
         ;dab_pri_low : out std_logic
         ;dab_sec_hi  : out std_logic
         ;dab_sec_low : out std_logic
+
+        ;llc_pri_hi  : out std_logic
+        ;llc_pri_low : out std_logic
+        ;llc_sec1    : out std_logic
+        ;llc_sec2    : out std_logic
     );
 end entity s7_top;
 
@@ -111,6 +116,11 @@ begin
     dab_pri_low <= '0';
     dab_sec_hi  <= '0';
     dab_sec_low <= '0';
+
+    llc_pri_hi  <= '0';
+    llc_pri_low <= '0';
+    llc_sec1    <= '0';
+    llc_sec2    <= '0';
 
     u_main_pll : main_pll
     port map (
