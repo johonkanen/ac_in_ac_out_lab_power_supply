@@ -29,12 +29,16 @@ entity s7_top is
 end entity s7_top;
 
 architecture rtl of s7_top is
+    
+    package dp_ram_pkg is new work.ram_port_generic_pkg generic map(g_ram_bit_width => 16, g_ram_depth_pow2 => 10);
+    use dp_ram_pkg.all;
 
     package interconnect_pkg is new work.fpga_interconnect_generic_pkg 
         generic map(number_of_data_bits => 16,
                  number_of_address_bits => 16);
 
     use interconnect_pkg.all;
+
 
     signal bus_to_communications   : fpga_interconnect_record := init_fpga_interconnect;
     signal bus_from_communications : fpga_interconnect_record := init_fpga_interconnect;
@@ -48,7 +52,6 @@ architecture rtl of s7_top is
         use max11115_pkg.all;
     signal ada : max11115_record := init_max11115;
     signal adb : max11115_record := init_max11115;
-
     component main_pll
     port
      (-- Clock in ports
@@ -59,6 +62,12 @@ architecture rtl of s7_top is
     end component;
 
     constant ad_channels : integer_vector(0 to 6) := (2,1,0,3,4,6,7);
+
+    signal ram_a_in : ram_in_record;
+    signal ram_b_in : ram_in_record;
+
+    signal ram_a_out : ram_out_record;
+    signal ram_b_out : ram_out_record;
 
 begin
 
@@ -98,8 +107,35 @@ begin
                 led_state <= not led_state;
             end if;
 
+            init_ram(ram_a_in);
+            init_ram(ram_b_in);
+
+            if ad_conversion_is_ready(adb)
+            then
+                write_data_to_ram(ram_b_in, 0, get_converted_measurement(adb));
+            end if;
+
+            if data_is_requested_from_address_range(bus_from_communications, 1000, 1006) then
+                request_data_from_ram(ram_a_in, get_address(bus_from_communications) - 1000);
+            end if;
+            if ram_read_is_ready(ram_a_out)
+            then
+                write_data_to_address(bus_to_communications, 0, get_ram_data(ram_a_out));
+            end if;
+
         end if;
     end process;
+
+---------------
+    u_dpram : entity work.generic_dual_port_ram
+    generic map(dp_ram_pkg)
+    port map(
+    main_clock_120MHz ,
+    ram_a_in   ,
+    ram_a_out  ,
+    --------------
+    ram_b_in  ,
+    ram_b_out);
 
 ------------------------------------------------------------------------
     u_fpga_communications : entity work.fpga_communications

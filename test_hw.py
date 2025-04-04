@@ -8,8 +8,9 @@ sys.path.append(abs_path + '/source/fpga_communication/fpga_uart_pc_software/')
 from uart_communication_functions import *
 
 comport = sys.argv[1]
+linkspeed = eval(sys.argv[2])
 
-uart = uart_link(comport, 5e6)
+uart = uart_link(comport, linkspeed)
 
 print("test data from address 1 :")
 print(uart.request_data_from_address(1))
