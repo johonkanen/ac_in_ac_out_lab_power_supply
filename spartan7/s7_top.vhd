@@ -79,7 +79,7 @@ architecture rtl of s7_top is
     signal led_blink_counter : natural range 0 to 120e6;
     signal led_state : std_logic := '0';
 
-    package adc121s101_pkg is new work.max11115_generic_pkg(g_count_max => 7, g_buffer_offset => 1);
+    package adc121s101_pkg is new work.max11115_generic_pkg(g_count_max => 7, g_buffer_offset => 2);
         use adc121s101_pkg.all;
     signal dab_adc : max11115_record := init_max11115;
     signal llc_adc : max11115_record := init_max11115;
@@ -160,8 +160,8 @@ begin
 
             create_max11115(ada     , ada_data     , ada_cs     , ada_clock);
             create_max11115(adb     , adb_data     , adb_cs     , adb_clock);
-            create_max11115(dab_adc , dab_spi_data , dab_spi_cs , dab_spi_clock);
-            create_max11115(llc_adc , llc_spi_data , llc_spi_cs , llc_spi_clock);
+            create_max11115(dab_adc , dab_spi_data , dab_spi_cs , dab_spi_clock, offset => 1);
+            create_max11115(llc_adc , llc_spi_data , llc_spi_cs , llc_spi_clock, offset => 1);
 
             if count_to_800khz < counter_max_800kHz then
                 count_to_800khz <= count_to_800khz + 1;
