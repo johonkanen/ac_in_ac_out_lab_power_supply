@@ -84,10 +84,10 @@ architecture rtl of s7_top is
     signal dab_adc : max11115_record := init_max11115;
     signal llc_adc : max11115_record := init_max11115;
 
-    -- package max11115_pkg is new work.max11115_generic_pkg;
-    --     use max11115_pkg.all;
-    signal ada : max11115_record := init_max11115;
-    signal adb : max11115_record := init_max11115;
+    package max11115_pkg is new work.max11115_generic_pkg;
+        use max11115_pkg.all;
+    signal ada : max11115_pkg.max11115_record := max11115_pkg.init_max11115;
+    signal adb : max11115_pkg.max11115_record := max11115_pkg.init_max11115;
 
 
     subtype t_ad_channels is natural range 0 to 7;
@@ -158,10 +158,21 @@ begin
             connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 4 , get_converted_measurement(dab_adc));
             connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 5 , get_converted_measurement(llc_adc));
 
-            create_max11115(ada     , ada_data , ada_cs     , ada_clock);
-            create_max11115(adb     , adb_data , adb_cs     , adb_clock);
+            create_max11115(ada     , ada_data     , ada_cs     , ada_clock);
+            create_max11115(adb     , adb_data     , adb_cs     , adb_clock);
             create_max11115(dab_adc , dab_spi_data , dab_spi_cs , dab_spi_clock);
             create_max11115(llc_adc , llc_spi_data , llc_spi_cs , llc_spi_clock);
+
+            if count_to_800khz < counter_max_800kHz then
+                count_to_800khz <= count_to_800khz + 1;
+            else
+                count_to_800khz <= 0;
+            end if;
+
+            if count_to_800khz = 0 then
+                request_conversion(dab_adc);
+                request_conversion(llc_adc);
+            end if;
 
             if led_blink_counter < 60e6 
             then
@@ -181,8 +192,6 @@ begin
             then
                 request_conversion(ada);
                 request_conversion(adb);
-                request_conversion(dab_adc);
-                request_conversion(llc_adc);
                 adb_sh_timer <= 0;
             end if;
 
@@ -240,14 +249,6 @@ begin
             pfc_pwm1 <= pwm1.pwm;
 
 
-            if count_to_800khz < count_to_800khz then
-                count_to_800khz <= count_to_800khz + 1;
-            else
-                count_to_800khz <= 0;
-            end if;
-
-            if count_to_800khz = 0 then
-            end if;
 
         end if;
     end process;
