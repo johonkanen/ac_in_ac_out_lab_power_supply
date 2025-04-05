@@ -45,6 +45,8 @@ entity s7_top is
         ;llc_spi_clock : out std_logic
         ;llc_spi_cs    : out std_logic
         ;llc_spi_data  : in std_logic
+
+        ;bypass_relay : out std_logic
     );
 end entity s7_top;
 
@@ -77,10 +79,16 @@ architecture rtl of s7_top is
     signal led_blink_counter : natural range 0 to 120e6;
     signal led_state : std_logic := '0';
 
-    package max11115_pkg is new work.max11115_generic_pkg;
-        use max11115_pkg.all;
+    package adc121s101_pkg is new work.max11115_generic_pkg(g_count_max => 7);
+        use adc121s101_pkg.all;
+    signal dab_adc : max11115_record := init_max11115;
+    signal llc_adc : max11115_record := init_max11115;
+
+    -- package max11115_pkg is new work.max11115_generic_pkg;
+    --     use max11115_pkg.all;
     signal ada : max11115_record := init_max11115;
     signal adb : max11115_record := init_max11115;
+
 
     subtype t_ad_channels is natural range 0 to 7;
     type ad_array is array (natural range <>) of t_ad_channels;
@@ -110,10 +118,12 @@ architecture rtl of s7_top is
     constant carrier_max : natural := integer(128.0e6/135.0e3);
     signal pwm1 : pwm_record := init_pwm;
 
+    constant counter_max_800kHz : natural := 128e6/800e3;
+    signal count_to_800khz : natural range 0 to 1000 := 0;
+
 begin
 
     rgb_led1(0) <= led_state;
-
 
     ada_mux <= mux_pos(2 downto 0);
     adb_mux <= mux_pos(2 downto 0);
@@ -128,13 +138,7 @@ begin
     llc_sec1    <= '0';
     llc_sec2    <= '0';
 
-    dab_spi_clock <= '0';
-    dab_spi_cs    <= '0';
-    -- dab_spi_data  <= '0';
-
-    llc_spi_clock <= '0';
-    llc_spi_cs    <= '0';
-    -- llc_spi_data  <= '0';
+    bypass_relay <= '0';
     -----------------------------
     u_main_pll : main_pll
     port map (
@@ -151,9 +155,13 @@ begin
             connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 1 , 44252);
             connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 2 , get_converted_measurement(ada));
             connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 3 , get_converted_measurement(adb));
+            connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 4 , get_converted_measurement(dab_adc));
+            connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 5 , get_converted_measurement(llc_adc));
 
-            create_max11115(ada , ada_data , ada_cs , ada_clock);
-            create_max11115(adb , adb_data , adb_cs , adb_clock);
+            create_max11115(ada     , ada_data , ada_cs     , ada_clock);
+            create_max11115(adb     , adb_data , adb_cs     , adb_clock);
+            create_max11115(dab_adc , dab_spi_data , dab_spi_cs , dab_spi_clock);
+            create_max11115(llc_adc , llc_spi_data , llc_spi_cs , llc_spi_clock);
 
             if led_blink_counter < 60e6 
             then
@@ -162,7 +170,7 @@ begin
                 led_blink_counter <= 0;
             end if;
 
-            if adb_timer < 63
+            if adb_timer < 200
             then
                 adb_timer <= adb_timer + 1;
             else
@@ -173,6 +181,8 @@ begin
             then
                 request_conversion(ada);
                 request_conversion(adb);
+                request_conversion(dab_adc);
+                request_conversion(llc_adc);
                 adb_sh_timer <= 0;
             end if;
 
@@ -229,6 +239,15 @@ begin
             create_pwm(pwm1, pfc_pwm1);
             pfc_pwm1 <= pwm1.pwm;
 
+
+            if count_to_800khz < count_to_800khz then
+                count_to_800khz <= count_to_800khz + 1;
+            else
+                count_to_800khz <= 0;
+            end if;
+
+            if count_to_800khz = 0 then
+            end if;
 
         end if;
     end process;
