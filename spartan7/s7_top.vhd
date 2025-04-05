@@ -1,9 +1,8 @@
-
--------------------------------------------------------------------
----------------------------
 library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
+
+    use work.pwm_pkg.all;
 
 entity s7_top is
     port (
@@ -34,14 +33,32 @@ entity s7_top is
         ;dab_sec_hi  : out std_logic
         ;dab_sec_low : out std_logic
 
+        ;dab_spi_clock : out std_logic
+        ;dab_spi_cs    : out std_logic
+        ;dab_spi_data  : in std_logic
+
         ;llc_pri_hi  : out std_logic
         ;llc_pri_low : out std_logic
         ;llc_sec1    : out std_logic
         ;llc_sec2    : out std_logic
+
+        ;llc_spi_clock : out std_logic
+        ;llc_spi_cs    : out std_logic
+        ;llc_spi_data  : in std_logic
     );
 end entity s7_top;
 
 architecture rtl of s7_top is
+    ----------------------------------
+    component main_pll
+    port
+     (-- Clock in ports
+      -- Clock out ports
+      clk_out1          : out    std_logic;
+      clk_in1           : in     std_logic
+     );
+    end component;
+    ----------------------------------
     
     package dp_ram_pkg is new work.ram_port_generic_pkg generic map(g_ram_bit_width => 16, g_ram_depth_pow2 => 10);
     use dp_ram_pkg.all;
@@ -51,7 +68,6 @@ architecture rtl of s7_top is
                  number_of_address_bits => 16);
 
     use interconnect_pkg.all;
-
 
     signal bus_to_communications   : fpga_interconnect_record := init_fpga_interconnect;
     signal bus_from_communications : fpga_interconnect_record := init_fpga_interconnect;
@@ -66,15 +82,6 @@ architecture rtl of s7_top is
     signal ada : max11115_record := init_max11115;
     signal adb : max11115_record := init_max11115;
 
-    component main_pll
-    port
-     (-- Clock in ports
-      -- Clock out ports
-      clk_out1          : out    std_logic;
-      clk_in1           : in     std_logic
-     );
-    end component;
-
     subtype t_ad_channels is natural range 0 to 7;
     type ad_array is array (natural range <>) of t_ad_channels;
     constant ad_channels : ad_array(0 to 6) := (2,1,0,3,4,6,7);
@@ -88,10 +95,12 @@ architecture rtl of s7_top is
     signal next_mux_pos : natural range 0 to 7 := 0;
     signal mux_pos : std_logic_vector(15 downto 0) := (others => '0');
 
+    ----------------
     function to_integer(a : std_logic_vector) return natural is
     begin
         return to_integer(unsigned(a));
     end to_integer;
+    ----------------
 
     signal adb_sh_timer : natural range 0 to 127 := 127;
     constant sh_max     : natural := 16;
@@ -99,10 +108,7 @@ architecture rtl of s7_top is
     signal adb_timer : natural range 0 to 63 := 0;
 
     constant carrier_max : natural := integer(128.0e6/135.0e3);
-
-    signal carrier       : natural range 0 to 2**16-1 := 0;
-    signal duty          : natural range 0 to 2**16-1 := 0;
-    signal pwm           : std_logic                  := '0';
+    signal pwm1 : pwm_record := init_pwm;
 
 begin
 
@@ -122,11 +128,20 @@ begin
     llc_sec1    <= '0';
     llc_sec2    <= '0';
 
+    dab_spi_clock <= '0';
+    dab_spi_cs    <= '0';
+    -- dab_spi_data  <= '0';
+
+    llc_spi_clock <= '0';
+    llc_spi_cs    <= '0';
+    -- llc_spi_data  <= '0';
+    -----------------------------
     u_main_pll : main_pll
     port map (
          clk_in1    => xclk
          , clk_out1 => main_clock_120MHz
      );
+    -----------------------------
 
     process(main_clock_120MHz) is
     begin
@@ -201,33 +216,19 @@ begin
                 write_data_to_address(bus_to_communications, 0, get_ram_data(ram_a_out));
             end if;
 
-
         end if;
     end process;
 -------------------------------------------------------
     process(main_clock_120MHz)
+
     begin
         if rising_edge(main_clock_120MHz)
         then
-            pfc_pwm1 <= pwm;
             pfc_pwm2 <= '0';
-            if carrier < carrier_max
-            then
-                carrier <= carrier + 1;
-            else
-                carrier <= 0;
-            end if;
 
-            pwm <= '1';
-            if carrier < carrier_max/2 - 50
-            then
-                pwm <= '0';
-            end if;
+            create_pwm(pwm1, pfc_pwm1);
+            pfc_pwm1 <= pwm1.pwm;
 
-            if carrier > carrier_max/2 + 50
-            then
-                pwm <= '0';
-            end if;
 
         end if;
     end process;
