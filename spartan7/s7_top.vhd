@@ -2,6 +2,79 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
+entity measurements is
+    generic(package fpga_interconnect_pkg is new work.fpga_interconnect_generic_pkg generic map(<>));
+    port (
+        clock : in std_logic
+        -- ;ada_mux   : out std_logic_vector(0 to 2)
+        -- ;ada_clock : out std_logic
+        -- ;ada_cs    : out std_logic
+        -- ;ada_data  : in std_logic
+        --
+        -- ;adb_mux   : out std_logic_vector(0 to 2)
+        -- ;adb_clock : out std_logic
+        -- ;adb_cs    : out std_logic
+        -- ;adb_data  : in std_logic
+        --
+        ;dab_spi_clock : out std_logic
+        ;dab_spi_cs    : out std_logic
+        ;dab_spi_data  : in std_logic
+
+        ;llc_spi_clock : out std_logic
+        ;llc_spi_cs    : out std_logic
+        ;llc_spi_data  : in std_logic
+
+        ;bus_to_measurements   : in fpga_interconnect_pkg.fpga_interconnect_record
+        ;bus_from_measurements : out fpga_interconnect_pkg.fpga_interconnect_record
+    );
+end entity measurements;
+
+architecture rtl of measurements is
+
+    use fpga_interconnect_pkg.all;
+
+    package adc121s101_pkg is new work.max11115_generic_pkg(g_count_max => 7);
+        use adc121s101_pkg.all;
+    signal dab_adc : max11115_record := init_max11115;
+    signal llc_adc : max11115_record := init_max11115;
+    constant counter_max_800kHz : natural := 128e6/800e3;
+    signal count_to_800khz : natural range 0 to 1000 := 0;
+
+begin
+
+
+    process(clock)
+    begin
+        if rising_edge(clock)
+        then
+            init_bus(bus_from_measurements);
+            connect_read_only_data_to_address(bus_to_measurements , bus_from_measurements , 10 , 66);
+            connect_read_only_data_to_address(bus_to_measurements , bus_from_measurements , 4  , get_converted_measurement(dab_adc));
+            connect_read_only_data_to_address(bus_to_measurements , bus_from_measurements , 5  , get_converted_measurement(llc_adc));
+
+            create_max11115(dab_adc , dab_spi_data , dab_spi_cs , dab_spi_clock, offset => 1);
+            create_max11115(llc_adc , llc_spi_data , llc_spi_cs , llc_spi_clock, offset => 1);
+
+            if count_to_800khz < counter_max_800kHz then
+                count_to_800khz <= count_to_800khz + 1;
+            else
+                count_to_800khz <= 0;
+            end if;
+
+            if count_to_800khz = 0 then
+                request_conversion(dab_adc);
+                request_conversion(llc_adc);
+            end if;
+
+        end if;
+    end process;
+    
+end rtl;
+------------------------------------------------
+library ieee;
+    use ieee.std_logic_1164.all;
+    use ieee.numeric_std.all;
+
     use work.pwm_pkg.all;
 
 entity s7_top is
@@ -73,16 +146,13 @@ architecture rtl of s7_top is
 
     signal bus_to_communications   : fpga_interconnect_record := init_fpga_interconnect;
     signal bus_from_communications : fpga_interconnect_record := init_fpga_interconnect;
+    signal bus_from_measurements : fpga_interconnect_record := init_fpga_interconnect;
+    signal bus_from_top : fpga_interconnect_record := init_fpga_interconnect;
 
     signal main_clock_120MHz : std_logic := '0';
 
     signal led_blink_counter : natural range 0 to 120e6;
     signal led_state : std_logic := '0';
-
-    package adc121s101_pkg is new work.max11115_generic_pkg(g_count_max => 7, g_buffer_offset => 2);
-        use adc121s101_pkg.all;
-    signal dab_adc : max11115_record := init_max11115;
-    signal llc_adc : max11115_record := init_max11115;
 
     package max11115_pkg is new work.max11115_generic_pkg;
         use max11115_pkg.all;
@@ -118,8 +188,7 @@ architecture rtl of s7_top is
     constant carrier_max : natural := integer(128.0e6/135.0e3);
     signal pwm1 : pwm_record := init_pwm;
 
-    constant counter_max_800kHz : natural := 128e6/800e3;
-    signal count_to_800khz : natural range 0 to 1000 := 0;
+
 
 begin
 
@@ -151,28 +220,13 @@ begin
     begin
         if rising_edge(main_clock_120MHz)
         then
-            init_bus(bus_to_communications);
-            connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 1 , 44252);
-            connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 2 , get_converted_measurement(ada));
-            connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 3 , get_converted_measurement(adb));
-            connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 4 , get_converted_measurement(dab_adc));
-            connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 5 , get_converted_measurement(llc_adc));
+            init_bus(bus_from_top);
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 1 , 44252);
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 2 , get_converted_measurement(ada));
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 3 , get_converted_measurement(adb));
 
             create_max11115(ada     , ada_data     , ada_cs     , ada_clock);
             create_max11115(adb     , adb_data     , adb_cs     , adb_clock);
-            create_max11115(dab_adc , dab_spi_data , dab_spi_cs , dab_spi_clock, offset => 1);
-            create_max11115(llc_adc , llc_spi_data , llc_spi_cs , llc_spi_clock, offset => 1);
-
-            if count_to_800khz < counter_max_800kHz then
-                count_to_800khz <= count_to_800khz + 1;
-            else
-                count_to_800khz <= 0;
-            end if;
-
-            if count_to_800khz = 0 then
-                request_conversion(dab_adc);
-                request_conversion(llc_adc);
-            end if;
 
             if led_blink_counter < 60e6 
             then
@@ -232,7 +286,7 @@ begin
 
             if ram_read_is_ready(ram_a_out)
             then
-                write_data_to_address(bus_to_communications, 0, get_ram_data(ram_a_out));
+                write_data_to_address(bus_from_top, 0, get_ram_data(ram_a_out));
             end if;
 
         end if;
@@ -248,11 +302,26 @@ begin
             create_pwm(pwm1, pfc_pwm1);
             pfc_pwm1 <= pwm1.pwm;
 
-
-
         end if;
     end process;
 -------------------------------------------------------
+    u_measurements : entity work.measurements
+    generic map(interconnect_pkg)
+    port map(
+        main_clock_120MHz
+
+
+        ,dab_spi_clock => dab_spi_clock 
+        ,dab_spi_cs    => dab_spi_cs    
+        ,dab_spi_data  => dab_spi_data  
+        
+        ,llc_spi_clock => llc_spi_clock 
+        ,llc_spi_cs    => llc_spi_cs    
+        ,llc_spi_data  => llc_spi_data  
+
+        ,bus_to_measurements   => bus_from_communications
+        ,bus_from_measurements => bus_from_measurements
+    );
 
 ---------------
     u_dpram : entity work.generic_dual_port_ram
@@ -265,6 +334,12 @@ begin
     ram_b_in  ,
     ram_b_out);
 
+------------------------------------------------------------------------
+    create_bus : process(main_clock_120MHz) begin
+        if rising_edge(main_clock_120MHz) then
+            bus_to_communications <= bus_from_top and bus_from_measurements;
+        end if;
+    end process;
 ------------------------------------------------------------------------
     u_fpga_communications : entity work.fpga_communications
     generic map(interconnect_pkg, g_clock_divider => 24)
