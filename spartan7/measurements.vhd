@@ -71,6 +71,12 @@ architecture rtl of measurements is
     end to_integer;
     ----------------
 
+    constant multiplier_word_length : integer := 25;
+    package multiplier_pkg is new work.multiplier_generic_pkg 
+        generic map(multiplier_word_length, 2, 2);
+    use multiplier_pkg.all;
+    signal multiplier : multiplier_record := init_multiplier;
+
 begin
 
     ada_mux <= mux_pos(2 downto 0);
@@ -148,6 +154,16 @@ begin
 
         end if;
     end process;
-    
+
+-------------------------
+    scaling : process(clock) is
+    begin
+        if rising_edge(clock)
+        then
+            create_multiplier(multiplier);
+
+        end if;
+    end process scaling;
+-------------------------
 end rtl;
 ------------------------------------------------
