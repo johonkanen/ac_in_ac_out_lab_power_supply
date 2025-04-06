@@ -77,6 +77,34 @@ architecture rtl of measurements is
     use multiplier_pkg.all;
     signal multiplier : multiplier_record := init_multiplier;
 
+
+    constant llc_gain   : real := 7.279/4095.0; -- not calibrated
+    constant llc_offset : real := 0.0;
+
+    constant dhb_gain   : real := 660.0/4095;   -- not calibrated
+    constant dhb_offset : real := 0.0;
+
+    constant vac_gain   : real := 660.0/4095; -- not calibrated!!!
+    constant vac_offset : real := 0.0;
+
+    constant iac1_gain   : real := 16.5/2048;  -- not calibrated
+    constant iac1_offset : real := 0.0;
+
+    constant iac2_gain   : real := 16.5/2048;  -- not calibrated
+    constant iac2_offset : real := 0.0;
+
+    constant vdc_gain   : real := 663.0/4095;  -- not calibrated
+    constant vdc_offset : real := 0.0;
+
+    constant vaux_gain   : real := 663.0/4095;  -- not calibrated
+    constant vaux_offset : real := 0.0;
+
+    constant idab_gain   : real := 16.5/2048;  -- not calibrated
+    constant idab_offset : real := 0.0;
+
+    constant illc_gain   : real := 16.5/2048;  -- not calibrated
+    constant illc_offset : real := 0.0;
+
 begin
 
     ada_mux <= mux_pos(2 downto 0);
