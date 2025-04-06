@@ -20,6 +20,7 @@ add_vhdl_file_to_project $source_folder/hVHDL_fixed_point/fixed_point_scaling/fi
 add_vhdl_file_to_project $source_folder/hVHDL_fixed_point/division/division_generic_pkg.vhd                          
 
 add_vhdl_file_to_project $this_file_path/pwm_pkg.vhd
+add_vhdl_file_to_project $this_file_path/measurements.vhd
 #add_vhdl_file_to_project $source_folder/hVHDL_memory_library/testbench/sample_buffer/sample_trigger_generic_pkg.vhd  
 #add_vhdl_file_to_project $source_folder/fpga_communication/signal_scope/signal_scope.vhd                             
 #add_vhdl_file_to_project $source_folder/measurements/measurements.vhd                                                
