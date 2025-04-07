@@ -74,36 +74,63 @@ architecture rtl of measurements is
     constant multiplier_word_length : integer := 25;
     package multiplier_pkg is new work.multiplier_generic_pkg 
         generic map(multiplier_word_length, 2, 2);
+
     use multiplier_pkg.all;
     signal multiplier : multiplier_record := init_multiplier;
 
 
-    constant llc_gain   : real := 7.279/4095.0; -- not calibrated
-    constant llc_offset : real := 0.0;
+    -- not calibrated
+    constant measurement_gains : real_vector :=
+    (
+        7.279/4095.0 -- vllc_gain
+        ,0.0         -- vllc_offset
 
-    constant dhb_gain   : real := 660.0/4095;   -- not calibrated
-    constant dhb_offset : real := 0.0;
+        ,16.5/2048    -- illc_gain   
+        ,0.0          -- illc_offset 
 
-    constant vac_gain   : real := 660.0/4095; -- not calibrated!!!
-    constant vac_offset : real := 0.0;
+        ,660.0/4095   -- vdhb_gain   
+        ,0.0          -- vdhb_offset 
+        
+        ,16.5/2048    -- idhb_gain   
+        ,0.0          -- idhb_offset 
 
-    constant iac1_gain   : real := 16.5/2048;  -- not calibrated
-    constant iac1_offset : real := 0.0;
+        ,660.0/2048   -- vac_gain    
+        ,0.0          -- vac_offset  
 
-    constant iac2_gain   : real := 16.5/2048;  -- not calibrated
-    constant iac2_offset : real := 0.0;
+        ,16.5/2048    -- iac1_gain   
+        ,0.0          -- iac1_offset 
 
-    constant vdc_gain   : real := 663.0/4095;  -- not calibrated
-    constant vdc_offset : real := 0.0;
+        ,16.5/2048    -- iac2_gain   
+        ,0.0          -- iac2_offset 
 
-    constant vaux_gain   : real := 663.0/4095;  -- not calibrated
-    constant vaux_offset : real := 0.0;
+        ,663.0/4095   -- vdc_gain    
+        ,0.0          -- vdc_offset  
 
-    constant idab_gain   : real := 16.5/2048;  -- not calibrated
-    constant idab_offset : real := 0.0;
+        ,663.0/4095   -- vaux_gain   
+        ,0.0          -- vaux_offset 
+    );
 
-    constant illc_gain   : real := 16.5/2048;  -- not calibrated
-    constant illc_offset : real := 0.0;
+
+    use work.real_to_fixed_pkg.all;
+
+    package dp_ram_pkg is new work.ram_port_generic_pkg generic map(g_ram_bit_width => multiplier_word_length, g_ram_depth_pow2 => 5);
+    use dp_ram_pkg.all;
+
+    function ram_init_values return dp_ram_pkg.ram_array is
+        variable retval : dp_ram_pkg.ram_array := (others => (others => '0'));
+    begin
+        for i in 0 to 17 loop
+            retval(i) := to_fixed(measurement_gains(i) , multiplier_word_length , multiplier_word_length);
+        end loop;
+
+        return retval;
+    end function ram_init_values;
+
+    signal meas_ram_a_in : dp_ram_pkg.ram_in_record;
+    signal meas_ram_b_in : dp_ram_pkg.ram_in_record;
+
+    signal meas_ram_a_out : dp_ram_pkg.ram_out_record;
+    signal meas_ram_b_out : dp_ram_pkg.ram_out_record;
 
 begin
 
@@ -121,10 +148,13 @@ begin
             connect_read_only_data_to_address(bus_to_measurements , bus_from_measurements , 4  , get_converted_measurement(dab_adc));
             connect_read_only_data_to_address(bus_to_measurements , bus_from_measurements , 5  , get_converted_measurement(llc_adc));
 
+            create_max11115(ada , ada_data , ada_cs , ada_clock);
+            create_max11115(adb , adb_data , adb_cs , adb_clock);
 
-            create_max11115(dab_adc , dab_spi_data , dab_spi_cs , dab_spi_clock, offset => 1);
-            create_max11115(llc_adc , llc_spi_data , llc_spi_cs , llc_spi_clock, offset => 1);
+            create_max11115(dab_adc , dab_spi_data , dab_spi_cs , dab_spi_clock , offset => 1);
+            create_max11115(llc_adc , llc_spi_data , llc_spi_cs , llc_spi_clock , offset => 1);
 
+            ------------------------------------------
             if count_to_800khz < counter_max_800kHz then
                 count_to_800khz <= count_to_800khz + 1;
             else
@@ -136,9 +166,6 @@ begin
                 request_conversion(llc_adc);
             end if;
             ------------------------------------------
-
-            create_max11115(ada , ada_data , ada_cs , ada_clock);
-            create_max11115(adb , adb_data , adb_cs , adb_clock);
 
             if adb_timer < 63
             then
@@ -179,7 +206,6 @@ begin
                 write_data_to_ram(ram_b_in , to_integer(unsigned(mux_pos(2 downto 0))) , get_converted_measurement(adb));
             end if;
 
-
         end if;
     end process;
 
@@ -189,9 +215,21 @@ begin
         if rising_edge(clock)
         then
             create_multiplier(multiplier);
+            init_ram(meas_ram_a_in);
+            init_ram(meas_ram_b_in);
 
         end if;
     end process scaling;
+-------------------------
+    u_dpram : entity work.generic_dual_port_ram
+    generic map(dp_ram_pkg)
+    port map(
+    clock          ,
+    meas_ram_a_in  ,
+    meas_ram_a_out ,
+    --------------
+    meas_ram_b_in  ,
+    meas_ram_b_out);
 -------------------------
 end rtl;
 ------------------------------------------------
