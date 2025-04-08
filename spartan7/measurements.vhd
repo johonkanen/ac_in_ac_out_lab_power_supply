@@ -263,22 +263,27 @@ begin
             if ad_conversion_is_ready(adb) or adb_ready_for_scaling
             then
                 adb_ready_for_scaling <= false;
-                -- write_data_to_ram(ram_b_in , to_integer(unsigned(mux_pos(2 downto 0))) , get_converted_measurement(adb));
+                -- request_data_from_ram(meas_ram_a_in , sampled_b_mux + 8 , get_converted_measurement(adb));
+                -- request_data_from_ram(meas_ram_b_in , sampled_b_mux + 8 , get_converted_measurement(adb));
 
             elsif ad_conversion_is_ready(ada) or ada_ready_for_scaling
             then
                 ada_ready_for_scaling <= false;
-                -- write_data_to_ram(ram_b_in , to_integer(unsigned(mux_pos(2 downto 0))) + 8 , get_converted_measurement(ada));
+                -- request_data_from_ram(meas_ram_a_in , sampled_b_mux + 8 , get_converted_measurement(adb));
+                -- request_data_from_ram(meas_ram_b_in , sampled_b_mux + 8 , get_converted_measurement(adb));
 
             elsif ad_conversion_is_ready(dab_adc) or dhb_ready_for_scaling
             then
                 dhb_ready_for_scaling <= false;
-                -- write_data_to_ram(ram_b_in , to_integer(unsigned(mux_pos(2 downto 0))) + 16 , get_converted_measurement(ada));
+                -- request_data_from_ram(meas_ram_a_in , sampled_b_mux + 8 , get_converted_measurement(adb));
+                -- request_data_from_ram(meas_ram_b_in , sampled_b_mux + 8 , get_converted_measurement(adb));
 
             elsif ad_conversion_is_ready(llc_adc) or llc_ready_for_scaling
             then
                 llc_ready_for_scaling <= false;
-                -- write_data_to_ram(ram_b_in , to_integer(unsigned(mux_pos(2 downto 0))) + 17 , get_converted_measurement(ada));
+                -- request_data_from_ram(meas_ram_a_in , sampled_b_mux + 8 , get_converted_measurement(adb));
+                -- request_data_from_ram(meas_ram_b_in , sampled_b_mux + 8 , get_converted_measurement(adb));
+
             end if;
 
 
