@@ -2,6 +2,7 @@
 library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
+    use ieee.math_real.all;
 
 entity measurements is
     generic(
@@ -39,7 +40,7 @@ architecture rtl of measurements is
     use fpga_interconnect_pkg.all;
     use meas_ram_pkg.all;
 
-    package adc121s101_pkg is new work.max11115_generic_pkg(g_count_max => 7);
+    package adc121s101_pkg is new work.max11115_generic_pkg generic map (g_count_max => 7);
         use adc121s101_pkg.all;
 
     signal dab_adc : max11115_record := init_max11115;
@@ -85,28 +86,28 @@ architecture rtl of measurements is
         7.279/4095.0 -- vllc_gain
         ,0.0         -- vllc_offset
 
-        ,16.5/2048    -- illc_gain   
+        ,16.5/2048.0    -- illc_gain   
         ,0.0          -- illc_offset 
 
-        ,660.0/4095   -- vdhb_gain   
+        ,660.0/4095.0   -- vdhb_gain   
         ,0.0          -- vdhb_offset 
         
-        ,16.5/2048    -- idhb_gain   
+        ,16.5/2048.0    -- idhb_gain   
         ,0.0          -- idhb_offset 
 
-        ,660.0/2048   -- vac_gain    
+        ,660.0/2048.0   -- vac_gain    
         ,0.0          -- vac_offset  
 
-        ,16.5/2048    -- iac1_gain   
+        ,16.5/2048.0    -- iac1_gain   
         ,0.0          -- iac1_offset 
 
-        ,16.5/2048    -- iac2_gain   
+        ,16.5/2048.0    -- iac2_gain   
         ,0.0          -- iac2_offset 
 
-        ,663.0/4095   -- vdc_gain    
+        ,663.0/4095.0   -- vdc_gain    
         ,0.0          -- vdc_offset  
 
-        ,663.0/4095   -- vaux_gain   
+        ,663.0/4095.0   -- vaux_gain   
         ,0.0          -- vaux_offset 
     );
 
