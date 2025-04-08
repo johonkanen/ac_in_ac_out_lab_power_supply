@@ -60,6 +60,9 @@ architecture rtl of measurements is
     signal next_mux_pos : natural range 0 to 7 := 0;
     signal mux_pos : std_logic_vector(15 downto 0) := (others => '0');
 
+    signal sampled_a_mux : natural range 0 to 7 := 0;
+    signal sampled_b_mux : natural range 0 to 7 := 0;
+
     signal adb_sh_timer : natural range 0 to 127 := 127;
     constant sh_max     : natural := 16;
 
@@ -188,6 +191,10 @@ begin
                 request_conversion(ada);
                 request_conversion(adb);
                 adb_sh_timer <= 0;
+
+                sampled_a_mux <= to_integer(unsigned(ada_mux));
+                sampled_b_mux <= to_integer(unsigned(adb_mux));
+
             end if;
 
             if adb_sh_timer < sh_max
@@ -218,22 +225,22 @@ begin
             if ad_conversion_is_ready(adb) or adb_ready
             then
                 adb_ready <= false;
-                write_data_to_ram(ram_b_in , to_integer(unsigned(mux_pos(2 downto 0))) , get_converted_measurement(adb));
+                write_data_to_ram(ram_b_in , to_integer(unsigned(adb_mux)) , get_converted_measurement(adb));
 
             elsif ad_conversion_is_ready(ada) or ada_ready 
             then
                 ada_ready <= false;
-                write_data_to_ram(ram_b_in , to_integer(unsigned(mux_pos(2 downto 0))) + 8 , get_converted_measurement(ada));
+                write_data_to_ram(ram_b_in , to_integer(unsigned(ada_mux)) + 8 , get_converted_measurement(ada));
 
             elsif ad_conversion_is_ready(dab_adc) or dhb_ready 
             then
                 dhb_ready <= false;
-                write_data_to_ram(ram_b_in , to_integer(unsigned(mux_pos(2 downto 0))) + 16 , get_converted_measurement(ada));
+                write_data_to_ram(ram_b_in , 16 , get_converted_measurement(dab_adc));
 
             elsif ad_conversion_is_ready(llc_adc) or llc_ready 
             then
                 llc_ready <= false;
-                write_data_to_ram(ram_b_in , to_integer(unsigned(mux_pos(2 downto 0))) + 17 , get_converted_measurement(ada));
+                write_data_to_ram(ram_b_in , 17 , get_converted_measurement(llc_adc));
             end if;
 
         end if;
