@@ -45,10 +45,10 @@ architecture rtl of measurements is
 
     signal dab_adc : max11115_record := init_max11115;
     signal llc_adc : max11115_record := init_max11115;
-    constant counter_max_800kHz : natural := 128e6/800e3;
+    constant counter_max_800kHz : natural := 128e6/930e3;
     signal count_to_800khz : natural range 0 to 1000 := 0;
 
-    package max11115_pkg is new work.max11115_generic_pkg;
+    package max11115_pkg is new work.max11115_generic_pkg generic map(g_count_max => 3);
         use max11115_pkg.all;
     signal ada : max11115_pkg.max11115_record := max11115_pkg.init_max11115;
     signal adb : max11115_pkg.max11115_record := max11115_pkg.init_max11115;
@@ -79,38 +79,36 @@ architecture rtl of measurements is
     use multiplier_pkg.all;
     signal multiplier : multiplier_record := init_multiplier;
 
-
     -- not calibrated
     constant measurement_gains : real_vector :=
     (
         7.279/4095.0 -- vllc_gain
         ,0.0         -- vllc_offset
 
-        ,16.5/2048.0    -- illc_gain   
-        ,0.0          -- illc_offset 
+        ,16.5/2048.0 -- illc_gain
+        ,0.0         -- illc_offset
 
-        ,660.0/4095.0   -- vdhb_gain   
-        ,0.0          -- vdhb_offset 
+        ,660.0/4095.0 -- vdhb_gain
+        ,0.0          -- vdhb_offset
         
-        ,16.5/2048.0    -- idhb_gain   
-        ,0.0          -- idhb_offset 
+        ,16.5/2048.0 -- idhb_gain
+        ,0.0         -- idhb_offset
 
-        ,660.0/2048.0   -- vac_gain    
-        ,0.0          -- vac_offset  
+        ,660.0/2048.0 -- vac_gain
+        ,0.0          -- vac_offset
 
-        ,16.5/2048.0    -- iac1_gain   
-        ,0.0          -- iac1_offset 
+        ,16.5/2048.0 -- iac1_gain
+        ,0.0         -- iac1_offset
 
-        ,16.5/2048.0    -- iac2_gain   
-        ,0.0          -- iac2_offset 
+        ,16.5/2048.0 -- iac2_gain
+        ,0.0         -- iac2_offset
 
-        ,663.0/4095.0   -- vdc_gain    
-        ,0.0          -- vdc_offset  
+        ,663.0/4095.0 -- vdc_gain
+        ,0.0          -- vdc_offset
 
-        ,663.0/4095.0   -- vaux_gain   
-        ,0.0          -- vaux_offset 
+        ,663.0/4095.0 -- vaux_gain
+        ,0.0          -- vaux_offset
     );
-
 
     use work.real_to_fixed_pkg.all;
 
@@ -132,6 +130,16 @@ architecture rtl of measurements is
 
     signal meas_ram_a_out : dp_ram_pkg.ram_out_record;
     signal meas_ram_b_out : dp_ram_pkg.ram_out_record;
+
+    signal ada_ready : boolean := false;
+    signal adb_ready : boolean := false;
+    signal dhb_ready : boolean := false;
+    signal llc_ready : boolean := false;
+
+    signal ada_ready_for_scaling : boolean := false;
+    signal adb_ready_for_scaling : boolean := false;
+    signal dhb_ready_for_scaling : boolean := false;
+    signal llc_ready_for_scaling : boolean := false;
 
 begin
 
@@ -168,7 +176,7 @@ begin
             end if;
             ------------------------------------------
 
-            if adb_timer < 63
+            if adb_timer < 41
             then
                 adb_timer <= adb_timer + 1;
             else
@@ -202,9 +210,30 @@ begin
 
             init_ram(ram_b_in);
 
-            if ad_conversion_is_ready(adb)
+            ada_ready <= ada_ready or ad_conversion_is_ready(ada);
+            adb_ready <= adb_ready or ad_conversion_is_ready(adb);
+            dhb_ready <= dhb_ready or ad_conversion_is_ready(dab_adc);
+            llc_ready <= llc_ready or ad_conversion_is_ready(llc_adc);
+
+            if ad_conversion_is_ready(adb) or adb_ready
             then
+                adb_ready <= false;
                 write_data_to_ram(ram_b_in , to_integer(unsigned(mux_pos(2 downto 0))) , get_converted_measurement(adb));
+
+            elsif ad_conversion_is_ready(ada) or ada_ready 
+            then
+                ada_ready <= false;
+                write_data_to_ram(ram_b_in , to_integer(unsigned(mux_pos(2 downto 0))) + 8 , get_converted_measurement(ada));
+
+            elsif ad_conversion_is_ready(dab_adc) or dhb_ready 
+            then
+                dhb_ready <= false;
+                write_data_to_ram(ram_b_in , to_integer(unsigned(mux_pos(2 downto 0))) + 16 , get_converted_measurement(ada));
+
+            elsif ad_conversion_is_ready(llc_adc) or llc_ready 
+            then
+                llc_ready <= false;
+                write_data_to_ram(ram_b_in , to_integer(unsigned(mux_pos(2 downto 0))) + 17 , get_converted_measurement(ada));
             end if;
 
         end if;
@@ -218,6 +247,12 @@ begin
             create_multiplier(multiplier);
             init_ram(meas_ram_a_in);
             init_ram(meas_ram_b_in);
+
+            ada_ready_for_scaling <= ada_ready_for_scaling or ad_conversion_is_ready(ada);
+            adb_ready_for_scaling <= adb_ready_for_scaling or ad_conversion_is_ready(adb);
+            dhb_ready_for_scaling <= dhb_ready_for_scaling or ad_conversion_is_ready(dab_adc);
+            llc_ready_for_scaling <= llc_ready_for_scaling or ad_conversion_is_ready(llc_adc);
+
 
         end if;
     end process scaling;
