@@ -16,6 +16,8 @@ top_lib.add_source_files(ROOT / "source/fpga_communication/communications.vhd")
 top_lib.add_source_files(ROOT / "source/fpga_communication/hVHDL_fpga_interconnect/fpga_interconnect_generic_pkg.vhd")
 top_lib.add_source_files(ROOT / "source/fpga_communication/hVHDL_uart/uart_rx/uart_rx_pkg.vhd")
 top_lib.add_source_files(ROOT / "source/fpga_communication/hVHDL_uart/uart_tx/uart_tx_pkg.vhd")
+top_lib.add_source_files(ROOT / "source/fpga_communication/signal_scope/signal_scope.vhd")
+
 top_lib.add_source_files(ROOT / "source/hVHDL_analog_to_digital_drivers/sigma_delta/sigma_delta_cic_filter_pkg.vhd")
 
 top_lib.add_source_files(ROOT / "source/vhdl_serial/bit_operations_pkg.vhd")
@@ -32,6 +34,15 @@ top_lib.add_source_files(ROOT / "source/hVHDL_memory_library/fpga_internal_ram/a
 top_lib.add_source_files(ROOT / "simulation/git_hash_pkg.vhd")
 top_lib.add_source_files(ROOT / "source/fpga_communication/serial_protocol_test_pkg.vhd")
 top_lib.add_source_files(ROOT / "simulation/inu/pwm_pkg.vhd")
+
+top_lib.add_source_files(ROOT / "source/hVHDL_fixed_point/real_to_fixed/real_to_fixed_pkg.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_fixed_point/multiplier/multiplier_generic_pkg.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_fixed_point/division/division_generic_pkg.vhd")
+
+top_lib.add_source_files(ROOT / "source/hVHDL_fixed_point/division/division_generic_pkg.vhd")
+top_lib.add_source_files(ROOT / "source/measurements/measurements.vhd")
+
+top_lib.add_source_files(ROOT / "source/measurements/measurements.vhd")
 
 
 top_lib.add_source_files(ROOT / "simulation/top_tb.vhd")

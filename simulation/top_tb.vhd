@@ -10,13 +10,16 @@ context vunit_lib.vunit_context;
     use work.uart_rx_pkg.all;
     use work.fpga_interconnect_pkg.all;
     use work.uart_protocol_pkg.all;
-    use work.uart_protocol_test_pkg.all;
 
 entity top_tb is
   generic (runner_cfg : string);
 end;
 
 architecture vunit_simulation of top_tb is
+
+    package uart_protocol_test_pkg is new work.serial_protocol_generic_test_pkg
+        generic map(work.uart_protocol_pkg);
+    use uart_protocol_test_pkg.all;
 
     constant clock_period      : time    := 1 ns;
     constant simtime_in_clocks : integer := 40000;
