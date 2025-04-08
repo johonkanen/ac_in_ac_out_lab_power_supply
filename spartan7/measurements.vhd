@@ -225,12 +225,12 @@ begin
             if ad_conversion_is_ready(adb) or adb_ready
             then
                 adb_ready <= false;
-                write_data_to_ram(ram_b_in , to_integer(unsigned(adb_mux)) + 8 , get_converted_measurement(adb));
+                write_data_to_ram(ram_b_in , sampled_b_mux + 8 , get_converted_measurement(adb));
 
             elsif ad_conversion_is_ready(ada) or ada_ready 
             then
                 ada_ready <= false;
-                write_data_to_ram(ram_b_in , to_integer(unsigned(ada_mux)) , get_converted_measurement(ada));
+                write_data_to_ram(ram_b_in , sampled_a_mux , get_converted_measurement(ada));
 
             elsif ad_conversion_is_ready(dab_adc) or dhb_ready 
             then
