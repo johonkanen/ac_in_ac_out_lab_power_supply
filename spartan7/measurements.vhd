@@ -31,7 +31,7 @@ entity measurements is
 
         ;bus_to_measurements   : in fpga_interconnect_pkg.fpga_interconnect_record
         ;bus_from_measurements : out fpga_interconnect_pkg.fpga_interconnect_record
-        ;ram_b_in : out meas_ram_pkg.ram_in_record
+        ;ram_b_in              : out meas_ram_pkg.ram_in_record
     );
 end entity measurements;
 
@@ -85,35 +85,36 @@ architecture rtl of measurements is
     -- not calibrated
     constant measurement_gains : real_vector :=
     (
-        7.279/4095.0 -- vllc_gain
-        ,0.0         -- vllc_offset
+         0 => 7.279/4095.0 -- vllc_gain
+        ,1 => 0.0         -- vllc_offset
 
-        ,16.5/2048.0 -- illc_gain
-        ,0.0         -- illc_offset
+        ,2 => 16.5/2048.0 -- illc_gain
+        ,3 => 0.0         -- illc_offset
 
-        ,660.0/4095.0 -- vdhb_gain
-        ,0.0          -- vdhb_offset
+        ,4 => 660.0/4095.0 -- vdhb_gain
+        ,5 => 0.0          -- vdhb_offset
         
-        ,16.5/2048.0 -- idhb_gain
-        ,0.0         -- idhb_offset
+        ,6 => 16.5/2048.0 -- idhb_gain
+        ,7 => 0.0         -- idhb_offset
 
-        ,660.0/2048.0 -- vac_gain
-        ,0.0          -- vac_offset
+        ,8 => 660.0/2048.0 -- vac_gain
+        ,9 => 0.0          -- vac_offset
 
-        ,16.5/2048.0 -- iac1_gain
-        ,0.0         -- iac1_offset
+        ,10 => 16.5/2048.0 -- iac1_gain
+        ,11 => 0.0         -- iac1_offset
 
-        ,16.5/2048.0 -- iac2_gain
-        ,0.0         -- iac2_offset
+        ,12 => 16.5/2048.0 -- iac2_gain
+        ,13 => 0.0         -- iac2_offset
 
-        ,663.0/4095.0 -- vdc_gain
-        ,0.0          -- vdc_offset
+        ,14 => 663.0/4095.0 -- vdc_gain
+        ,15 => 0.0          -- vdc_offset
 
-        ,663.0/4095.0 -- vaux_gain
-        ,0.0          -- vaux_offset
+        ,16 => 663.0/4095.0 -- vaux_gain
+        ,17 => 0.0          -- vaux_offset
     );
 
-    type list_of_measurements is (vllc, illc, vdhb, idhb, vac, iac1, iac2, vdc, vaux);
+    --                            ext2 , adb2 , ext1 , adb6 , adb1 , adb3 , ada3 , adb4 , ada5 ,
+    type list_of_measurements is (vllc , illc , vdhb , idhb , vac  , iac1 , iac2 , vdc  , vaux);
     type pim is array (list_of_measurements'range) of natural;
     constant ding : pim := (others => 5);
     constant pom : list_of_measurements := vllc;
@@ -142,7 +143,7 @@ architecture rtl of measurements is
 
     use work.real_to_fixed_pkg.all;
 
-    package dp_ram_pkg is new work.ram_port_generic_pkg generic map(g_ram_bit_width => multiplier_word_length, g_ram_depth_pow2 => 5);
+    package dp_ram_pkg is new work.ram_port_generic_pkg generic map(g_ram_bit_width => multiplier_word_length , g_ram_depth_pow2 => 5);
     use dp_ram_pkg.all;
 
     function ram_init_values return dp_ram_pkg.ram_array is
@@ -194,13 +195,15 @@ begin
             create_max11115(llc_adc , llc_spi_data , llc_spi_cs , llc_spi_clock , offset => 1);
 
             ------------------------------------------
-            if count_to_800khz < counter_max_800kHz then
+            if count_to_800khz < counter_max_800kHz 
+            then
                 count_to_800khz <= count_to_800khz + 1;
             else
                 count_to_800khz <= 0;
             end if;
 
-            if count_to_800khz = 0 then
+            if count_to_800khz = 0 
+            then
                 request_conversion(dab_adc);
                 request_conversion(llc_adc);
             end if;
@@ -295,15 +298,40 @@ begin
             then
                 adb_ready_for_scaling <= false;
                 ram_busy <= true;
-                -- request_data_from_ram(meas_ram_a_in , sampled_b_mux + 8 , get_converted_measurement(adb));
-                -- request_data_from_ram(meas_ram_b_in , sampled_b_mux + 8 , get_converted_measurement(adb));
+
+                -- request_data_from_ram( meas_ram_a_in , sampled_b_mux + 8);
+                CASE sampled_b_mux is
+                    WHEN 1 =>  -- illc
+                        request_data_from_ram(meas_ram_b_in , 8);
+                        offset_addr <= 9;
+                    WHEN 2 =>  -- illc
+                        request_data_from_ram(meas_ram_b_in , 2);
+                        offset_addr <= 3;
+                    WHEN 3 =>  -- iac1
+                        request_data_from_ram(meas_ram_b_in , 10);
+                        offset_addr <= 11;
+                    WHEN 4 =>  -- vdc
+                        request_data_from_ram(meas_ram_b_in , 14);
+                        offset_addr <= 15;
+                    WHEN 6 =>  -- idhb
+                        request_data_from_ram(meas_ram_b_in , 4);
+                        offset_addr <= 5;
+                    when others => --do nothing
+                end CASE;
 
             elsif (ad_conversion_is_ready(ada) or ada_ready_for_scaling) and (not ram_busy)
             then
                 ada_ready_for_scaling <= false;
                 ram_busy <= true;
-                -- request_data_from_ram(meas_ram_a_in , sampled_b_mux + 8 , get_converted_measurement(adb));
-                -- request_data_from_ram(meas_ram_b_in , sampled_b_mux + 8 , get_converted_measurement(adb));
+                CASE sampled_a_mux is
+                    WHEN 3 =>  -- iac2
+                        request_data_from_ram(meas_ram_b_in , 12);
+                        offset_addr <= 13;
+                    WHEN 5 =>  -- vdc
+                        request_data_from_ram(meas_ram_b_in , 16);
+                        offset_addr <= 17;
+                    when others => --do nothing
+                end CASE;
 
             elsif (ad_conversion_is_ready(dab_adc) or dhb_ready_for_scaling) and (not ram_busy)
             then
@@ -359,6 +387,6 @@ begin
     --------------
     meas_ram_b_in  ,
     meas_ram_b_out);
--------------------------
+
 end rtl;
 ------------------------------------------------
