@@ -113,6 +113,33 @@ architecture rtl of measurements is
         ,0.0          -- vaux_offset
     );
 
+    type list_of_measurements is (vllc, illc, vdhb, idhb, vac, iac1, iac2, vdc, vaux);
+    type pim is array (list_of_measurements'range) of natural;
+    constant ding : pim := (others => 5);
+    constant pom : list_of_measurements := vllc;
+
+    signal ram_busy : boolean := false;
+    signal offset_addr : natural range 0 to 31 := 0;
+
+    constant vllc_gain_addr   : natural := 0;
+    constant vllc_offset_addr : natural := 1;
+    constant illc_gain_addr   : natural := 2;
+    constant illc_offset_addr : natural := 3;
+    constant vdhb_gain_addr   : natural := 4;
+    constant vdhb_offset_addr : natural := 5;
+    constant idhb_gain_addr   : natural := 6;
+    constant idhb_offset_addr : natural := 7;
+    constant vac_gain_addr    : natural := 8;
+    constant vac_offset_addr  : natural := 9;
+    constant iac1_gain_addr   : natural := 10;
+    constant iac1_offset_addr : natural := 11;
+    constant iac2_gain_addr   : natural := 12;
+    constant iac2_offset_addr : natural := 13;
+    constant vdc_gain_addr    : natural := 14;
+    constant vdc_offset_addr  : natural := 15;
+    constant vaux_gain_addr   : natural := 16;
+    constant vaux_offset_addr : natural := 17;
+
     use work.real_to_fixed_pkg.all;
 
     package dp_ram_pkg is new work.ram_port_generic_pkg generic map(g_ram_bit_width => multiplier_word_length, g_ram_depth_pow2 => 5);
@@ -121,6 +148,7 @@ architecture rtl of measurements is
     function ram_init_values return dp_ram_pkg.ram_array is
         variable retval : dp_ram_pkg.ram_array := (others => (others => '0'));
     begin
+
         for i in 0 to 17 loop
             retval(i) := to_fixed(measurement_gains(i) , multiplier_word_length , multiplier_word_length);
         end loop;
@@ -154,7 +182,6 @@ begin
         if rising_edge(clock)
         then
             init_bus(bus_from_measurements);
-            connect_read_only_data_to_address(bus_to_measurements , bus_from_measurements , 10 , 66);
             connect_read_only_data_to_address(bus_to_measurements , bus_from_measurements , 2  , get_converted_measurement(ada));
             connect_read_only_data_to_address(bus_to_measurements , bus_from_measurements , 3  , get_converted_measurement(adb));
             connect_read_only_data_to_address(bus_to_measurements , bus_from_measurements , 4  , get_converted_measurement(dab_adc));
@@ -248,6 +275,9 @@ begin
 
 -------------------------
     scaling : process(clock) is
+
+        -- type boolarray is array (natural range <>) of boolean;
+
     begin
         if rising_edge(clock)
         then
@@ -259,39 +289,69 @@ begin
             adb_ready_for_scaling <= adb_ready_for_scaling or ad_conversion_is_ready(adb);
             dhb_ready_for_scaling <= dhb_ready_for_scaling or ad_conversion_is_ready(dab_adc);
             llc_ready_for_scaling <= llc_ready_for_scaling or ad_conversion_is_ready(llc_adc);
+            ram_busy <= false;
 
-            if ad_conversion_is_ready(adb) or adb_ready_for_scaling
+            if (ad_conversion_is_ready(adb) or adb_ready_for_scaling) and (not ram_busy)
             then
                 adb_ready_for_scaling <= false;
+                ram_busy <= true;
                 -- request_data_from_ram(meas_ram_a_in , sampled_b_mux + 8 , get_converted_measurement(adb));
                 -- request_data_from_ram(meas_ram_b_in , sampled_b_mux + 8 , get_converted_measurement(adb));
 
-            elsif ad_conversion_is_ready(ada) or ada_ready_for_scaling
+            elsif (ad_conversion_is_ready(ada) or ada_ready_for_scaling) and (not ram_busy)
             then
                 ada_ready_for_scaling <= false;
+                ram_busy <= true;
                 -- request_data_from_ram(meas_ram_a_in , sampled_b_mux + 8 , get_converted_measurement(adb));
                 -- request_data_from_ram(meas_ram_b_in , sampled_b_mux + 8 , get_converted_measurement(adb));
 
-            elsif ad_conversion_is_ready(dab_adc) or dhb_ready_for_scaling
+            elsif (ad_conversion_is_ready(dab_adc) or dhb_ready_for_scaling) and (not ram_busy)
             then
                 dhb_ready_for_scaling <= false;
-                -- request_data_from_ram(meas_ram_a_in , sampled_b_mux + 8 , get_converted_measurement(adb));
-                -- request_data_from_ram(meas_ram_b_in , sampled_b_mux + 8 , get_converted_measurement(adb));
+                ram_busy <= true;
+                request_data_from_ram(meas_ram_a_in , vdhb_gain_addr);
+                offset_addr <= vdhb_offset_addr;
+                -- request_data_from_ram(meas_ram_b_in , vdhb_offset_addr);
 
-            elsif ad_conversion_is_ready(llc_adc) or llc_ready_for_scaling
+            elsif (ad_conversion_is_ready(llc_adc) or llc_ready_for_scaling) and (not ram_busy)
             then
                 llc_ready_for_scaling <= false;
-                -- request_data_from_ram(meas_ram_a_in , sampled_b_mux + 8 , get_converted_measurement(adb));
-                -- request_data_from_ram(meas_ram_b_in , sampled_b_mux + 8 , get_converted_measurement(adb));
-
+                ram_busy <= true;
+                request_data_from_ram(meas_ram_a_in , vllc_gain_addr);
+                offset_addr <= vdhb_offset_addr;
+                -- request_data_from_ram(meas_ram_b_in , vllc_offset_addr);
             end if;
 
+            if ram_busy then
+                ram_busy <= false;
+                request_data_from_ram(meas_ram_a_in, offset_addr);
+            end if;
+
+            -- ram fetch length pipeline
+
+            if ram_read_is_ready(meas_ram_a_out)
+            then
+                -- 
+                CASE pom /* tip of pipeline */is 
+                    -- multiply(multiplier, ad_conversion, gain_from_pipeline);
+                    WHEN others => -- do nothing
+                end CASE;
+            end if;
+
+            -- multiplier length pipeline
+
+            if multiplier_is_ready(multiplier) 
+            then
+            /*
+                write_data_to_ram(ram_a_in, 
+            */
+            end if;
 
         end if;
     end process scaling;
 -------------------------
     u_dpram : entity work.generic_dual_port_ram
-    generic map(dp_ram_pkg)
+    generic map(dp_ram_pkg, ram_init_values)
     port map(
     clock          ,
     meas_ram_a_in  ,
