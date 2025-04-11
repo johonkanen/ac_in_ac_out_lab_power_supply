@@ -77,7 +77,7 @@ architecture rtl of measurements is
 
     constant multiplier_word_length : integer := 25;
     package multiplier_pkg is new work.multiplier_generic_pkg 
-        generic map(multiplier_word_length, 2, 2);
+        generic map(multiplier_word_length, 1, 1);
 
     use multiplier_pkg.all;
     signal multiplier : multiplier_record := init_multiplier;
@@ -115,9 +115,30 @@ architecture rtl of measurements is
 
     --                            ext2 , adb2 , ext1 , adb6 , adb1 , adb3 , ada3 , adb4 , ada5 ,
     type list_of_measurements is (vllc , illc , vdhb , idhb , vac  , iac1 , iac2 , vdc  , vaux);
-    type pim is array (list_of_measurements'range) of natural;
-    constant ding : pim := (others => 5);
-    constant pom : list_of_measurements := vllc;
+    type measurement_indices is array (list_of_measurements'range) of natural;
+    constant adb_mux_positions : measurement_indices := (
+        vllc  => 16
+        ,illc => 2
+        ,vdhb => 16
+        ,idhb => 6
+        ,vac  => 1
+        ,iac1 => 3
+        ,iac2 => 16
+        ,vdc  => 4
+        ,vaux => 16);
+
+    constant ada_mux_positions : measurement_indices := (
+        vllc  => 16
+        ,illc => 16
+        ,vdhb => 16
+        ,idhb => 16
+        ,vac  => 16
+        ,iac1 => 16
+        ,iac2 => 3
+        ,vdc  => 16
+        ,vaux => 5);
+
+    signal scaling_state_count : natural := 0;
 
     signal ram_busy : boolean := false;
     signal offset_addr : natural range 0 to 31 := 0;
@@ -143,7 +164,7 @@ architecture rtl of measurements is
 
     use work.real_to_fixed_pkg.all;
 
-    package dp_ram_pkg is new work.ram_port_generic_pkg generic map(g_ram_bit_width => multiplier_word_length , g_ram_depth_pow2 => 5);
+    package dp_ram_pkg is new work.ram_port_generic_pkg generic map(g_ram_bit_width => multiplier_word_length , g_ram_depth_pow2 => 6);
     use dp_ram_pkg.all;
 
     function ram_init_values return dp_ram_pkg.ram_array is
@@ -172,6 +193,13 @@ architecture rtl of measurements is
     signal adb_ready_for_scaling : boolean := false;
     signal dhb_ready_for_scaling : boolean := false;
     signal llc_ready_for_scaling : boolean := false;
+
+    signal ad_conversion      : mpy_signed;
+    signal offset             : mpy_signed;
+    signal scaled_measurement : mpy_signed;
+
+    signal scaling_requested  : boolean := false;
+    signal result_ready : boolean := false;
 
 begin
 
@@ -277,15 +305,10 @@ begin
     end process;
 
 -------------------------
-    scaling : process(clock) is
-
-        -- type boolarray is array (natural range <>) of boolean;
-
+    retrieve_gains : process(clock) is
     begin
         if rising_edge(clock)
         then
-            create_multiplier(multiplier);
-            init_ram(meas_ram_a_in);
             init_ram(meas_ram_b_in);
 
             ada_ready_for_scaling <= ada_ready_for_scaling or ad_conversion_is_ready(ada);
@@ -298,6 +321,8 @@ begin
             then
                 adb_ready_for_scaling <= false;
                 ram_busy <= true;
+                scaling_requested <= true;
+                ad_conversion <= resize(signed(get_converted_measurement(adb)),mpy_signed'length);
 
                 -- request_data_from_ram( meas_ram_a_in , sampled_b_mux + 8);
                 CASE sampled_b_mux is
@@ -322,7 +347,10 @@ begin
             elsif (ad_conversion_is_ready(ada) or ada_ready_for_scaling) and (not ram_busy)
             then
                 ada_ready_for_scaling <= false;
-                ram_busy <= true;
+                ram_busy              <= true;
+                scaling_requested     <= true;
+                ad_conversion         <= resize(signed(get_converted_measurement(adb)),mpy_signed'length);
+
                 CASE sampled_a_mux is
                     WHEN 3 =>  -- iac2
                         request_data_from_ram(meas_ram_b_in , 12);
@@ -336,43 +364,62 @@ begin
             elsif (ad_conversion_is_ready(dab_adc) or dhb_ready_for_scaling) and (not ram_busy)
             then
                 dhb_ready_for_scaling <= false;
-                ram_busy <= true;
-                request_data_from_ram(meas_ram_a_in , vdhb_gain_addr);
+                ram_busy              <= true;
+                scaling_requested     <= true;
+                ad_conversion         <= resize(signed(get_converted_measurement(adb)),mpy_signed'length);
+
+                request_data_from_ram(meas_ram_b_in , vdhb_gain_addr);
                 offset_addr <= vdhb_offset_addr;
-                -- request_data_from_ram(meas_ram_b_in , vdhb_offset_addr);
 
             elsif (ad_conversion_is_ready(llc_adc) or llc_ready_for_scaling) and (not ram_busy)
             then
                 llc_ready_for_scaling <= false;
-                ram_busy <= true;
-                request_data_from_ram(meas_ram_a_in , vllc_gain_addr);
+                ram_busy              <= true;
+                scaling_requested     <= true;
+                ad_conversion         <= resize(signed(get_converted_measurement(adb)),mpy_signed'length);
+
+                request_data_from_ram(meas_ram_b_in , vllc_gain_addr);
                 offset_addr <= vdhb_offset_addr;
-                -- request_data_from_ram(meas_ram_b_in , vllc_offset_addr);
             end if;
 
             if ram_busy then
                 ram_busy <= false;
-                request_data_from_ram(meas_ram_a_in, offset_addr);
+                request_data_from_ram(meas_ram_b_in, offset_addr);
             end if;
+        end if;
 
-            -- ram fetch length pipeline
+    end process retrieve_gains;
 
-            if ram_read_is_ready(meas_ram_a_out)
-            then
-                -- 
-                CASE pom /* tip of pipeline */is 
-                    -- multiply(multiplier, ad_conversion, gain_from_pipeline);
-                    WHEN others => -- do nothing
-                end CASE;
-            end if;
+    scaling : process(clock) is
+    begin
+        if rising_edge(clock)
+        then
+            create_multiplier(multiplier);
+            init_ram(meas_ram_a_in);
+            CASE scaling_state_count is
+                WHEN 0 => 
+                    if ram_read_is_ready(meas_ram_b_out)
+                    then
+                        scaling_state_count <= scaling_state_count + 1;
+                        multiply(multiplier, ad_conversion, signed(get_ram_data(meas_ram_b_out)));
+                    end if;
+                WHEN 1 => 
+                    scaling_state_count <= 0;
+                    offset <= resize(signed(get_ram_data(meas_ram_b_out)), offset'length);
+                WHEN others => -- do nothing
+                    scaling_state_count <= 0;
+            end CASE;
 
-            -- multiplier length pipeline
-
+            result_ready <= false;
             if multiplier_is_ready(multiplier) 
             then
-            /*
-                write_data_to_ram(ram_a_in, 
-            */
+                scaled_measurement <= get_multiplier_result(multiplier, 0, multiplier_word_length, 15);
+                result_ready <= true;
+            end if;
+
+            if result_ready 
+            then
+                write_data_to_ram(meas_ram_a_in , 32 , std_logic_vector(scaled_measurement));
             end if;
 
         end if;
