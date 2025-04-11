@@ -87,7 +87,6 @@ architecture rtl of s7_top is
     signal led_blink_counter : natural range 0 to 120e6;
     signal led_state : std_logic := '0';
 
-
     constant carrier_max : natural := integer(128.0e6/135.0e3);
     signal pwm1 : pwm_record := init_pwm;
 
@@ -110,7 +109,7 @@ begin
     u_main_pll : main_pll
     port map (
          clk_in1    => xclk
-         , clk_out1 => main_clock_120MHz
+         ,clk_out1 => main_clock_120MHz
      );
     -----------------------------
 
@@ -174,8 +173,6 @@ begin
         ,adb_cs    => adb_cs    
         ,adb_data  => adb_data  
 
-
-
         ,dab_spi_clock => dab_spi_clock 
         ,dab_spi_cs    => dab_spi_cs    
         ,dab_spi_data  => dab_spi_data  
@@ -186,6 +183,7 @@ begin
 
         ,bus_to_measurements   => bus_from_communications
         ,bus_from_measurements => bus_from_measurements
+
         ,ram_b_in  => ram_b_in
     );
 
@@ -193,12 +191,12 @@ begin
     u_dpram : entity work.generic_dual_port_ram
     generic map(dp_ram_pkg)
     port map(
-    main_clock_120MHz ,
-    ram_a_in   ,
-    ram_a_out  ,
+    main_clock_120MHz
+    ,ram_a_in   
+    ,ram_a_out  
     --------------
-    ram_b_in  ,
-    ram_b_out);
+    ,ram_b_in
+    ,ram_b_out);
 
 ------------------------------------------------------------------------
     create_bus : process(main_clock_120MHz) begin

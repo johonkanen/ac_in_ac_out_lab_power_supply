@@ -206,6 +206,7 @@ begin
     ada_mux <= mux_pos(2 downto 0);
     adb_mux <= mux_pos(2 downto 0);
 
+    -----------------------------------------------------
     process(clock)
     begin
         if rising_edge(clock)
@@ -304,7 +305,7 @@ begin
         end if;
     end process;
 
--------------------------
+    -----------------------------------------------------
     retrieve_gains : process(clock) is
     begin
         if rising_edge(clock)
@@ -390,6 +391,7 @@ begin
 
     end process retrieve_gains;
 
+    -----------------------------------------------------
     scaling : process(clock) is
     begin
         if rising_edge(clock)
