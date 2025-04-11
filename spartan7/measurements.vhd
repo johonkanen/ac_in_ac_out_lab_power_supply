@@ -114,8 +114,20 @@ architecture rtl of measurements is
     );
 
     --                            ext2 , adb2 , ext1 , adb6 , adb1 , adb3 , ada3 , adb4 , ada5 ,
-    type list_of_measurements is (vllc , illc , vdhb , idhb , vac  , iac1 , iac2 , vdc  , vaux);
+    type list_of_measurements is (vllc , illc , vdhb , idhb , vac  , iac1 , iac2 , vdc  , vaux, nothing);
     type measurement_indices is array (list_of_measurements'range) of natural;
+
+        -- vllc  => 16
+        -- ,illc => 2
+        -- ,vdhb => 16
+        -- ,idhb => 6
+        -- ,vac  => 1
+        -- ,iac1 => 3
+        -- ,iac2 => 16
+        -- ,vdc  => 4
+        -- ,vaux => 16
+        -- ,nothing => 16);
+
     constant adb_mux_positions : measurement_indices := (
         vllc  => 16
         ,illc => 2
@@ -125,7 +137,8 @@ architecture rtl of measurements is
         ,iac1 => 3
         ,iac2 => 16
         ,vdc  => 4
-        ,vaux => 16);
+        ,vaux => 16
+        ,nothing => 16);
 
     constant ada_mux_positions : measurement_indices := (
         vllc  => 16
@@ -136,9 +149,15 @@ architecture rtl of measurements is
         ,iac1 => 16
         ,iac2 => 3
         ,vdc  => 16
-        ,vaux => 5);
+        ,vaux => 5
+        ,nothing => 16);
 
     signal scaling_state_count : natural := 0;
+    signal converted_measurement : list_of_measurements := nothing;
+    signal converted_measurement1 : list_of_measurements := nothing;
+    signal converted_measurement2 : list_of_measurements := nothing;
+    signal converted_measurement3 : list_of_measurements := nothing;
+    signal converted_measurement4 : list_of_measurements := nothing;
 
     signal ram_busy : boolean := false;
     signal offset_addr : natural range 0 to 31 := 0;
@@ -263,12 +282,12 @@ begin
 
             if (adb_sh_timer = sh_max - 1)
             then
-                if next_mux_pos < 6
-                then
-                    next_mux_pos <= next_mux_pos + 1;
-                else
+                -- if next_mux_pos < 6
+                -- then
+                --     next_mux_pos <= next_mux_pos + 1;
+                -- else
                     next_mux_pos <= 0;
-                end if;
+                -- end if;
 
                 mux_pos(2 downto 0) <= std_logic_vector(to_unsigned(ad_channels(next_mux_pos), 3));
 
@@ -327,19 +346,24 @@ begin
 
                 -- request_data_from_ram( meas_ram_a_in , sampled_b_mux + 8);
                 CASE sampled_b_mux is
-                    WHEN 1 =>  -- illc
+                    WHEN 1 =>  -- vac
+                        converted_measurement <= vac;
                         request_data_from_ram(meas_ram_b_in , 8);
                         offset_addr <= 9;
                     WHEN 2 =>  -- illc
+                        converted_measurement <= illc;
                         request_data_from_ram(meas_ram_b_in , 2);
                         offset_addr <= 3;
                     WHEN 3 =>  -- iac1
+                        converted_measurement <= iac1;
                         request_data_from_ram(meas_ram_b_in , 10);
                         offset_addr <= 11;
                     WHEN 4 =>  -- vdc
+                        converted_measurement <= vdc;
                         request_data_from_ram(meas_ram_b_in , 14);
                         offset_addr <= 15;
                     WHEN 6 =>  -- idhb
+                        converted_measurement <= idhb;
                         request_data_from_ram(meas_ram_b_in , 4);
                         offset_addr <= 5;
                     when others => --do nothing
@@ -354,9 +378,11 @@ begin
 
                 CASE sampled_a_mux is
                     WHEN 3 =>  -- iac2
+                        converted_measurement <= iac2;
                         request_data_from_ram(meas_ram_b_in , 12);
                         offset_addr <= 13;
-                    WHEN 5 =>  -- vdc
+                    WHEN 5 =>  -- vaux
+                        converted_measurement <= vaux;
                         request_data_from_ram(meas_ram_b_in , 16);
                         offset_addr <= 17;
                     when others => --do nothing
@@ -371,6 +397,7 @@ begin
 
                 request_data_from_ram(meas_ram_b_in , vdhb_gain_addr);
                 offset_addr <= vdhb_offset_addr;
+                converted_measurement <= vdhb;
 
             elsif (ad_conversion_is_ready(llc_adc) or llc_ready_for_scaling) and (not ram_busy)
             then
@@ -378,6 +405,7 @@ begin
                 ram_busy              <= true;
                 scaling_requested     <= true;
                 ad_conversion         <= resize(signed(get_converted_measurement(adb)),mpy_signed'length);
+                converted_measurement <= vllc;
 
                 request_data_from_ram(meas_ram_b_in , vllc_gain_addr);
                 offset_addr <= vdhb_offset_addr;
@@ -386,6 +414,7 @@ begin
             if ram_busy then
                 ram_busy <= false;
                 request_data_from_ram(meas_ram_b_in, offset_addr);
+                converted_measurement1 <= converted_measurement;
             end if;
         end if;
 
@@ -402,12 +431,14 @@ begin
                 WHEN 0 => 
                     if ram_read_is_ready(meas_ram_b_out)
                     then
+                        converted_measurement2 <= converted_measurement1;
                         scaling_state_count <= scaling_state_count + 1;
                         multiply(multiplier, ad_conversion, signed(get_ram_data(meas_ram_b_out)));
                     end if;
                 WHEN 1 => 
                     scaling_state_count <= 0;
                     offset <= resize(signed(get_ram_data(meas_ram_b_out)), offset'length);
+                    converted_measurement3 <= converted_measurement2;
                 WHEN others => -- do nothing
                     scaling_state_count <= 0;
             end CASE;
@@ -417,16 +448,17 @@ begin
             then
                 scaled_measurement <= get_multiplier_result(multiplier, 0, multiplier_word_length, 15);
                 result_ready <= true;
+                converted_measurement4 <= converted_measurement3;
             end if;
 
             if result_ready 
             then
-                write_data_to_ram(meas_ram_a_in , 32 , std_logic_vector(scaled_measurement));
+                write_data_to_ram(meas_ram_a_in , list_of_measurements'pos(converted_measurement4) + 32 , std_logic_vector(scaled_measurement));
             end if;
 
         end if;
     end process scaling;
--------------------------
+    -----------------------------------------------------
     u_dpram : entity work.generic_dual_port_ram
     generic map(dp_ram_pkg, ram_init_values)
     port map(
