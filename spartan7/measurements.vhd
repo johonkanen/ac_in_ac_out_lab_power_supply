@@ -55,7 +55,8 @@ architecture rtl of measurements is
 
     subtype t_ad_channels is natural range 0 to 7;
     type ad_array is array (natural range <>) of t_ad_channels;
-    constant ad_channels : ad_array(0 to 6) := (2,1,0,3,4,6,7);
+    constant ad_channels : ad_array(0 to 6)    := (0=> 2 , 1 => 1 , 2=> 0 , 3=> 3 , 4=> 4 , 5=> 6 , 6 => 7);
+    constant mux_to_channel : ad_array(0 to 7) := (0=> 2 , 1 => 1 , 2=> 0 , 3=> 3 , 4=> 4 , 5=> 5 , 6=> 5   , 7=> 6);
 
     signal next_mux_pos : natural range 0 to 7 := 0;
     signal mux_pos : std_logic_vector(15 downto 0) := (others => '0');
@@ -252,8 +253,8 @@ begin
 
             if count_to_800khz = 0 
             then
-                request_conversion(dab_adc);
-                request_conversion(llc_adc);
+                -- request_conversion(dab_adc);
+                -- request_conversion(llc_adc);
             end if;
             ------------------------------------------
 
@@ -270,8 +271,8 @@ begin
                 request_conversion(adb);
                 adb_sh_timer <= 0;
 
-                sampled_a_mux <= to_integer(unsigned(ada_mux));
-                sampled_b_mux <= to_integer(unsigned(adb_mux));
+                sampled_a_mux <= mux_to_channel(to_integer(unsigned(ada_mux)));
+                sampled_b_mux <= mux_to_channel(to_integer(unsigned(adb_mux)));
 
             end if;
 
@@ -282,12 +283,12 @@ begin
 
             if (adb_sh_timer = sh_max - 1)
             then
-                -- if next_mux_pos < 6
-                -- then
-                --     next_mux_pos <= next_mux_pos + 1;
-                -- else
-                    next_mux_pos <= 0;
-                -- end if;
+                if next_mux_pos < 2
+                then
+                    next_mux_pos <= next_mux_pos + 1;
+                else
+                    next_mux_pos <= 1;
+                end if;
 
                 mux_pos(2 downto 0) <= std_logic_vector(to_unsigned(ad_channels(next_mux_pos), 3));
 
