@@ -40,7 +40,7 @@ architecture rtl of measurements is
     use fpga_interconnect_pkg.all;
     use meas_ram_pkg.all;
 
-    package adc121s101_pkg is new work.max11115_generic_pkg generic map (g_count_max => 3);
+    package adc121s101_pkg is new work.max11115_generic_pkg generic map (g_count_max => 7);
         use adc121s101_pkg.all;
 
     signal dab_adc : max11115_record := init_max11115;
@@ -56,7 +56,7 @@ architecture rtl of measurements is
     subtype t_ad_channels is natural range 0 to 7;
     type ad_array is array (natural range <>) of t_ad_channels;
     constant ad_channels : ad_array(0 to 6)    := (0=> 2 , 1 => 1 , 2=> 0 , 3=> 3 , 4=> 4 , 5=> 6 , 6 => 7);
-    constant mux_to_channel : ad_array(0 to 7) := (0=> 2 , 1 => 1 , 2=> 0 , 3=> 3 , 4=> 4 , 5=> 5 , 6=> 5   , 7=> 6);
+    constant mux_to_channel : ad_array(0 to 7) := (0=> 2 , 1 => 1 , 2=> 0 , 3=> 3 , 4=> 4 , 5=> 5 , 6=> 5 , 7=> 6);
 
     signal next_mux_pos : natural range 0 to 7 := 0;
     signal mux_pos : std_logic_vector(15 downto 0) := (others => '0');
@@ -147,7 +147,6 @@ architecture rtl of measurements is
     signal converted_measurement  : list_of_measurements := nothing;
     type list_of_measurements_array is array (natural range <>) of list_of_measurements;
     signal measurement_pipeline : list_of_measurements_array(4 downto 0) := (others => nothing);
-
 
     signal ram_busy : boolean := false;
     signal offset_addr : natural range 0 to 31 := 0;
@@ -289,8 +288,8 @@ begin
 
             if count_to_800khz = 0 
             then
-                -- request_conversion(dab_adc);
-                -- request_conversion(llc_adc);
+                request_conversion(dab_adc);
+                request_conversion(llc_adc);
             end if;
             ------------------------------------------
 
@@ -305,8 +304,6 @@ begin
             then
                 request_conversion(ada);
                 request_conversion(adb);
-                request_conversion(dab_adc);
-                request_conversion(llc_adc);
                 adb_sh_timer <= 0;
 
                 sampled_a_mux <= mux_to_channel(to_integer(unsigned(ada_mux)));
@@ -326,8 +323,6 @@ begin
                 mux_pos(2 downto 0) <= std_logic_vector(to_unsigned(ad_channels(next_mux_pos), 3));
 
             end if;
-
-
 
         end if;
     end process;
