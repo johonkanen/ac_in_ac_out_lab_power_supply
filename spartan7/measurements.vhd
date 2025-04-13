@@ -40,7 +40,7 @@ architecture rtl of measurements is
     use fpga_interconnect_pkg.all;
     use meas_ram_pkg.all;
 
-    package adc121s101_pkg is new work.max11115_generic_pkg generic map (g_count_max => 7);
+    package adc121s101_pkg is new work.max11115_generic_pkg generic map (g_count_max => 3);
         use adc121s101_pkg.all;
 
     signal dab_adc : max11115_record := init_max11115;
@@ -87,47 +87,36 @@ architecture rtl of measurements is
     constant measurement_gains : real_vector :=
     (
          0 => 7.279/4095.0 -- vllc_gain
-        ,1 => 0.0         -- vllc_offset
+        ,1 => 1.0         -- vllc_offset
 
         ,2 => 16.5/2048.0 -- illc_gain
-        ,3 => 0.0         -- illc_offset
+        ,3 => 2.0         -- illc_offset
 
         ,4 => 660.0/4095.0 -- vdhb_gain
-        ,5 => 0.0          -- vdhb_offset
+        ,5 => 3.0          -- vdhb_offset
         
         ,6 => 16.5/2048.0 -- idhb_gain
-        ,7 => 0.0         -- idhb_offset
+        ,7 => 4.0         -- idhb_offset
 
         ,8 => 660.0/2048.0 -- vac_gain
-        ,9 => 0.0          -- vac_offset
+        ,9 => 5.0          -- vac_offset
 
         ,10 => 16.5/2048.0 -- iac1_gain
-        ,11 => 0.0         -- iac1_offset
+        ,11 => 6.0         -- iac1_offset
 
         ,12 => 16.5/2048.0 -- iac2_gain
-        ,13 => 0.0         -- iac2_offset
+        ,13 => 7.0         -- iac2_offset
 
         ,14 => 663.0/4095.0 -- vdc_gain
-        ,15 => 0.0          -- vdc_offset
+        ,15 => 8.0          -- vdc_offset
 
         ,16 => 663.0/4095.0 -- vaux_gain
-        ,17 => 0.0          -- vaux_offset
+        ,17 => 9.0          -- vaux_offset
     );
 
     --                            ext2 , adb2 , ext1 , adb6 , adb1 , adb3 , ada3 , adb4 , ada5 ,
     type list_of_measurements is (vllc , illc , vdhb , idhb , vac  , iac1 , iac2 , vdc  , vaux, nothing);
     type measurement_indices is array (list_of_measurements'range) of natural;
-
-        -- vllc  => 16
-        -- ,illc => 2
-        -- ,vdhb => 16
-        -- ,idhb => 6
-        -- ,vac  => 1
-        -- ,iac1 => 3
-        -- ,iac2 => 16
-        -- ,vdc  => 4
-        -- ,vaux => 16
-        -- ,nothing => 16);
 
     constant adb_mux_positions : measurement_indices := (
         vllc  => 16
@@ -154,11 +143,11 @@ architecture rtl of measurements is
         ,nothing => 16);
 
     signal scaling_state_count : natural := 0;
-    signal converted_measurement : list_of_measurements := nothing;
-    signal converted_measurement1 : list_of_measurements := nothing;
-    signal converted_measurement2 : list_of_measurements := nothing;
-    signal converted_measurement3 : list_of_measurements := nothing;
-    signal converted_measurement4 : list_of_measurements := nothing;
+
+    signal converted_measurement  : list_of_measurements := nothing;
+    type list_of_measurements_array is array (natural range <>) of list_of_measurements;
+    signal measurement_pipeline : list_of_measurements_array(4 downto 0) := (others => nothing);
+
 
     signal ram_busy : boolean := false;
     signal offset_addr : natural range 0 to 31 := 0;
@@ -218,14 +207,27 @@ architecture rtl of measurements is
     signal offset             : mpy_signed;
     signal scaled_measurement : mpy_signed;
 
-    signal scaling_requested  : boolean := false;
-    signal result_ready : boolean := false;
+    signal result_ready      : boolean := false;
+
+    signal ram_load_state_counter : natural := 0;
+
+    signal scaling_requested : boolean := false;
+    signal scaling_pipeline : std_logic_vector(4 downto 0) := (others => '0');
+
+    signal pong : boolean := false;
 
 begin
 
     ada_mux <= mux_pos(2 downto 0);
     adb_mux <= mux_pos(2 downto 0);
 
+    -----------------------------------------------------
+    ram_writer : process(clock)
+    begin
+        if rising_edge(clock)
+        then
+        end if;
+    end process ram_writer;
     -----------------------------------------------------
     process(clock)
     begin
@@ -269,6 +271,8 @@ begin
             then
                 request_conversion(ada);
                 request_conversion(adb);
+                request_conversion(dab_adc);
+                request_conversion(llc_adc);
                 adb_sh_timer <= 0;
 
                 sampled_a_mux <= mux_to_channel(to_integer(unsigned(ada_mux)));
@@ -283,12 +287,7 @@ begin
 
             if (adb_sh_timer = sh_max - 1)
             then
-                if next_mux_pos < 2
-                then
-                    next_mux_pos <= next_mux_pos + 1;
-                else
-                    next_mux_pos <= 1;
-                end if;
+                next_mux_pos <= 3;
 
                 mux_pos(2 downto 0) <= std_logic_vector(to_unsigned(ad_channels(next_mux_pos), 3));
 
@@ -337,125 +336,127 @@ begin
             dhb_ready_for_scaling <= dhb_ready_for_scaling or ad_conversion_is_ready(dab_adc);
             llc_ready_for_scaling <= llc_ready_for_scaling or ad_conversion_is_ready(llc_adc);
             ram_busy <= false;
+            converted_measurement <= nothing;
 
-            if (ad_conversion_is_ready(adb) or adb_ready_for_scaling) and (not ram_busy)
-            then
-                adb_ready_for_scaling <= false;
-                ram_busy <= true;
-                scaling_requested <= true;
-                ad_conversion <= resize(signed(get_converted_measurement(adb)),mpy_signed'length);
+            scaling_requested <= false;
+            CASE ram_load_state_counter is
+                WHEN 0 =>
 
-                -- request_data_from_ram( meas_ram_a_in , sampled_b_mux + 8);
-                CASE sampled_b_mux is
-                    WHEN 1 =>  -- vac
-                        converted_measurement <= vac;
-                        request_data_from_ram(meas_ram_b_in , 8);
-                        offset_addr <= 9;
-                    WHEN 2 =>  -- illc
-                        converted_measurement <= illc;
-                        request_data_from_ram(meas_ram_b_in , 2);
-                        offset_addr <= 3;
-                    WHEN 3 =>  -- iac1
-                        converted_measurement <= iac1;
-                        request_data_from_ram(meas_ram_b_in , 10);
-                        offset_addr <= 11;
-                    WHEN 4 =>  -- vdc
-                        converted_measurement <= vdc;
-                        request_data_from_ram(meas_ram_b_in , 14);
-                        offset_addr <= 15;
-                    WHEN 6 =>  -- idhb
-                        converted_measurement <= idhb;
-                        request_data_from_ram(meas_ram_b_in , 4);
-                        offset_addr <= 5;
-                    when others => --do nothing
-                end CASE;
+                if (ad_conversion_is_ready(adb) or adb_ready_for_scaling)
+                then
+                    ram_load_state_counter <= ram_load_state_counter+1;
+                    adb_ready_for_scaling  <= false;
+                    ad_conversion          <= resize(signed(get_converted_measurement(adb)),mpy_signed'length);
+                    scaling_requested <= true;
 
-            elsif (ad_conversion_is_ready(ada) or ada_ready_for_scaling) and (not ram_busy)
-            then
-                ada_ready_for_scaling <= false;
-                ram_busy              <= true;
-                scaling_requested     <= true;
-                ad_conversion         <= resize(signed(get_converted_measurement(adb)),mpy_signed'length);
+                    CASE sampled_b_mux is
+                        WHEN 1 =>  -- vac
+                            converted_measurement <= vac;
+                            request_data_from_ram(meas_ram_b_in , 8);
+                            offset_addr <= 9;
+                        WHEN 2 =>  -- illc
+                            converted_measurement <= illc;
+                            request_data_from_ram(meas_ram_b_in , 2);
+                            offset_addr <= 3;
+                        WHEN 3 =>  -- iac1
+                            converted_measurement <= iac1;
+                            request_data_from_ram(meas_ram_b_in , 10);
+                            offset_addr <= 11;
+                        WHEN 4 =>  -- vdc
+                            converted_measurement <= vdc;
+                            request_data_from_ram(meas_ram_b_in , 14);
+                            offset_addr <= 15;
+                        WHEN 6 =>  -- idhb
+                            converted_measurement <= idhb;
+                            request_data_from_ram(meas_ram_b_in , 4);
+                            offset_addr <= 5;
+                        when others => --do nothing
+                    end CASE;
 
-                CASE sampled_a_mux is
-                    WHEN 3 =>  -- iac2
-                        converted_measurement <= iac2;
-                        request_data_from_ram(meas_ram_b_in , 12);
-                        offset_addr <= 13;
-                    WHEN 5 =>  -- vaux
-                        converted_measurement <= vaux;
-                        request_data_from_ram(meas_ram_b_in , 16);
-                        offset_addr <= 17;
-                    when others => --do nothing
-                end CASE;
+                elsif (ad_conversion_is_ready(ada) or ada_ready_for_scaling)
+                then
+                    ram_load_state_counter <= ram_load_state_counter+1;
+                    ada_ready_for_scaling  <= false;
+                    ad_conversion          <= resize(signed(get_converted_measurement(adb)),mpy_signed'length);
+                    scaling_requested <= true;
 
-            elsif (ad_conversion_is_ready(dab_adc) or dhb_ready_for_scaling) and (not ram_busy)
-            then
-                dhb_ready_for_scaling <= false;
-                ram_busy              <= true;
-                scaling_requested     <= true;
-                ad_conversion         <= resize(signed(get_converted_measurement(adb)),mpy_signed'length);
+                    CASE sampled_a_mux is
+                        WHEN 3 =>  -- iac2
+                            converted_measurement <= iac2;
+                            request_data_from_ram(meas_ram_b_in , 12);
+                            offset_addr <= 13;
+                        WHEN 5 =>  -- vaux
+                            converted_measurement <= vaux;
+                            request_data_from_ram(meas_ram_b_in , 16);
+                            offset_addr <= 17;
+                        when others => --do nothing
+                    end CASE;
 
-                request_data_from_ram(meas_ram_b_in , vdhb_gain_addr);
-                offset_addr <= vdhb_offset_addr;
-                converted_measurement <= vdhb;
+                elsif (ad_conversion_is_ready(dab_adc) or dhb_ready_for_scaling)
+                then
+                    ram_load_state_counter <= ram_load_state_counter+1;
+                    dhb_ready_for_scaling <= false;
+                    ad_conversion         <= resize(signed(get_converted_measurement(adb)),mpy_signed'length);
+                    scaling_requested <= true;
 
-            elsif (ad_conversion_is_ready(llc_adc) or llc_ready_for_scaling) and (not ram_busy)
-            then
-                llc_ready_for_scaling <= false;
-                ram_busy              <= true;
-                scaling_requested     <= true;
-                ad_conversion         <= resize(signed(get_converted_measurement(adb)),mpy_signed'length);
-                converted_measurement <= vllc;
+                    request_data_from_ram(meas_ram_b_in , vdhb_gain_addr);
+                    offset_addr <= vdhb_offset_addr;
+                    converted_measurement <= vdhb;
 
-                request_data_from_ram(meas_ram_b_in , vllc_gain_addr);
-                offset_addr <= vdhb_offset_addr;
-            end if;
+                elsif (ad_conversion_is_ready(llc_adc) or llc_ready_for_scaling)
+                then
+                    ram_load_state_counter <= ram_load_state_counter+1;
+                    llc_ready_for_scaling <= false;
+                    ad_conversion         <= resize(signed(get_converted_measurement(adb)),mpy_signed'length);
+                    converted_measurement <= vllc;
+                    scaling_requested <= true;
 
-            if ram_busy then
-                ram_busy <= false;
+                    request_data_from_ram(meas_ram_b_in , vllc_gain_addr);
+                    offset_addr <= vdhb_offset_addr;
+                end if;
+            WHEN 1 =>
+                ram_load_state_counter <= 0;
                 request_data_from_ram(meas_ram_b_in, offset_addr);
-                converted_measurement1 <= converted_measurement;
-            end if;
-        end if;
+            WHEN others => ram_load_state_counter <= 0;
 
+            end CASE;
+
+        end if; -- rising edge
     end process retrieve_gains;
 
-    -----------------------------------------------------
+    ---------------------------------------------------
     scaling : process(clock) is
     begin
         if rising_edge(clock)
         then
             create_multiplier(multiplier);
             init_ram(meas_ram_a_in);
-            CASE scaling_state_count is
-                WHEN 0 => 
-                    if ram_read_is_ready(meas_ram_b_out)
-                    then
-                        converted_measurement2 <= converted_measurement1;
-                        scaling_state_count <= scaling_state_count + 1;
-                        multiply(multiplier, ad_conversion, signed(get_ram_data(meas_ram_b_out)));
-                    end if;
-                WHEN 1 => 
-                    scaling_state_count <= 0;
-                    offset <= resize(signed(get_ram_data(meas_ram_b_out)), offset'length);
-                    converted_measurement3 <= converted_measurement2;
-                WHEN others => -- do nothing
-                    scaling_state_count <= 0;
-            end CASE;
+            scaling_pipeline <= scaling_pipeline(scaling_pipeline'left-1 downto 0) & '0';
+            measurement_pipeline <= measurement_pipeline(measurement_pipeline'left-1 downto 0) & converted_measurement;
+            if scaling_requested then 
+                scaling_pipeline(0) <= '1'; 
+            end if;
+
+            if scaling_pipeline(1) then
+                multiply(multiplier, ad_conversion, signed(get_ram_data(meas_ram_b_out)));
+            end if;
+
+            if scaling_pipeline(2) then
+                offset <= resize(signed(get_ram_data(meas_ram_b_out)), offset'length);
+            end if;
 
             result_ready <= false;
-            if multiplier_is_ready(multiplier) 
-            then
-                scaled_measurement <= get_multiplier_result(multiplier, 0, multiplier_word_length, 15);
+            if scaling_pipeline(3) then
+                scaled_measurement <= get_multiplier_result(multiplier, 0, multiplier_word_length, 15) + offset;
                 result_ready <= true;
-                converted_measurement4 <= converted_measurement3;
+            end if;
+            
+            pong <= false;
+            if measurement_pipeline(3) /= nothing then
+                -- write_data_to_ram(meas_ram_a_in, address, scaled_measurement);
+                pong <= true;
             end if;
 
-            if result_ready 
-            then
-                write_data_to_ram(meas_ram_a_in , list_of_measurements'pos(converted_measurement4) + 32 , std_logic_vector(scaled_measurement));
-            end if;
 
         end if;
     end process scaling;
