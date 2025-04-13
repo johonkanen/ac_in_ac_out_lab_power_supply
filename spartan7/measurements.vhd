@@ -76,7 +76,7 @@ architecture rtl of measurements is
     end to_integer;
     ----------------
 
-    constant multiplier_word_length : integer := 25;
+    constant multiplier_word_length : integer := 24;
     package multiplier_pkg is new work.multiplier_generic_pkg 
         generic map(multiplier_word_length, 1, 1);
 
@@ -226,6 +226,40 @@ begin
     begin
         if rising_edge(clock)
         then
+            init_ram(ram_b_in);
+
+            ada_ready <= ada_ready or ad_conversion_is_ready(ada);
+            adb_ready <= adb_ready or ad_conversion_is_ready(adb);
+            dhb_ready <= dhb_ready or ad_conversion_is_ready(dab_adc);
+            llc_ready <= llc_ready or ad_conversion_is_ready(llc_adc);
+
+            pong <= false;
+            if measurement_pipeline(3) /= nothing
+            then
+                write_data_to_ram(ram_b_in, list_of_measurements'pos(measurement_pipeline(3))+20, std_logic_vector(scaled_measurement(ram_b_in.data'range)));
+                pong <= true;
+
+            elsif ad_conversion_is_ready(adb) or adb_ready
+            then
+                adb_ready <= false;
+                write_data_to_ram(ram_b_in , sampled_b_mux + 8 , get_converted_measurement(adb));
+
+            elsif ad_conversion_is_ready(ada) or ada_ready 
+            then
+                ada_ready <= false;
+                write_data_to_ram(ram_b_in , sampled_a_mux , get_converted_measurement(ada));
+
+            elsif ad_conversion_is_ready(dab_adc) or dhb_ready 
+            then
+                dhb_ready <= false;
+                write_data_to_ram(ram_b_in , 16 , get_converted_measurement(dab_adc));
+
+            elsif ad_conversion_is_ready(llc_adc) or llc_ready 
+            then
+                llc_ready <= false;
+                write_data_to_ram(ram_b_in , 17 , get_converted_measurement(llc_adc));
+            end if;
+
         end if;
     end process ram_writer;
     -----------------------------------------------------
@@ -293,33 +327,7 @@ begin
 
             end if;
 
-            init_ram(ram_b_in);
 
-            ada_ready <= ada_ready or ad_conversion_is_ready(ada);
-            adb_ready <= adb_ready or ad_conversion_is_ready(adb);
-            dhb_ready <= dhb_ready or ad_conversion_is_ready(dab_adc);
-            llc_ready <= llc_ready or ad_conversion_is_ready(llc_adc);
-
-            if ad_conversion_is_ready(adb) or adb_ready
-            then
-                adb_ready <= false;
-                write_data_to_ram(ram_b_in , sampled_b_mux + 8 , get_converted_measurement(adb));
-
-            elsif ad_conversion_is_ready(ada) or ada_ready 
-            then
-                ada_ready <= false;
-                write_data_to_ram(ram_b_in , sampled_a_mux , get_converted_measurement(ada));
-
-            elsif ad_conversion_is_ready(dab_adc) or dhb_ready 
-            then
-                dhb_ready <= false;
-                write_data_to_ram(ram_b_in , 16 , get_converted_measurement(dab_adc));
-
-            elsif ad_conversion_is_ready(llc_adc) or llc_ready 
-            then
-                llc_ready <= false;
-                write_data_to_ram(ram_b_in , 17 , get_converted_measurement(llc_adc));
-            end if;
 
         end if;
     end process;
@@ -450,13 +458,6 @@ begin
                 scaled_measurement <= get_multiplier_result(multiplier, 0, multiplier_word_length, 15) + offset;
                 result_ready <= true;
             end if;
-            
-            pong <= false;
-            if measurement_pipeline(3) /= nothing then
-                -- write_data_to_ram(meas_ram_a_in, address, scaled_measurement);
-                pong <= true;
-            end if;
-
 
         end if;
     end process scaling;
