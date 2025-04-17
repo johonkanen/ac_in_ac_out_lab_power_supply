@@ -32,6 +32,19 @@ architecture vunit_simulation of measurements_tb is
     signal bus_from_measurements : fpga_interconnect_record ;
     signal ram_b_in              : ram_in_record            ;
 
+    constant counter_max_800kHz : natural := 128e6/930e3;
+    signal count_to_800khz : natural range 0 to 1000 := 0;
+
+    type test_record is record
+        counter : natural;
+        enabled : boolean;
+    end record test_record;
+
+    constant init_test_record  : test_record := (0,false);
+
+    signal test_record_p1 : test_record := init_test_record;
+    signal test_record_p2 : test_record := init_test_record;
+
 begin
 
 ------------------------------------------------------------------------
@@ -49,8 +62,37 @@ begin
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
+
+            ------------------------------------------
+            if count_to_800khz < counter_max_800kHz 
+            then
+                count_to_800khz <= count_to_800khz + 1;
+            else
+                count_to_800khz <= 0;
+            end if;
+
+            if count_to_800khz = 0 
+            then
+                -- request_conversion(dab_adc);
+                -- request_conversion(llc_adc);
+            end if;
+            ------------------------------------------
+
         end if;
     end process;
+------------------------------------------------------------------------
+    two_proc1 : process(all) is
+        variable v_test_record : test_record := init_test_record;
+    begin
+        v_test_record := test_record_p2;
+        v_test_record.counter := v_test_record.counter + 1;
+
+        test_record_p1 <= v_test_record;
+    end process two_proc1;
+    two_proc2 : process(simulator_clock) is
+    begin
+        test_record_p2 <= test_record_p1;
+    end process two_proc2;
 ------------------------------------------------------------------------
     u_measurements : entity work.measurements
     generic map(work.fpga_interconnect_pkg, dp_ram_pkg)
@@ -75,8 +117,9 @@ begin
         ,llc_spi_cs    => open
         ,llc_spi_data  => '0'
 
-        ,bus_to_measurements => init_fpga_interconnect
+        ,bus_to_measurements   => init_fpga_interconnect
         ,bus_from_measurements => open
-        ,ram_b_in => ram_b_in);
+        ,ram_b_in              => ram_b_in);
+------------------------------------------------------------------------
 ------------------------------------------------------------------------
 end vunit_simulation;

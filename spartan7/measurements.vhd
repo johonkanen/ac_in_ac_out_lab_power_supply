@@ -1,8 +1,58 @@
+library ieee;
+    use ieee.std_logic_1164.all;
+    use ieee.numeric_std.all;
+
+package measurement_pkg is
+    -- generic(
+    --     package meas_ram_pkg is new work.ram_port_generic_pkg generic map(<>)
+    -- );
+
+    type measurement_in_record is record 
+        sample_llc : boolean;
+        sample_dhb : boolean;
+        sample_a   : boolean;
+        sample_b   : boolean;
+        next_sampled_a_channel : natural range 0 to 7;
+        next_sampled_b_channel : natural range 0 to 7;
+    end record;
+
+    constant init_measurement_in : measurement_in_record := (false, false, false, false, 0, 0);
+
+    -- type measurement_out_record is record
+    --     a_sample_and_hold_ready : boolean;
+    --     b_sample_and_hold_ready : boolean;
+    -- end record;
+
+end package measurement_pkg;
+-------------------
+package body measurement_pkg is
+
+    procedure init_measurement(signal self_in : out measurement_in_record) is
+    begin
+        self_in.sample_llc <= false;
+        self_in.sample_dhb <= false;
+        self_in.sample_a   <= false;
+        self_in.sample_b   <= false;
+    end procedure;
+
+    procedure sample_llc(signal self_in : inout measurement_in_record) is
+    begin
+        self_in.sample_llc <= true;
+    end procedure;
+
+    procedure sample_dhb(signal self_in : inout measurement_in_record) is
+    begin
+        self_in.sample_dhb <= true;
+    end procedure;
+
+end package body;
 
 library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
     use ieee.math_real.all;
+
+    use work.measurement_pkg.all;
 
 entity measurements is
     generic(
