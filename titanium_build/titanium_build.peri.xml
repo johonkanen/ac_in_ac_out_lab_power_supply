@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<efxpt:design_db name="titanium_build" device_def="Ti60F225" version="2024.2.294.1.19" db_version="20242999" last_change_date="Wed Jan  1 21:54:55 2025" xmlns:efxpt="http://www.efinixinc.com/peri_design_db" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/peri_design_db peri_design_db.xsd ">
+<efxpt:design_db name="titanium_build" device_def="Ti60F225" version="2025.1.110" db_version="20251009" last_change_date="Sat May 10 07:08:57 2025" xmlns:efxpt="http://www.efinixinc.com/peri_design_db" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/peri_design_db peri_design_db.xsd ">
     <efxpt:device_info>
         <efxpt:iobank_info>
             <efxpt:iobank name="1A" iostd="1.8 V LVCMOS" is_dyn_voltage="false" mode_sel_name="1A_MODE_SEL"/>
@@ -380,10 +380,10 @@
                 <efxpt:pin name="" type_name="SHIFT" is_bus="true"/>
                 <efxpt:pin name="" type_name="SHIFT_SEL" is_bus="true"/>
             </efxpt:gen_pin>
-            <efxpt:comp_output_clock name="main_pll_CLKOUT0" number="0" out_divider="24" is_dyn_phase="false" phase_setting="0" is_inverted="false">
+            <efxpt:comp_output_clock name="main_pll_CLKOUT0" number="0" out_divider="24" is_dyn_phase="false" phase_setting="0" is_inverted="false" conn_type="gclk">
                 <efxpt:gen_pin/>
             </efxpt:comp_output_clock>
-            <efxpt:comp_output_clock name="main_clock" number="1" out_divider="20" is_dyn_phase="false" phase_setting="0" is_inverted="false">
+            <efxpt:comp_output_clock name="main_clock" number="1" out_divider="20" is_dyn_phase="false" phase_setting="0" is_inverted="false" conn_type="gclk">
                 <efxpt:gen_pin/>
             </efxpt:comp_output_clock>
             <efxpt:comp_prop/>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<efx:project name="titanium_build" description="" last_change="1743481499" sw_version="2024.2.294.4.15" last_run_state="pass" last_run_flow="bitstream" config_result_in_sync="true" design_ood="sync" place_ood="sync" route_ood="sync" xmlns:efx="http://www.efinixinc.com/enf_proj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/enf_proj enf_proj.xsd">
+<efx:project name="titanium_build" description="" last_change="1746850153" sw_version="2025.1.110" last_run_state="pass" last_run_flow="bitstream" config_result_in_sync="true" design_ood="sync" place_ood="sync" route_ood="sync" xmlns:efx="http://www.efinixinc.com/enf_proj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/enf_proj enf_proj.xsd">
     <efx:device_info>
         <efx:family name="Titanium"/>
         <efx:device name="Ti60F225"/>
@@ -33,13 +33,13 @@
         <efx:design_file name="../source/hVHDL_fixed_point/fixed_point_scaling/fixed_point_scaling_pkg.vhd" version="default" library="default"/>
         <efx:design_file name="../source/hVHDL_fixed_point/division/division_generic_pkg.vhd" version="default" library="default"/>
         <efx:design_file name="../source/measurements/measurements.vhd" version="default" library="default"/>
+        <efx:design_file name="../source/hVHDL_memory_library/multi_port_ram/generic_multi_port_ram_pkg.vhd" version="default" library="default"/>
         <efx:top_vhdl_arch name="rtl"/>
     </efx:design_info>
     <efx:constraint_info>
         <efx:sdc_file name="titanium_build.sdc"/>
         <efx:inter_file name=""/>
     </efx:constraint_info>
-    <efx:isf_info/>
     <efx:sim_info/>
     <efx:misc_info/>
     <efx:ip_info/>
@@ -82,6 +82,7 @@
         <efx:param name="insert-carry-skip" value="1" value_type="e_option"/>
         <efx:param name="pack-luts-to-comb4" value="0" value_type="e_option"/>
         <efx:param name="max-bit-blast-mem-size" value="10240" value_type="e_integer"/>
+        <efx:param name="enable-mark-debug" value="1" value_type="e_option"/>
     </efx:synthesis>
     <efx:place_and_route tool_name="efx_pnr">
         <efx:param name="work_dir" value="work_pnr" value_type="e_string"/>

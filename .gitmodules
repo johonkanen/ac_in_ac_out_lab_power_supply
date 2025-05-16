@@ -44,3 +44,6 @@
 [submodule "spartan7/control_card_build_scripts"]
 	path = spartan7/control_card_build_scripts
 	url = https://github.com/johonkanen/control_card_build_scripts.git
+[submodule "source/hVHDL_microprogam_processor"]
+	path = source/hVHDL_microprogram_processor
+	url = https://github.com/hVHDL/hVHDL_microprogam_processor.git

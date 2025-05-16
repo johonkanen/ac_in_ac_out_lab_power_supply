@@ -89,6 +89,24 @@ architecture rtl of s7_top is
 
     constant carrier_max : natural := integer(128.0e6/135.0e3);
     signal pwm1 : pwm_record := init_pwm;
+    
+    use work.real_to_fixed_pkg.all;
+
+    package microinstruction_pkg is new work.generic_microinstruction_pkg 
+        generic map(g_number_of_pipeline_stages => 6);
+        use microinstruction_pkg.all;
+
+    package mp_ram_pkg is new work.generic_multi_port_ram_pkg 
+        generic map(
+        g_ram_bit_width   => microinstruction_pkg.data_bit_width
+        ,g_ram_depth_pow2 => 10);
+        use mp_ram_pkg.all;
+        
+    signal mc_read_in  : ram_read_in_array(0 to 3);
+    signal mc_read_out : ram_read_out_array(0 to 3);
+    signal mc_output   : ram_write_in_record;
+
+
 
 begin
 
@@ -214,6 +232,11 @@ begin
             ,bus_to_communications   => bus_to_communications
             ,bus_from_communications => bus_from_communications
         );
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+    u_microprogram_processor : entity work.microprogram_processor
+    generic map(microinstruction_pkg, mp_ram_pkg, used_radix, test_program, program_data)
+    port map(main_clock_120MHz, mproc_in, mc_read_in, mc_read_out, mc_output);
 ------------------------------------------------------------------------
 
 end rtl;
