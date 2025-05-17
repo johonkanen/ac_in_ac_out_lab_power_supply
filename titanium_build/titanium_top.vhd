@@ -105,10 +105,9 @@ architecture rtl of titanium_top is
     signal div_mpy : multiplier_record := init_multiplier;
     signal divider : division_record   := init_division;
 
-
     signal conversion_requested : boolean := false;
 
- constant instruction_length : natural := 32;
+    constant instruction_length : natural := 32;
     constant word_length : natural := 32;
     constant used_radix : natural := 20;
     
@@ -116,9 +115,7 @@ architecture rtl of titanium_top is
     function to_fixed is new generic_to_fixed 
     generic map(word_length => word_length, used_radix => used_radix);
 
-    package microinstruction_pkg is new work.generic_microinstruction_pkg 
-        generic map(g_number_of_pipeline_stages => 8);
-        use microinstruction_pkg.all;
+    use work.microinstruction_pkg.all;
 
     use work.multi_port_ram_pkg.all;
     constant ref_subtype : subtype_ref_record := create_ref_subtypes(readports => 3, datawidth => word_length, addresswidth => 10);
@@ -218,7 +215,7 @@ architecture rtl of titanium_top is
     signal current : real := 0.0;
     signal voltage : real := 0.0;
 
-    signal lc_load : std_logic_vector(word_length-1 downto 0)          := to_fixed(0.0);
+    signal lc_load : std_logic_vector(word_length-1 downto 0)          := to_fixed(1.0);
     signal lc_duty : std_logic_vector(word_length-1 downto 0)          := to_fixed(0.5);
     signal lc_input_voltage : std_logic_vector(word_length-1 downto 0) := to_fixed(10.0);
     use work.microprogram_processor_pkg.all;
@@ -226,6 +223,10 @@ architecture rtl of titanium_top is
     signal mproc_in  : microprogram_processor_in_record;
     signal mproc_out : microprogram_processor_out_record;
 
+    signal start_counter : natural range 0 to 127 := 0;
+
+    signal simcurrent : std_logic_vector(word_length-1 downto 0) := to_fixed(0.0);
+    signal simvoltage : std_logic_vector(word_length-1 downto 0) := to_fixed(0.0);
         
 begin
 
@@ -272,6 +273,13 @@ begin
 
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 100 , git_hash_pkg.git_hash(31 downto 16));
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 101 , git_hash_pkg.git_hash(15 downto 0));
+
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 500 , ext_input(used_radix + 5 downto used_radix+5-15));
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 501 , lc_load(used_radix + 5 downto used_radix+5-15));
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 502 , lc_duty(used_radix + 5 downto used_radix+5-15));
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 503 , lc_input_voltage(used_radix + 5 downto used_radix+5-15));
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 504 , simcurrent(used_radix + 5 downto used_radix+5-15));
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 505 , simvoltage(used_radix + 5 downto used_radix+5-15));
 
             ad_mux1_io <= test_data3(2 downto 0);
             ad_mux2_io <= test_data3(2 downto 0);
@@ -372,10 +380,37 @@ begin
             ,bus_from_communications => bus_from_communications
         );
         
+------------------------------------------------------------------------
+    process(main_clock) is
+    begin
+        if rising_edge(main_clock)
+        then
+            start_counter <= start_counter + 1;
+            if start_counter > 50
+            then
+                start_counter <= 0;
+            end if;
+
+            init_mproc(mproc_in);
+            if start_counter = 0
+            then
+                calculate(mproc_in, 129);
+            end if;
+
+            init_ram_connector(ram_connector);
+            connect_data_to_ram_bus(ram_connector, mc_read_in, mc_read_out, 120, ext_input);
+            connect_data_to_ram_bus(ram_connector, mc_read_in, mc_read_out, 121, lc_load);
+            connect_data_to_ram_bus(ram_connector, mc_read_in, mc_read_out, 122, lc_duty);
+            connect_data_to_ram_bus(ram_connector, mc_read_in, mc_read_out, 123, lc_input_voltage);
+            connect_ram_write_to_address(mc_output , inductor_current , simcurrent);
+            connect_ram_write_to_address(mc_output , cap_voltage      , simvoltage);
+
+        end if;
+    end process;
+
+------------------------------------------------------------------------
     u_microprogram_processor : entity work.microprogram_processor
     generic map(g_used_radix => used_radix, g_program => test_program, g_data => program_data)
     port map(main_clock, mproc_in, mproc_out, mc_read_in, mc_read_out, mc_output);
-------------------------------------------------------------------------
-
 ------------------------------------------------------------------------
 end rtl;

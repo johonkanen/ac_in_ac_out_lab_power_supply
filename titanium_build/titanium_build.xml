@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<efx:project name="titanium_build" description="" last_change="1747463027" sw_version="2025.1.110" last_run_state="pass" last_run_flow="bitstream" config_result_in_sync="true" design_ood="sync" place_ood="sync" route_ood="sync" xmlns:efx="http://www.efinixinc.com/enf_proj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/enf_proj enf_proj.xsd">
+<efx:project name="titanium_build" description="" last_change="1747471511" sw_version="2025.1.110" last_run_state="pass" last_run_flow="bitstream" config_result_in_sync="true" design_ood="sync" place_ood="sync" route_ood="sync" xmlns:efx="http://www.efinixinc.com/enf_proj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/enf_proj enf_proj.xsd">
     <efx:device_info>
         <efx:family name="Titanium"/>
         <efx:device name="Ti60F225"/>
@@ -35,12 +35,12 @@
         <efx:design_file name="../source/measurements/measurements.vhd" version="default" library="default"/>
         <efx:design_file name="../source/hVHDL_microprogram_processor/source/hVHDL_memory_library/testbench/dual_port_ram/mpram_w_configurable_records.vhd" version="default" library="default"/>
         <efx:design_file name="../source/hVHDL_microprogram_processor/source/hVHDL_memory_library/testbench/dual_port_ram/dp_ram_w_configurable_recrods.vhd" version="default" library="default"/>
+        <efx:design_file name="../source/hVHDL_microprogram_processor/source/hVHDL_memory_library/testbench/dual_port_ram/arch_rtl_dp_ram_w_configurable_records.vhd" version="default" library="default"/>
         <efx:design_file name="../source/hVHDL_microprogram_processor/vhdl2008/vhdl2008_microinstruction_pkg.vhd" version="default" library="default"/>
         <efx:design_file name="../source/hVHDL_microprogram_processor/vhdl2008/ram_connector_pkg.vhd" version="default" library="default"/>
         <efx:design_file name="../source/hVHDL_microprogram_processor/testbenches/vhdl2008/retry_addsub.vhd" version="default" library="default"/>
         <efx:design_file name="../source/hVHDL_microprogram_processor/testbenches/vhdl2008/retry_microprogram_sequencer.vhd" version="default" library="default"/>
         <efx:design_file name="../source/hVHDL_microprogram_processor/testbenches/vhdl2008/retry_microprogram_processor.vhd" version="default" library="default"/>
-        <efx:design_file name="../source/hVHDL_microprogram_processor/source/hVHDL_memory_library/testbench/dual_port_ram/arch_rtl_dp_ram_w_configurable_records.vhd" version="default" library="default"/>
         <efx:top_vhdl_arch name="rtl"/>
     </efx:design_info>
     <efx:constraint_info>
