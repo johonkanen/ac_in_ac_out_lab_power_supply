@@ -168,29 +168,29 @@ architecture rtl of measurements is
     type list_of_measurements is (vllc , illc , vdhb , idhb , vac  , iac1 , iac2 , vdc  , vaux, nothing);
     type measurement_indices is array (list_of_measurements'range) of natural;
 
-    constant adb_mux_positions : measurement_indices := (
-        vllc  => 16
-        ,illc => 2
-        ,vdhb => 16
-        ,idhb => 6
-        ,vac  => 1
-        ,iac1 => 3
-        ,iac2 => 16
-        ,vdc  => 4
-        ,vaux => 16
-        ,nothing => 16);
+    -- constant adb_mux_positions : measurement_indices := (
+    --     vllc  => 16
+    --     ,illc => 2
+    --     ,vdhb => 16
+    --     ,idhb => 6
+    --     ,vac  => 1
+    --     ,iac1 => 3
+    --     ,iac2 => 16
+    --     ,vdc  => 4
+    --     ,vaux => 16
+    --     ,nothing => 16);
 
-    constant ada_mux_positions : measurement_indices := (
-        vllc  => 16
-        ,illc => 16
-        ,vdhb => 16
-        ,idhb => 16
-        ,vac  => 16
-        ,iac1 => 16
-        ,iac2 => 3
-        ,vdc  => 16
-        ,vaux => 5
-        ,nothing => 16);
+    -- constant ada_mux_positions : measurement_indices := (
+    --     vllc  => 16
+    --     ,illc => 16
+    --     ,vdhb => 16
+    --     ,idhb => 16
+    --     ,vac  => 16
+    --     ,iac1 => 16
+    --     ,iac2 => 3
+    --     ,vdc  => 16
+    --     ,vaux => 5
+    --     ,nothing => 16);
 
     signal scaling_state_count : natural := 0;
 
