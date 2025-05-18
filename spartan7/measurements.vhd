@@ -2,6 +2,8 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
+    use work.dual_port_ram_pkg.all;
+
 package measurement_pkg is
     -- generic(
     --     package meas_ram_pkg is new work.ram_port_generic_pkg generic map(<>)
@@ -53,11 +55,12 @@ library ieee;
     use ieee.math_real.all;
 
     use work.measurement_pkg.all;
+    use work.dual_port_ram_pkg.all;
 
 entity measurements is
     generic(
         package fpga_interconnect_pkg is new work.fpga_interconnect_generic_pkg generic map(<>)
-        ;package meas_ram_pkg is new work.ram_port_generic_pkg generic map(<>)
+        ;g_dpram_ref_subtype : dpram_ref_record
      );
     port (
         clock : in std_logic
@@ -81,14 +84,13 @@ entity measurements is
 
         ;bus_to_measurements   : in fpga_interconnect_pkg.fpga_interconnect_record
         ;bus_from_measurements : out fpga_interconnect_pkg.fpga_interconnect_record
-        ;ram_b_in              : out meas_ram_pkg.ram_in_record
+        ;ram_b_in              : out ram_in_record
     );
 end entity measurements;
 
 architecture rtl of measurements is
 
     use fpga_interconnect_pkg.all;
-    use meas_ram_pkg.all;
 
     package adc121s101_pkg is new work.max11115_generic_pkg generic map (g_count_max => 7);
         use adc121s101_pkg.all;
@@ -132,6 +134,8 @@ architecture rtl of measurements is
 
     use multiplier_pkg.all;
     signal multiplier : multiplier_record := init_multiplier;
+
+    constant meas_ram_subtype : dpram_ref_record := create_ref_subtypes(datawidth => 24, addresswidth => 7);
 
     -- not calibrated
     constant measurement_gains : real_vector :=
@@ -222,11 +226,9 @@ architecture rtl of measurements is
 
     use work.real_to_fixed_pkg.all;
 
-    package dp_ram_pkg is new work.ram_port_generic_pkg generic map(g_ram_bit_width => multiplier_word_length , g_ram_depth_pow2 => 6);
-    use dp_ram_pkg.all;
 
-    function ram_init_values return dp_ram_pkg.ram_array is
-        variable retval : dp_ram_pkg.ram_array := (others => (others => '0'));
+    function ram_init_values return work.dual_port_ram_pkg.ram_array is
+        variable retval : work.dual_port_ram_pkg.ram_array(0 to meas_ram_subtype.address_high)(meas_ram_subtype.data'range) := (others => (others => '0'));
     begin
 
         for i in 0 to 17 loop
@@ -236,11 +238,11 @@ architecture rtl of measurements is
         return retval;
     end function ram_init_values;
 
-    signal meas_ram_a_in : dp_ram_pkg.ram_in_record;
-    signal meas_ram_b_in : dp_ram_pkg.ram_in_record;
+    signal meas_ram_a_in : meas_ram_subtype.ram_in'subtype;
+    signal meas_ram_b_in : meas_ram_subtype.ram_in'subtype;
 
-    signal meas_ram_a_out : dp_ram_pkg.ram_out_record;
-    signal meas_ram_b_out : dp_ram_pkg.ram_out_record;
+    signal meas_ram_a_out : meas_ram_subtype.ram_out'subtype;
+    signal meas_ram_b_out : meas_ram_subtype.ram_out'subtype;
 
     signal ada_ready : boolean := false;
     signal adb_ready : boolean := false;
@@ -507,8 +509,8 @@ begin
         end if;
     end process scaling;
     -----------------------------------------------------
-    u_dpram : entity work.generic_dual_port_ram
-    generic map(dp_ram_pkg, ram_init_values)
+    u_dpram : entity work.dual_port_ram
+    generic map(meas_ram_subtype, ram_init_values)
     port map(
     clock          ,
     meas_ram_a_in  ,

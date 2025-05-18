@@ -63,14 +63,15 @@ architecture rtl of s7_top is
     end component;
     ----------------------------------
     
-    package dp_ram_pkg is new work.ram_port_generic_pkg generic map(g_ram_bit_width => 16, g_ram_depth_pow2 => 10);
-    use dp_ram_pkg.all;
+    use work.dual_port_ram_pkg.all;
+    constant dpram_subtype : dpram_ref_record := create_ref_subtypes(datawidth => 16, addresswidth => 10);
+    constant ram_init : work.dual_port_ram_pkg.ram_array(0 to dpram_subtype.address_high)(dpram_subtype.data'range) := (others => (others => '0'));
 
-    signal ram_a_in : ram_in_record;
-    signal ram_b_in : ram_in_record;
+    signal ram_a_in : dpram_subtype.ram_in'subtype;
+    signal ram_b_in : dpram_subtype.ram_in'subtype;
 
-    signal ram_a_out : ram_out_record;
-    signal ram_b_out : ram_out_record;
+    signal ram_a_out : dpram_subtype.ram_out'subtype;
+    signal ram_b_out : dpram_subtype.ram_out'subtype;
 
     package interconnect_pkg is new work.fpga_interconnect_generic_pkg 
         generic map(number_of_data_bits => 16,
@@ -109,9 +110,10 @@ architecture rtl of s7_top is
 
     constant instr_ref_subtype : subtype_ref_record := create_ref_subtypes(readports => 1, datawidth => 32, addresswidth => 10);
 
-    signal mc_read_in  : ref_subtype.ram_read_in'subtype;
-    signal mc_read_out : ref_subtype.ram_read_out'subtype;
-    signal mc_output   : ref_subtype.ram_write_in'subtype;
+    signal mc_read_in   : ref_subtype.ram_read_in'subtype;
+    signal mc_read_out  : ref_subtype.ram_read_out'subtype;
+    signal mc_write_out : ref_subtype.ram_write_in'subtype;
+    signal mc_write_out_buf : ref_subtype.ram_write_in'subtype;
 
     use work.ram_connector_pkg.all;
 
@@ -199,8 +201,8 @@ architecture rtl of s7_top is
     signal lc_duty          : std_logic_vector(word_length-1 downto 0) := to_fixed(0.5);
     signal lc_input_voltage : std_logic_vector(word_length-1 downto 0) := to_fixed(10.0);
 
-    signal current : std_logic_vector(word_length-1 downto 0) := to_fixed(0.0);
-    signal voltage : std_logic_vector(word_length-1 downto 0) := to_fixed(0.0);
+    signal simcurrent : std_logic_vector(word_length-1 downto 0) := to_fixed(0.0);
+    signal simvoltage : std_logic_vector(word_length-1 downto 0) := to_fixed(0.0);
 
     use work.microprogram_processor_pkg.all;
 
@@ -238,12 +240,12 @@ begin
         then
             init_bus(bus_from_top);
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 1 , 44252);
-            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 200 , ext_input(used_radix + 5 downto used_radix+5-15));
-            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 201 , lc_load(used_radix + 5 downto used_radix+5-15));
-            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 202 , lc_duty(used_radix + 5 downto used_radix+5-15));
-            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 203 , lc_input_voltage(used_radix + 5 downto used_radix+5-15));
-            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 204 , current(used_radix + 5 downto used_radix+5-15));
-            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 205 , voltage(used_radix + 5 downto used_radix+5-15));
+            connect_data_to_address(bus_from_communications , bus_from_top , 200 , ext_input(used_radix + 5 downto used_radix+5-15));
+            connect_data_to_address(bus_from_communications , bus_from_top , 201 , lc_load(used_radix + 5 downto used_radix+5-15));
+            connect_data_to_address(bus_from_communications , bus_from_top , 202 , lc_duty(used_radix + 5 downto used_radix+5-15));
+            connect_data_to_address(bus_from_communications , bus_from_top , 203 , lc_input_voltage(used_radix + 5 downto used_radix+5-15));
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 204 , simcurrent(used_radix + 5 downto used_radix+5-15));
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 205 , simvoltage(used_radix + 5 downto used_radix+5-15));
 
             if led_blink_counter < 60e6 
             then
@@ -272,7 +274,6 @@ begin
     end process;
 -------------------------------------------------------
     process(main_clock_120MHz)
-
     begin
         if rising_edge(main_clock_120MHz)
         then
@@ -285,7 +286,7 @@ begin
     end process;
 -------------------------------------------------------
     u_measurements : entity work.measurements
-    generic map(interconnect_pkg, dp_ram_pkg)
+    generic map(interconnect_pkg, dpram_subtype)
     port map(
         main_clock_120MHz
         ,ada_mux   => ada_mux   
@@ -313,8 +314,8 @@ begin
     );
 
 ---------------
-    u_dpram : entity work.generic_dual_port_ram
-    generic map(dp_ram_pkg)
+    u_dpram : entity work.dual_port_ram
+    generic map(dpram_subtype,ram_init)
     port map(
     main_clock_120MHz
     ,ram_a_in   
@@ -341,14 +342,15 @@ begin
         );
 ------------------------------------------------------------------------
 ------------------------------------------------------------------------
-    process(main_clock_120MHz) is
+    process(main_clock_120MHz)
     begin
         if rising_edge(main_clock_120MHz)
         then
-            start_counter <= start_counter + 1;
             if start_counter > 50
             then
                 start_counter <= 0;
+            else
+                start_counter <= start_counter + 1;
             end if;
 
             init_mproc(mproc_in);
@@ -363,8 +365,13 @@ begin
             connect_data_to_ram_bus(ram_connector, mc_read_in, mc_read_out, 122, lc_duty);
             connect_data_to_ram_bus(ram_connector, mc_read_in, mc_read_out, 123, lc_input_voltage);
 
-            connect_ram_write_to_address(mc_output , inductor_current , current);
-            connect_ram_write_to_address(mc_output , cap_voltage      , voltage);
+            connect_ram_write_to_address(mc_write_out , inductor_current , simcurrent);
+            connect_ram_write_to_address(mc_write_out , cap_voltage      , simvoltage);
+            mc_write_out <= mc_write_out_buf;
+            if mc_write_out.write_requested = '1' and mc_write_out.address = inductor_current
+            then
+                simcurrent <= mc_write_out.data;
+            end if;
 
         end if;
     end process;
@@ -372,7 +379,7 @@ begin
 ------------------------------------------------------------------------
     u_microprogram_processor : entity work.microprogram_processor
     generic map(g_used_radix => used_radix, g_program => test_program, g_data => program_data)
-    port map(main_clock_120MHz, mproc_in, mproc_out, mc_read_in, mc_read_out, mc_output);
+    port map(main_clock_120MHz, mproc_in, mproc_out, mc_read_in, mc_read_out, mc_write_out_buf);
 ------------------------------------------------------------------------
 
 end rtl;
