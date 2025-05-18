@@ -16,8 +16,6 @@ add_vhdl_file_to_project $source_folder/hVHDL_fixed_point/real_to_fixed/real_to_
 add_vhdl_file_to_project $source_folder/hVHDL_fixed_point/fixed_point_scaling/fixed_point_scaling_pkg.vhd            
 add_vhdl_file_to_project $source_folder/hVHDL_fixed_point/division/division_generic_pkg.vhd                          
 
-add_vhdl_file_to_project $source_folder/hVHDL_memory_library/fpga_internal_ram/arch_rtl_generic_dual_port_ram.vhd    
-add_vhdl_file_to_project $source_folder/hVHDL_memory_library/fpga_internal_ram/dual_port_ram_generic_pkg.vhd         
 #add_vhdl_file_to_project $source_folder/hVHDL_memory_library/multi_port_ram/generic_multi_port_ram_pkg.vhd
 #add_vhdl_file_to_project $source_folder/hVHDL_memory_library/multi_port_ram/generic_multi_port_ram_entity.vhd
 
@@ -27,8 +25,9 @@ add_vhdl_file_to_project $this_file_path/measurements.vhd
 
 add_vhdl_file_to_project $source_folder/hVHDL_microprogram_processor/source/hVHDL_memory_library/testbench/dual_port_ram/dp_ram_w_configurable_recrods.vhd
 add_vhdl_file_to_project $source_folder/hVHDL_microprogram_processor/source/hVHDL_memory_library/testbench/dual_port_ram/arch_rtl_dp_ram_w_configurable_records.vhd
-
 add_vhdl_file_to_project $source_folder/hVHDL_microprogram_processor/source/hVHDL_memory_library/testbench/dual_port_ram/mpram_w_configurable_records.vhd
+add_vhdl_file_to_project $this_file_path/microprogram_pkg.vhd
+
 add_vhdl_file_to_project $source_folder/hVHDL_microprogram_processor/vhdl2008/vhdl2008_microinstruction_pkg.vhd
 add_vhdl_file_to_project $source_folder/hVHDL_microprogram_processor/vhdl2008/ram_connector_pkg.vhd
 
