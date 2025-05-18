@@ -103,17 +103,12 @@ architecture rtl of s7_top is
     use work.microinstruction_pkg.all;
 
     use work.multi_port_ram_pkg.all;
-    constant ref_subtype : subtype_ref_record := create_ref_subtypes(readports => 3, datawidth => word_length, addresswidth => 10);
-    signal ram_read_in  : ref_subtype.ram_read_in'subtype;
-    signal ram_read_out : ref_subtype.ram_read_out'subtype;
-    signal ram_write_in : ref_subtype.ram_write_in'subtype;
+    constant ref_subtype : subtype_ref_record := create_ref_subtypes(readports       => 3 , datawidth => word_length , addresswidth => 10);
+    constant instr_ref_subtype : subtype_ref_record := create_ref_subtypes(readports => 1 , datawidth => 32          , addresswidth          => 10);
 
-    constant instr_ref_subtype : subtype_ref_record := create_ref_subtypes(readports => 1, datawidth => 32, addresswidth => 10);
-
-    signal mc_read_in   : ref_subtype.ram_read_in'subtype;
-    signal mc_read_out  : ref_subtype.ram_read_out'subtype;
-    signal mc_write_out : ref_subtype.ram_write_in'subtype;
-    signal mc_write_out_buf : ref_subtype.ram_write_in'subtype;
+    signal mc_read_in       : ref_subtype.ram_read_in'subtype;
+    signal mc_read_out      : ref_subtype.ram_read_out'subtype;
+    signal mc_write_out     : ref_subtype.ram_write_in'subtype;
 
     use work.ram_connector_pkg.all;
 
@@ -254,7 +249,6 @@ begin
                 led_blink_counter <= 0;
             end if;
 
-
             if led_blink_counter = 0 
             then
                 led_state <= not led_state;
@@ -367,11 +361,6 @@ begin
 
             connect_ram_write_to_address(mc_write_out , inductor_current , simcurrent);
             connect_ram_write_to_address(mc_write_out , cap_voltage      , simvoltage);
-            mc_write_out <= mc_write_out_buf;
-            if mc_write_out.write_requested = '1' and mc_write_out.address = inductor_current
-            then
-                simcurrent <= mc_write_out.data;
-            end if;
 
         end if;
     end process;
@@ -379,7 +368,6 @@ begin
 ------------------------------------------------------------------------
     u_microprogram_processor : entity work.microprogram_processor
     generic map(g_used_radix => used_radix, g_program => test_program, g_data => program_data)
-    port map(main_clock_120MHz, mproc_in, mproc_out, mc_read_in, mc_read_out, mc_write_out_buf);
+    port map(main_clock_120MHz, mproc_in, mproc_out, mc_read_in, mc_read_out, mc_write_out);
 ------------------------------------------------------------------------
-
 end rtl;
