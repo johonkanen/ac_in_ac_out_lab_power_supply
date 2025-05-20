@@ -47,21 +47,33 @@ architecture rtl of ecp5_top is
     signal led_blink_counter : natural range 0 to 120e6;
     signal led_state : std_logic := '0';
 
-    use work.ads7056_pkg.all;
-    signal pri_ads7056 : ads7056_record := init_ads7056;
-    signal sec_ads7056 : ads7056_record := init_ads7056;
-	
-	constant multiplier_word_length : integer := 25;
-    package multiplier_pkg is new work.multiplier_generic_pkg 
-        generic map(25, 1, 1);
-		use multiplier_pkg.all;
-		
-	package division_pkg is new work.division_generic_pkg
-		generic map(multiplier_pkg, g_max_shift => 8);
-		use division_pkg.all;
-		
-	signal multiplier : multiplier_record := init_multiplier;
-	signal divider : division_record := init_division;
+    use work.microinstruction_pkg.all;
+    use work.multi_port_ram_pkg.all;
+    use work.real_to_fixed_pkg.all;
+
+    use work.microprogram_pkg.all;
+    signal mc_read_in       : ref_subtype.ram_read_in'subtype;
+    signal mc_read_out      : ref_subtype.ram_read_out'subtype;
+    signal mc_write_out     : ref_subtype.ram_write_in'subtype;
+
+    use work.ram_connector_pkg.all;
+    signal ram_connector : ram_connector_ref'subtype;
+
+    ----
+    signal ext_input        : std_logic_vector(word_length-1 downto 0) := to_fixed(-22.351, word_length, used_radix);
+    signal lc_load          : std_logic_vector(word_length-1 downto 0) :=  to_fixed(0.0, word_length, used_radix);
+    signal lc_duty          : std_logic_vector(word_length-1 downto 0) :=  to_fixed(0.5, word_length, used_radix);
+    signal lc_input_voltage : std_logic_vector(word_length-1 downto 0) :=  to_fixed(10.0, word_length, used_radix);
+
+    signal simcurrent : std_logic_vector(word_length-1 downto 0) :=  to_fixed(0.0, word_length, used_radix);
+    signal simvoltage : std_logic_vector(word_length-1 downto 0) :=  to_fixed(0.0, word_length, used_radix);
+
+    use work.microprogram_processor_pkg.all;
+
+    signal mproc_in  : microprogram_processor_in_record;
+    signal mproc_out : microprogram_processor_out_record;
+
+    signal start_counter : natural range 0 to 127 := 0;
 
 begin
 
@@ -79,22 +91,8 @@ begin
         then
             init_bus(bus_to_communications);
             connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 1 , 44252);
-            connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 2  , get_converted_measurement(pri_ads7056));
-            connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 3  , get_converted_measurement(sec_ads7056));
-			create_multiplier(multiplier);
-			create_division(multiplier, divider);
-
-             --create_ads7056_driver(pri_ads7056         
-                --                   ,cs            => ads_7056_chip_select_pri 
-                  --                 ,spi_clock_out => ads_7056_clock_pri       
-                    --                ,serial_io     => ads_7056_input_data_pri);
-			
-            --
-            -- create_ads7056_driver(sec_ads7056                   
-            --                       ,cs            => ads_7056_chip_select    
-            --                       ,spi_clock_out => ads_7056_clock
-            --                       ,serial_io     => ads_7056_input_data);
-
+            -- connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 2  , get_converted_measurement(pri_ads7056));
+            -- connect_read_only_data_to_address(bus_from_communications , bus_to_communications , 3  , get_converted_measurement(sec_ads7056));
 
             if led_blink_counter < 60e6 then
                 led_blink_counter <= led_blink_counter + 1;
@@ -120,6 +118,40 @@ begin
             ,bus_to_communications   => bus_to_communications
             ,bus_from_communications => bus_from_communications
         );
+------------------------------------------------------------------------
+    process(main_clock_120MHz)
+    begin
+        if rising_edge(main_clock_120MHz)
+        then
+            if start_counter > 50
+            then
+                start_counter <= 0;
+            else
+                start_counter <= start_counter + 1;
+            end if;
+
+            init_mproc(mproc_in);
+            if start_counter = 0
+            then
+                calculate(mproc_in, 29);
+            end if;
+
+            init_ram_connector(ram_connector);
+            connect_data_to_ram_bus(ram_connector, mc_read_in, mc_read_out, 120, ext_input);
+            connect_data_to_ram_bus(ram_connector, mc_read_in, mc_read_out, 121, lc_load);
+            connect_data_to_ram_bus(ram_connector, mc_read_in, mc_read_out, 122, lc_duty);
+            connect_data_to_ram_bus(ram_connector, mc_read_in, mc_read_out, 123, lc_input_voltage);
+
+            connect_ram_write_to_address(mc_write_out , inductor_current , simcurrent);
+            connect_ram_write_to_address(mc_write_out , cap_voltage      , simvoltage);
+
+        end if;
+    end process;
+
+------------------------------------------------------------------------
+    u_microprogram_processor : entity work.microprogram_processor
+    generic map(g_data_bit_width => word_length,g_used_radix => used_radix, g_program => test_program, g_data => program_data)
+    port map(main_clock_120MHz, mproc_in, mproc_out, mc_read_in, mc_read_out, mc_write_out);
 ------------------------------------------------------------------------
 
 end rtl;

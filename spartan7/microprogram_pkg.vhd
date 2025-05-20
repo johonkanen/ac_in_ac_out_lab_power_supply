@@ -5,6 +5,7 @@ library ieee;
 
     use work.microinstruction_pkg.all;
     use work.multi_port_ram_pkg.all;
+    use work.real_to_fixed_pkg.all;
 
 package microprogram_pkg is
 
@@ -13,9 +14,8 @@ package microprogram_pkg is
     constant word_length        : natural := 36;
     constant used_radix         : natural := word_length - 11;
     
-    use work.real_to_fixed_pkg.all;
-    function to_fixed is new generic_to_fixed 
-    generic map(word_length => word_length, used_radix => used_radix);
+    --function to_fixed is new generic_to_fixed 
+    --generic map(word_length, used_radix);
 
     constant ref_subtype : subtype_ref_record := create_ref_subtypes(readports       => 3 , datawidth => word_length , addresswidth => 10);
     constant instr_ref_subtype : subtype_ref_record := create_ref_subtypes(readports => 1 , datawidth => 32          , addresswidth          => 10);
@@ -61,20 +61,21 @@ package microprogram_pkg is
     constant sampletime : real := 1.0e-6;
 
     constant program_data : work.dual_port_ram_pkg.ram_array(0 to ref_subtype.address_high)(ref_subtype.data'range) := (
-           0 => to_fixed(0.0)
-        ,  1 => to_fixed(1.0)
-        ,  2 => to_fixed(2.0)
-        ,  3 => to_fixed(-3.0)
+           0 => to_fixed(0.0,bit_width => word_length, number_of_fractional_bits => used_radix)
 
-        , duty             => to_fixed(0.5)
-        , inductor_current => to_fixed(0.0)
-        , cap_voltage      => to_fixed(0.0)
-        , ind_res          => to_fixed(0.9)
-        , load             => to_fixed(0.0)
-        , current_gain     => to_fixed(sampletime*1.0/2.0e-6)
-        , voltage_gain     => to_fixed(sampletime*1.0/3.0e-6)
-        , input_voltage    => to_fixed(10.0)
-        , inductor_voltage => to_fixed(0.0)
+         , 1 => to_fixed(1.0  , word_length , used_radix)
+         , 2 => to_fixed(2.0  , word_length , used_radix)
+         , 3 => to_fixed(-3.0 , word_length , used_radix)
+
+        , duty             => to_fixed(0.5,word_length, used_radix)
+        , inductor_current => to_fixed(0.0,word_length, used_radix)
+        , cap_voltage      => to_fixed(0.0,word_length, used_radix)
+        , ind_res          => to_fixed(0.9,word_length, used_radix)
+        , load             => to_fixed(0.0,word_length, used_radix)
+        , current_gain     => to_fixed(sampletime*1.0/2.0e-6,word_length, used_radix)
+        , voltage_gain     => to_fixed(sampletime*1.0/3.0e-6,word_length, used_radix)
+        , input_voltage    => to_fixed(10.0,word_length, used_radix)
+        , inductor_voltage => to_fixed(0.0,word_length, used_radix)
 
         , others => (others => '0')
     );

@@ -25,3 +25,15 @@ add_vhdl_file_to_project $source_folder/hVHDL_fixed_point/division/division_gene
 #add_vhdl_file_to_project $source_folder/hVHDL_memory_library/testbench/sample_buffer/sample_trigger_generic_pkg.vhd  
 #add_vhdl_file_to_project $source_folder/fpga_communication/signal_scope/signal_scope.vhd                             
 #add_vhdl_file_to_project $source_folder/measurements/measurements.vhd                                                
+
+add_vhdl_file_to_project $source_folder/hVHDL_microprogram_processor/source/hVHDL_memory_library/testbench/dual_port_ram/dp_ram_w_configurable_recrods.vhd
+add_vhdl_file_to_project $source_folder/hVHDL_microprogram_processor/source/hVHDL_memory_library/testbench/dual_port_ram/arch_rtl_dp_ram_w_configurable_records.vhd
+add_vhdl_file_to_project $source_folder/hVHDL_microprogram_processor/source/hVHDL_memory_library/testbench/dual_port_ram/mpram_w_configurable_records.vhd
+add_vhdl_file_to_project $source_folder/../spartan7/microprogram_pkg.vhd
+
+add_vhdl_file_to_project $source_folder/hVHDL_microprogram_processor/vhdl2008/vhdl2008_microinstruction_pkg.vhd
+add_vhdl_file_to_project $source_folder/hVHDL_microprogram_processor/vhdl2008/ram_connector_pkg.vhd
+
+add_vhdl_file_to_project $source_folder/hVHDL_microprogram_processor/testbenches/vhdl2008/retry_microprogram_sequencer.vhd
+add_vhdl_file_to_project $source_folder/hVHDL_microprogram_processor/testbenches/vhdl2008/retry_addsub.vhd
+add_vhdl_file_to_project $source_folder/hVHDL_microprogram_processor/testbenches/vhdl2008/retry_microprogram_processor.vhd
