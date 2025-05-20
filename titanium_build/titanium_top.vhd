@@ -108,7 +108,7 @@ architecture rtl of titanium_top is
     signal conversion_requested : boolean := false;
 
     constant instruction_length : natural := 32;
-    constant word_length : natural := 32;
+    constant word_length : natural := 31;
     constant used_radix : natural := 20;
     
     use work.real_to_fixed_pkg.all;
@@ -119,9 +119,6 @@ architecture rtl of titanium_top is
 
     use work.multi_port_ram_pkg.all;
     constant ref_subtype : subtype_ref_record := create_ref_subtypes(readports => 3, datawidth => word_length, addresswidth => 10);
-    signal ram_read_in  : ref_subtype.ram_read_in'subtype;
-    signal ram_read_out : ref_subtype.ram_read_out'subtype;
-    signal ram_write_in : ref_subtype.ram_write_in'subtype;
 
     constant instr_ref_subtype : subtype_ref_record := create_ref_subtypes(readports => 1, datawidth => 32, addresswidth => 10);
 
@@ -410,7 +407,7 @@ begin
 
 ------------------------------------------------------------------------
     u_microprogram_processor : entity work.microprogram_processor
-    generic map(g_used_radix => used_radix, g_program => test_program, g_data => program_data)
+    generic map(g_data_bit_width => word_length,g_used_radix => used_radix, g_program => test_program, g_data => program_data)
     port map(main_clock, mproc_in, mproc_out, mc_read_in, mc_read_out, mc_output);
-------------------------------------------------------------------------
+-------------------------------------------------------------------------
 end rtl;
