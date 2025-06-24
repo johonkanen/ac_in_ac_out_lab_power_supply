@@ -1,0 +1,56 @@
+set_global_assignment -entity "main_clock" -library "main_clock" -name IP_TOOL_NAME "QsysPrimePro"
+set_global_assignment -entity "main_clock" -library "main_clock" -name IP_TOOL_VERSION "25.1"
+set_global_assignment -entity "main_clock" -library "main_clock" -name IP_TOOL_ENV "QsysPrimePro"
+set_global_assignment -entity "main_clock" -library "main_clock" -name IP_TOOL_VENDOR_NAME "Altera"
+set_global_assignment -entity "main_clock" -library "main_clock" -name IP_TOP_LEVEL_COMPONENT_NAME "altera_iopll"
+set_global_assignment -entity "main_clock" -library "main_clock" -name PRE_COMPILED_MODULE "ON"
+set_global_assignment -entity "main_clock" -library "main_clock" -name OCS_IP_FILE [file join $::quartus(qip_path) "../main_clock.ip"]
+set_global_assignment -entity "main_clock" -library "main_clock" -name OCS_IP_TYPE "altera_iopll"
+set_global_assignment -entity "main_clock" -library "main_clock" -name OCS_IP_VERSION "20.0.0"
+set_global_assignment -entity "main_clock" -library "main_clock" -name OCS_IP_HASH "jajozcy"
+set_global_assignment -library "main_clock" -name SOPCINFO_FILE [file join $::quartus(qip_path) "main_clock.sopcinfo"]
+set_global_assignment -entity "main_clock" -library "main_clock" -name SLD_INFO "QSYS_NAME main_clock HAS_SOPCINFO 1 GENERATION_ID 0"
+set_global_assignment -library "main_clock" -name MISC_FILE [file join $::quartus(qip_path) "main_clock.cmp"]
+set_global_assignment -entity "main_clock" -library "main_clock" -name IP_TARGETED_DEVICE_FAMILY "Agilex 3"
+set_global_assignment -entity "main_clock" -library "main_clock" -name IP_TARGETED_PART_TRAIT "DEVICE_SPEEDGRADE::7"
+set_global_assignment -entity "main_clock" -library "main_clock" -name IP_TARGETED_PART_TRAIT "part.DEVICE_IOBANK_REVISION::IO96B_REVB1"
+set_global_assignment -entity "main_clock" -library "main_clock" -name IP_GENERATED_DEVICE_FAMILY "{Agilex 3}"
+set_global_assignment -entity "main_clock" -library "main_clock" -name IP_QSYS_MODE "STANDALONE"
+set_global_assignment -name SYNTHESIS_ONLY_QIP ON
+set_global_assignment -library "main_clock" -name MISC_FILE [file join $::quartus(qip_path) "../main_clock.ip"]
+
+set_global_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name IP_COMPONENT_NAME "bWFpbl9jbG9ja19hbHRlcmFfaW9wbGxfMjAwMF9qYWpvemN5"
+set_global_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name IP_COMPONENT_DISPLAY_NAME "SU9QTEwgRlBHQSBJUA=="
+set_global_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name IP_COMPONENT_AUTHOR "QWx0ZXJh"
+set_global_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name IP_COMPONENT_VERSION "MjAuMC4w"
+set_global_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name IP_COMPONENT_DESCRIPTION "QWx0ZXJhIEZQR0EgUGhhc2UtTG9ja2VkIExvb3AgKElPUExMIEZQR0EgSVApIGNvcmUgYWxsb3dzIHlvdSB0byBjb25maWd1cmUgdGhlIHNldHRpbmdzIG9mIHRoZSAgSS9PIFBMTC4="
+set_global_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name IP_COMPONENT_GROUP "QmFzaWMgRnVuY3Rpb25zL0Nsb2NrczsgUExMcyBhbmQgUmVzZXRzL1BMTA=="
+set_global_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name IP_COMPONENT_DOCUMENTATION_LINK "aHR0cHM6Ly93d3cuaW50ZWwuY29tL2NvbnRlbnQvd3d3L3VzL2VuL2RvY3MvcHJvZ3JhbW1hYmxlLzY4MzI4NS5odG1s"
+set_global_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name IP_COMPONENT_DOCUMENTATION_LINK "aHR0cHM6Ly93d3cuaW50ZWwuY29tL2NvbnRlbnQvd3d3L3VzL2VuL2RvY3MvcHJvZ3JhbW1hYmxlLzY4MzI4NS5odG1s"
+set_global_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name IP_COMPONENT_DOCUMENTATION_LINK "aHR0cHM6Ly93d3cuaW50ZWwuY29tL2NvbnRlbnQvd3d3L3VzL2VuL2RvY3MvcHJvZ3JhbW1hYmxlLzY4MzE5NS5odG1s"
+set_global_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name IP_COMPONENT_DOCUMENTATION_LINK "aHR0cHM6Ly93d3cuaW50ZWwuY29tL2NvbnRlbnQvd3d3L3VzL2VuL2RvY3MvcHJvZ3JhbW1hYmxlLzY4Mzc2MS5odG1s"
+set_global_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name IP_COMPONENT_DOCUMENTATION_LINK "aHR0cHM6Ly93d3cuaW50ZWwuY29tL2NvbnRlbnQvd3d3L3VzL2VuL2RvY3MvcHJvZ3JhbW1hYmxlLzc2OTAwMS5odG1s"
+set_global_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name IP_COMPONENT_DOCUMENTATION_LINK "aHR0cHM6Ly93d3cuaW50ZWwuY29tL2NvbnRlbnQvd3d3L3VzL2VuL2RvY3MvcHJvZ3JhbW1hYmxlLzY4MzE2Ni5odG1s"
+set_global_assignment -entity "main_clock" -library "main_clock" -name IP_COMPONENT_NAME "bWFpbl9jbG9jaw=="
+set_global_assignment -entity "main_clock" -library "main_clock" -name IP_COMPONENT_DISPLAY_NAME "c3lzdGVt"
+set_global_assignment -entity "main_clock" -library "main_clock" -name IP_COMPONENT_REPORT_HIERARCHY "On"
+set_global_assignment -entity "main_clock" -library "main_clock" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "main_clock" -library "main_clock" -name IP_COMPONENT_AUTHOR "QWx0ZXJh"
+set_global_assignment -entity "main_clock" -library "main_clock" -name IP_COMPONENT_VERSION "MS4w"
+
+set_instance_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name PLL_REFCLK_INPUT_TYPE NOT_BALANCED -to "*tennm_ph2_iopll"
+
+set_global_assignment -library "altera_iopll_2000" -name VERILOG_FILE [file join $::quartus(qip_path) "altera_iopll_2000/synth/main_clock_altera_iopll_2000_jajozcy.v"]
+set_instance_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name TCL_ENTITY_FILE [file join $::quartus(qip_path) "altera_iopll_2000/synth/main_clock_altera_iopll_2000_jajozcy_all_ip_params.tcl"]
+set_instance_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name TCL_ENTITY_FILE [file join $::quartus(qip_path) "altera_iopll_2000/synth/main_clock_altera_iopll_2000_jajozcy_parameters.tcl"]
+set_instance_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name SDC_ENTITY_FILE [file join $::quartus(qip_path) "altera_iopll_2000/synth/main_clock_altera_iopll_2000_jajozcy.sdc"] -no_sdc_promotion  -no_auto_inst_discovery  -read_during_post_syn_and_post_fit_timing_analysis 
+set_instance_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name TCL_ENTITY_FILE [file join $::quartus(qip_path) "altera_iopll_2000/synth/main_clock_altera_iopll_2000_jajozcy_pin_map.tcl"]
+set_global_assignment -library "main_clock" -name VHDL_FILE [file join $::quartus(qip_path) "synth/main_clock.vhd"]
+
+
+set_global_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name IP_TOOL_NAME "altera_iopll"
+set_global_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name IP_TOOL_VERSION "20.0.0"
+set_global_assignment -entity "main_clock_altera_iopll_2000_jajozcy" -library "altera_iopll_2000" -name IP_TOOL_ENV "QsysPrimePro"
+
