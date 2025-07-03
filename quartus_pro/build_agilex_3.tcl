@@ -89,6 +89,42 @@ set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_microprogr
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_microprogram_processor/source/hVHDL_memory_library/vhdl2008/mpram_w_configurable_records.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_microprogram_processor/source/hVHDL_memory_library/vhdl2008/dp_ram_w_configurable_recrods.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_microprogram_processor/source/hVHDL_memory_library/vhdl2008/arch_rtl_dp_ram_w_configurable_records.vhd
+set_global_assignment -name VHDL_FILE $this_file_path/../source/test_processor/uproc_test.vhd
+set_global_assignment -name IP_FILE $this_file_path/ip/main_clock/main_clock.ip
+
+
+	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6D
+	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6B
+	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6A
+	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6F
+	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6E
+	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6G
+	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6H
+	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6C
+	set_global_assignment -name IOBANK_VCCIO 1.2V -section_id 3A_T
+	set_global_assignment -name OPTIMIZATION_MODE "SUPERIOR PERFORMANCE"
+	set_global_assignment -name POWER_APPLY_THERMAL_MARGIN ADDITIONAL
+	set_global_assignment -name FLOW_ENABLE_HYPER_RETIMER_FAST_FORWARD ON
+	set_instance_assignment -name PARTITION_COLOUR 4289658812 -to testiAg3 -entity testiAg3
+	# IOBANK_6D
+	set_location_assignment PIN_D18 -to uart_rx -comment IOBANK_6D
+	# IOBANK_6G
+	set_location_assignment PIN_AK2 -to xclk -comment IOBANK_6G
+	# IOBANK_6C
+	set_location_assignment PIN_B11 -to output_inu_sdm_data -comment IOBANK_6C
+	# IOBANK_6C
+	set_location_assignment PIN_D3 -to dab_sdm_data -comment IOBANK_6C
+	# IOBANK_6H
+	set_location_assignment PIN_AC2 -to grid_inu_sdm_data -comment IOBANK_6H
+	# IOBANK_6H
+	set_location_assignment PIN_E2 -to dab_sdm_clock -comment IOBANK_6H
+	# IOBANK_6C
+	set_location_assignment PIN_B8 -to grid_inu_sdm_clock -comment IOBANK_6C
+	# IOBANK_6H
+	set_location_assignment PIN_N2 -to output_inu_sdm_clock -comment IOBANK_6H
+	# IOBANK_6D
+	set_location_assignment PIN_F18 -to uart_tx -comment IOBANK_6D
+	set_instance_assignment -name AUTO_GLOBAL_CLOCK ON -to *
 
 # Commit assignments
 export_assignments
