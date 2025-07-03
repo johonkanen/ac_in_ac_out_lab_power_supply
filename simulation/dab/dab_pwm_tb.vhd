@@ -31,7 +31,7 @@ architecture vunit_simulation of dab_pwm_tb is
     signal carrier  : natural range 0 to 2**16-1 := 0;
     signal duty     : natural range 0 to 2**16-1 := 100;
 
-    signal pwm : pwm_record  := init_pwm(5999 , 5999/2 , 0);
+    signal pwm  : pwm_record := init_pwm(5999 , 5999/2 , 0);
     signal pwm2 : pwm_record := init_pwm(5999 , 5999/2 , 0);
 
 

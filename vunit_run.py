@@ -19,6 +19,17 @@ top_lib.add_source_files(ROOT / "source/fpga_communication/hVHDL_uart/uart_rx/ua
 top_lib.add_source_files(ROOT / "source/fpga_communication/hVHDL_uart/uart_tx/uart_tx_pkg.vhd")
 top_lib.add_source_files(ROOT / "source/fpga_communication/signal_scope/signal_scope.vhd")
 
+top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/vhdl2008/vhdl2008_microinstruction_pkg.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/vhdl2008/ram_connector_pkg.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/vhdl2008/addsub.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/vhdl2008/microprogram_sequencer.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/vhdl2008/microprogram_processor.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/source/hVHDL_memory_library/vhdl2008/mpram_w_configurable_records.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/source/hVHDL_memory_library/vhdl2008/dp_ram_w_configurable_recrods.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/source/hVHDL_memory_library/vhdl2008/arch_sim_dp_ram_w_configurable_records.vhd")
+
+top_lib.add_source_files(ROOT / "source/test_processor/uproc_test.vhd")
+
 top_lib.add_source_files(ROOT / "source/hVHDL_analog_to_digital_drivers/sigma_delta/sigma_delta_cic_filter_pkg.vhd")
 
 top_lib.add_source_files(ROOT / "source/vhdl_serial/bit_operations_pkg.vhd")
@@ -78,7 +89,7 @@ ode.add_source_files(ROOT / "simulation/inu/half_bridge_tb.vhd")
 
 #--------------------------------------
 s7 = VU.add_library("s7")
-s7.add_source_files(ROOT / "spartan7/testbench/measurements_tb.vhd")
+# s7.add_source_files(ROOT / "spartan7/testbench/measurements_tb.vhd")
 s7.add_source_files(ROOT / "source/hVHDL_memory_library/fpga_internal_ram/dual_port_ram_generic_pkg.vhd")
 s7.add_source_files(ROOT / "source/hVHDL_memory_library/fpga_internal_ram/arch_sim_generic_dual_port_ram.vhd")
 
@@ -93,7 +104,7 @@ s7.add_source_files(ROOT / "source/vhdl_serial/source/spi_adc_generic/spi_adc_ty
 s7.add_source_files(ROOT / "source/vhdl_serial/source/clock_divider/clock_divider_generic_pkg.vhd")
 s7.add_source_files(ROOT / "source/vhdl_serial/source/max11115/max11115_generic_pkg.vhd")
 
-s7.add_source_files(ROOT / "spartan7/measurements.vhd")
+# s7.add_source_files(ROOT / "spartan7/measurements.vhd")
 
 VU.set_sim_option("nvc.sim_flags", ["-w"])
 
