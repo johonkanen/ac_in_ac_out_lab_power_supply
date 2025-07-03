@@ -13,16 +13,16 @@ package microprogram_pkg is
     constant instruction_length : natural := 32;
     constant word_length        : natural := 36;
     constant used_radix         : natural := word_length - 11;
+    constant addresswidth       : natural := 10;
     
-    --function to_fixed is new generic_to_fixed 
-    --generic map(word_length, used_radix);
+    function to_fixed is new generic_to_fixed 
+    generic map(word_length, used_radix);
 
-    constant ref_subtype : subtype_ref_record := create_ref_subtypes(readports       => 3 , datawidth => word_length , addresswidth => 10);
-    constant instr_ref_subtype : subtype_ref_record := create_ref_subtypes(readports => 1 , datawidth => 32          , addresswidth          => 10);
+    constant ref_subtype : subtype_ref_record := create_ref_subtypes(readports       => 3 , datawidth => word_length , addresswidth => addresswidth);
+    constant instr_ref_subtype : subtype_ref_record := create_ref_subtypes(readports => 1 , datawidth => 32          , addresswidth => addresswidth);
 
-    constant readports : natural := 3;
-    constant addresswidth : natural := 7;
-    constant datawidth : natural := word_length;
+    constant readports    : natural := 3;
+    constant datawidth    : natural := word_length;
 
     use work.ram_connector_pkg.all;
     constant ram_connector_ref : ram_connector_record := (
@@ -38,7 +38,8 @@ package microprogram_pkg is
                     data          => (datawidth - 1 downto 0 => '0'),
                     data_is_ready => '0'
                 )
-            ));
+            )
+        );
 
 
     constant y    : natural := 50;
@@ -85,7 +86,7 @@ package microprogram_pkg is
         , 7  => add(6, 1, 1)
         , 8  => mpy(7, 2, 2)
         , 9  => op(mpy_add,8, 2, 2, 1)
-        , 10  => op(mpy_sub,9, 2, 2, 1)
+        , 10 => op(mpy_sub,9, 2, 2, 1)
         , 13 => op(program_end)
 
         -- lc filter

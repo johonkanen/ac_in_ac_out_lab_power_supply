@@ -4,19 +4,24 @@ library ieee;
 
 entity testiAg3 is
     port (
-        xclk     : in std_logic
-        ;uart_rx : in std_logic
-        ;uart_tx : out std_logic
+        xclk                  : in  std_logic
+        ;uart_rx              : in  std_logic
+        ;uart_tx              : out std_logic
+        ;grid_inu_sdm_data    : in  std_logic
+        ;output_inu_sdm_data  : in  std_logic
+        ;dab_sdm_data         : in  std_logic
+        ;grid_inu_sdm_clock   : out std_logic
+        ;output_inu_sdm_clock : out std_logic
+        ;dab_sdm_clock        : out std_logic
     );
 end entity testiAg3;
 
 architecture rtl of testiAg3 is
-    -- signal counter : natural := 0;
 	component main_clock is
 	port (
-		refclk   : in  std_logic := '0'; --  refclk.clk,   The reference clock source that drives the I/O PLL.
-		rst      : in  std_logic := '0'; --   reset.reset, The asynchronous reset port for the output clocks. Drive this port high to reset all output clocks to the value of 0.
-		outclk_0 : out std_logic         -- outclk0.clk,   Output clock Channel 0 from I/O PLL.
+		refclk   : in  std_logic := '0' --  refclk.clk,   The reference clock source that drives the I/O PLL.
+	    ;rst      : in  std_logic := '0' --   reset.reset, The asynchronous reset port for the output clocks. Drive this port high to reset all output clocks to the value of 0.
+	    ;outclk_0 : out std_logic         -- outclk0.clk,   Output clock Channel 0 from I/O PLL.
 	);
 	end component;
 	
@@ -24,8 +29,7 @@ architecture rtl of testiAg3 is
 	 
 begin
 	u_main_clock : main_clock
-	port map(refclk => xclk
-				,outclk_0 => core_clock);
+	port map(refclk => xclk,outclk_0 => core_clock);
 
     u_titanium_top : entity work.titanium_top
     port map (
@@ -53,9 +57,6 @@ begin
         ,gate_power4_pwm          => open
         ,gate_power5_pwm          => open
         ,gate_power6_pwm          => open
-        ,grid_inu_sdm_clock       => open
-        ,output_inu_sdm_clock     => open
-        ,dab_sdm_clock            => open
         ,ad_mux1_io               => open
         ,ads_7056_clock           => open
         ,ads_7056_chip_select     => open
@@ -64,9 +65,12 @@ begin
         ,ads_7056_clock_pri       => open
         ,ads_7056_chip_select_pri => open
         ,ads_7056_input_data_pri  => '0'
-        ,grid_inu_sdm_data        => '0'
-        ,output_inu_sdm_data      => '0'
-        ,dab_sdm_data             => '0'
+        ,grid_inu_sdm_data        => grid_inu_sdm_data   
+        ,output_inu_sdm_data      => output_inu_sdm_data 
+        ,dab_sdm_data             => dab_sdm_data        
+        ,grid_inu_sdm_clock       => grid_inu_sdm_clock  
+        ,output_inu_sdm_clock     => output_inu_sdm_clock
+        ,dab_sdm_clock            => dab_sdm_clock       
     );
 
 end rtl;
