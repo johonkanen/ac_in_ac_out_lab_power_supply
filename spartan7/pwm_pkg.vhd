@@ -9,10 +9,11 @@ package pwm_pkg is
         carrier_max : natural range 0 to 2**16-1;
         carrier     : natural range 0 to 2**16-1;
         duty        : natural range 0 to 2**16-1;
+        phase       : natural range 0 to 2**16-1;
         pwm         : std_logic                 ;
         enabled : boolean;
     end record;
-    constant init_pwm : pwm_record := (1000 , 0 , 100 , '0' , false);
+    constant init_pwm : pwm_record := (1000 , 0 , 100 , phase => 0 , pwm => '0' , enabled => false);
 
     procedure create_pwm (signal self : inout pwm_record
                           ;signal pwm_out : out std_logic
@@ -27,7 +28,7 @@ package body pwm_pkg is
                          )
     is
     begin
-        if self.carrier < self.carrier_max
+        if self.carrier + self.phase < self.carrier_max
         then
             self.carrier <= self.carrier + 1;
         else
@@ -50,6 +51,3 @@ package body pwm_pkg is
     end procedure;
 
 end package body;
-
--------------------------------------------------------------------
----------------------------
