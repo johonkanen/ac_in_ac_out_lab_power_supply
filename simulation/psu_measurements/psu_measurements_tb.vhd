@@ -189,23 +189,25 @@ architecture vunit_simulation of measurement_scaling_tb is
 
     constant init_values : ram_array(0 to 1023)(word_length-1 downto 0) := 
     (
-     0 => to_fixed(10.0)
-    ,1 => to_fixed(0.5)
+     0 => to_fixed(1.0/10.0)
+    ,1 => to_fixed(1.0)
 
-    ,2 => to_fixed(10.0)
-    ,3 => to_fixed(0.5)
+    ,2 => to_fixed(1.0/20.0)
+    ,3 => to_fixed(2.0)
 
-    ,4 => to_fixed(0.001)
-    ,5 => to_fixed(0.5)
+    ,4 => to_fixed(1.0/30.0)
+    ,5 => to_fixed(-3.0)
 
-    ,6 => to_fixed(-0.001)
-    ,7 => to_fixed(0.5)
+    ,6 => to_fixed(1.0/40.0)
+    ,7 => to_fixed(-4.0)
 
     ,others => (others => '0'));
 
     signal address_out : natural;
     signal self_in : meas_scaler_in_record;
     signal self_out : meas_scaler_out_record;
+
+    signal test_out : real := 0.0;
 
 begin
 
@@ -227,12 +229,17 @@ begin
             init_meas_scaler(self_in);
 
             CASE simulation_counter is
-                WHEN 0 => request_scaler(self_in, signed(to_fixed(10.0)), 0);
-                WHEN 1 => request_scaler(self_in, signed(to_fixed(11.1)), 1);
-                WHEN 2 => request_scaler(self_in, signed(to_fixed(12.2)), 2);
-                WHEN 3 => request_scaler(self_in, signed(to_fixed(13.3)), 3);
+                WHEN 0 => request_scaler(self_in, signed(to_fixed(100.0)), 0);
+                WHEN 1 => request_scaler(self_in, signed(to_fixed(100.0)), 1);
+                WHEN 2 => request_scaler(self_in, signed(to_fixed(100.0)), 2);
+                WHEN 3 => request_scaler(self_in, signed(to_fixed(100.0)), 3);
                 WHEN others => --do nothing
             end CASE;
+
+            if conversion_is_ready(self_out)
+            then
+                test_out <= to_real(get_converted_meas(self_out), 29);
+            end if;
 
         end if; -- rising_edge
     end process stimulus;	
