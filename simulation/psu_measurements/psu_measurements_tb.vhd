@@ -69,7 +69,7 @@ LIBRARY ieee  ;
 
 entity meas_scaler is
     generic (init_values : work.dual_port_ram_pkg.ram_array
-            ;radix : natural := 30);
+            ;radix : natural);
     port(
         clock     : in std_logic
         ;self_in  : in meas_scaler_in_record
@@ -184,22 +184,23 @@ architecture vunit_simulation of measurement_scaling_tb is
     use work.meas_scaler_pkg.all;
 
     constant word_length : natural := 40;
+    constant used_radix : natural := 29;
 
-    function to_fixed is new generic_to_fixed generic map(word_length => word_length, used_radix => 29);
+    function to_fixed is new generic_to_fixed generic map(word_length => word_length, used_radix => used_radix);
 
     constant init_values : ram_array(0 to 1023)(word_length-1 downto 0) := 
     (
      0 => to_fixed(1.0/10.0)
-    ,1 => to_fixed(1.0)
+    ,1 => to_fixed(0.0)
 
     ,2 => to_fixed(1.0/20.0)
-    ,3 => to_fixed(2.0)
+    ,3 => to_fixed(0.0)
 
     ,4 => to_fixed(1.0/30.0)
-    ,5 => to_fixed(-3.0)
+    ,5 => to_fixed(-0.0)
 
     ,6 => to_fixed(1.0/40.0)
-    ,7 => to_fixed(-4.0)
+    ,7 => to_fixed(-0.0)
 
     ,others => (others => '0'));
 
@@ -245,7 +246,7 @@ begin
     end process stimulus;	
 ------------------------------------------------------------------------
     u_meas_scaler : entity work.meas_scaler
-    generic map(init_values)
+    generic map(init_values, used_radix)
     port map(
         clock => simulator_clock
         ,self_in
