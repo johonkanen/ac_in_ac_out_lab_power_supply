@@ -2,7 +2,28 @@ LIBRARY ieee  ;
     USE ieee.NUMERIC_STD.all  ; 
     USE ieee.std_logic_1164.all  ; 
 
+package meas_scaler_pkg is
+
+    type meas_scaler_in_record is record
+        conversion_requested : boolean;
+        data_in              : signed ;
+        address              : natural;
+    end record;
+
+    type meas_scaler_out_record is record
+        data_out             : signed(39 downto 0);
+        out_address          : natural            ;
+        is_ready             : boolean            ;
+    end record;
+
+end package meas_scaler_pkg;
+
+LIBRARY ieee  ; 
+    USE ieee.NUMERIC_STD.all  ; 
+    USE ieee.std_logic_1164.all  ; 
+
     use work.dual_port_ram_pkg.all;
+    use work.meas_scaler_pkg.all;
 
 entity meas_scaler is
     generic (init_values : work.dual_port_ram_pkg.ram_array
@@ -10,8 +31,9 @@ entity meas_scaler is
     port(
         clock                 : in std_logic
         ;conversion_requested : in boolean
-        ;data_in              : in signed(15 downto 0)
+        ;data_in              : in signed
         ;address              : in natural
+
         ;data_out             : out signed(39 downto 0)
         ;out_address          : out natural
         ;is_ready             : out boolean
@@ -25,6 +47,7 @@ architecture rtl of meas_scaler is
             datawidth      => init_values(0)'length
             , addresswidth => 10);
 
+    --------------------
     signal ram_a_in  : dp_ram_subtype.ram_in'subtype;
     signal ram_a_out : dp_ram_subtype.ram_out'subtype;
     --------------------
@@ -35,7 +58,7 @@ architecture rtl of meas_scaler is
     type data_array is array(integer range 0 to 15) of signed(data_in'range);
     signal instruction_pipeline : instruction_array := (0 => 0, 1 => 1, 2 => 2, others => 15);
     signal data_pipeline : data_array :=(others => (others => '0'));
-    constant zero : signed(15 downto 0) := (others => '0');
+    constant zero : signed(data_in'range) := (others => '0');
 
     constant datawidth : natural := dp_ram_subtype.ram_in.data'length;
 
@@ -75,7 +98,8 @@ begin
                 c <= resize(signed(get_ram_data(ram_b_out)), datawidth);
             end if;
 
-            
+            out_address <= instruction_pipeline(5);
+            is_ready    <= true;
 
         end if; -- rising_edge
     end process;
@@ -130,6 +154,8 @@ architecture vunit_simulation of measurement_scaling_tb is
 
     ,others => (others => '0'));
 
+    signal address_out : natural;
+
 begin
 
 ------------------------------------------------------------------------
@@ -155,9 +181,11 @@ begin
     generic map(init_values)
     port map(
         clock => simulator_clock
+
         ,conversion_requested => true
         ,data_in              => to_fixed(500.0, 16, 0)
         ,address              => 15
+        ,out_address          => address_out
     );
 ------------------------------------------------------------------------
 end vunit_simulation;
