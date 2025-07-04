@@ -10,7 +10,7 @@ entity meas_scaler is
     port(
         clock                 : in std_logic
         ;conversion_requested : in boolean
-        ;data_in              : in signed
+        ;data_in              : in signed(15 downto 0)
         ;address              : in natural
     );
 end meas_scaler;
@@ -29,13 +29,19 @@ architecture rtl of meas_scaler is
     signal ram_b_out : ram_a_out'subtype;
     --------------------
     type instruction_array is array(integer range 0 to 15) of natural;
+    type data_array is array(integer range 0 to 15) of signed(data_in'range);
     signal instruction_pipeline : instruction_array := (0 => 0, 1 => 1, 2 => 2, others => 15);
-    signal tessti : natural := 0;
+    signal data_pipeline : data_array :=(others => (others => '0'));
+    constant zero : signed(15 downto 0) := (others => '0');
 
     constant datawidth : natural := dp_ram_subtype.ram_in.data'length;
+
     signal a, b, c , cbuf : signed(datawidth-1 downto 0);
     signal mpy_res        : signed(2*datawidth-1 downto 0);
+    signal mpy_res2       : signed(2*datawidth-1 downto 0);
     
+    signal tessti : natural := 0;
+
 begin
     tessti <= instruction_pipeline(15);
 
@@ -49,7 +55,10 @@ begin
             ---------------
             init_ram(ram_a_in);
             init_ram(ram_b_in);
+
             instruction_pipeline <= address & instruction_pipeline(0 to 14);
+            data_pipeline        <= data_in & data_pipeline(0 to 14);
+
             if conversion_requested
             then 
                 request_data_from_ram(ram_a_in, address);
@@ -134,7 +143,7 @@ begin
     port map(
         clock => simulator_clock
         ,conversion_requested => true
-        ,data_in              => to_fixed(15.0, 40, 30)
+        ,data_in              => to_fixed(500.0, 16, 0)
         ,address              => 15
     );
 ------------------------------------------------------------------------
