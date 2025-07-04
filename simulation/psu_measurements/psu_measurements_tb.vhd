@@ -91,9 +91,9 @@ architecture rtl of meas_scaler is
     signal ram_b_in  : ram_a_in'subtype;
     signal ram_b_out : ram_a_out'subtype;
     --------------------
-    type instruction_array is array(integer range 0 to 15) of natural;
+    type address_array is array(integer range 0 to 15) of natural;
     type data_array is array(integer range 0 to 15) of signed(self_in.data_in'range);
-    signal instruction_pipeline : instruction_array := (0 => 0, 1 => 1, 2 => 2, others => 15);
+    signal address_pipeline : address_array := (0 => 0, 1 => 1, 2 => 2, others => 15);
     signal data_pipeline : data_array :=(others => (others => '0'));
     constant zero : signed(self_in.data_in'range) := (others => '0');
 
@@ -105,8 +105,10 @@ architecture rtl of meas_scaler is
     
     signal tessti : natural := 0;
 
+    signal ready_pipeline : std_logic_vector(0 to 15) := (others => '0');
+
 begin
-    tessti <= instruction_pipeline(15);
+    tessti <= address_pipeline(15);
 
     process(clock)
     begin
@@ -119,11 +121,13 @@ begin
             init_ram(ram_a_in);
             init_ram(ram_b_in);
 
-            instruction_pipeline <= self_in.address & instruction_pipeline(0 to 14);
-            data_pipeline        <= self_in.data_in & data_pipeline(0 to 14);
+            address_pipeline <= self_in.address & address_pipeline(0 to 14);
+            data_pipeline    <= self_in.data_in & data_pipeline(0 to 14);
+            ready_pipeline   <= '0' & ready_pipeline(0 to 14);
 
             if self_in.conversion_requested
             then 
+                ready_pipeline(0) <= '1';
                 request_data_from_ram(ram_a_in, self_in.address*2);
                 request_data_from_ram(ram_b_in, self_in.address*2+1);
             end if;
@@ -135,9 +139,9 @@ begin
                 c <= resize(signed(get_ram_data(ram_b_out)), datawidth);
             end if;
 
-            self_out.out_address <= instruction_pipeline(5);
+            self_out.out_address <= address_pipeline(6);
             self_out.data_out    <= mpy_res(radix+ram_a_out.data'length-1 downto radix);
-            self_out.is_ready    <= true;
+            self_out.is_ready    <= ready_pipeline(6) = '1';
 
         end if; -- rising_edge
     end process;
