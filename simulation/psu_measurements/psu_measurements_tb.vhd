@@ -7,8 +7,10 @@ LIBRARY ieee  ;
 entity meas_scaler is
     generic (init_values : work.dual_port_ram_pkg.ram_array);
     port(
-        clock    : in std_logic
-        ;data_in : in signed
+        clock                 : in std_logic
+        ;conversion_requested : in boolean
+        ;data_in              : in signed
+        ;address              : in natural
     );
 end meas_scaler;
 
@@ -24,8 +26,13 @@ architecture rtl of meas_scaler is
     --------------------
     signal ram_b_in  : ram_a_in'subtype;
     signal ram_b_out : ram_a_out'subtype;
+    --------------------
+    type instruction_array is array(integer range 0 to 15) of natural;
+    signal instruction_pipeline : instruction_array := (0 => 0, 1 => 1, 2 => 2, others => 15);
+    signal tessti : natural := 0;
     
 begin
+    tessti <= instruction_pipeline(15);
 
     process(clock)
     begin
@@ -33,6 +40,8 @@ begin
 
             init_ram(ram_a_in);
             init_ram(ram_b_in);
+            instruction_pipeline <= address & instruction_pipeline(0 to 14);
+            -- if conversion_requested
 
         end if; -- rising_edge
     end process;
@@ -87,17 +96,6 @@ architecture vunit_simulation of measurement_scaling_tb is
 
     ,others => (others => '0'));
 
-    constant dp_ram_subtype : dpram_ref_record := 
-        create_ref_subtypes(
-            datawidth      => init_values(0)'length
-            , addresswidth => 10);
-
-    signal ram_a_in  : dp_ram_subtype.ram_in'subtype;
-    signal ram_a_out : dp_ram_subtype.ram_out'subtype;
-    --------------------
-    signal ram_b_in  : ram_a_in'subtype;
-    signal ram_b_out : ram_a_out'subtype;
-    
 begin
 
 ------------------------------------------------------------------------
@@ -116,31 +114,16 @@ begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
 
-            init_ram(ram_a_in);
-            init_ram(ram_b_in);
-
-
         end if; -- rising_edge
     end process stimulus;	
-------------------------------------------------------------------------
-------------------------------------------------------------------------
-    u_dpram : entity work.dual_port_ram
-    generic map(dp_ram_subtype, init_values)
-    port map(
-    simulator_clock
-    , ram_a_in   
-    , ram_a_out  
-    --------------
-    , ram_b_in  
-    , ram_b_out);
-------------------------------------------------------------------------
 ------------------------------------------------------------------------
     u_meas_scaler : entity work.meas_scaler
     generic map(init_values)
     port map(
         clock => simulator_clock
-        ,data_in => to_fixed(15.0, 40, 30)
+        ,conversion_requested => true
+        ,data_in              => to_fixed(15.0, 40, 30)
+        ,address              => 15
     );
-
 ------------------------------------------------------------------------
 end vunit_simulation;
