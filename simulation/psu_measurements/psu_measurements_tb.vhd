@@ -6,7 +6,7 @@ package meas_scaler_pkg is
 
     type meas_scaler_in_record is record
         conversion_requested : boolean;
-        data_in              : signed ;
+        data_in              : signed(39 downto 0) ;
         address              : natural;
     end record;
 
@@ -71,14 +71,9 @@ entity meas_scaler is
     generic (init_values : work.dual_port_ram_pkg.ram_array
             ;radix : natural := 30);
     port(
-        clock                 : in std_logic
-        ;conversion_requested : in boolean
-        ;data_in              : in signed
-        ;address              : in natural
-
-        ;data_out             : out signed(39 downto 0)
-        ;out_address          : out natural
-        ;is_ready             : out boolean
+        clock     : in std_logic
+        ;self_in  : in meas_scaler_in_record
+        ;self_out : out meas_scaler_out_record
     );
 end meas_scaler;
 
@@ -97,10 +92,10 @@ architecture rtl of meas_scaler is
     signal ram_b_out : ram_a_out'subtype;
     --------------------
     type instruction_array is array(integer range 0 to 15) of natural;
-    type data_array is array(integer range 0 to 15) of signed(data_in'range);
+    type data_array is array(integer range 0 to 15) of signed(self_in.data_in'range);
     signal instruction_pipeline : instruction_array := (0 => 0, 1 => 1, 2 => 2, others => 15);
     signal data_pipeline : data_array :=(others => (others => '0'));
-    constant zero : signed(data_in'range) := (others => '0');
+    constant zero : signed(self_in.data_in'range) := (others => '0');
 
     constant datawidth : natural := dp_ram_subtype.ram_in.data'length;
 
@@ -124,13 +119,13 @@ begin
             init_ram(ram_a_in);
             init_ram(ram_b_in);
 
-            instruction_pipeline <= address & instruction_pipeline(0 to 14);
-            data_pipeline        <= data_in & data_pipeline(0 to 14);
+            instruction_pipeline <= self_in.address & instruction_pipeline(0 to 14);
+            data_pipeline        <= self_in.data_in & data_pipeline(0 to 14);
 
-            if conversion_requested
+            if self_in.conversion_requested
             then 
-                request_data_from_ram(ram_a_in, address/2);
-                request_data_from_ram(ram_b_in, address/2+1);
+                request_data_from_ram(ram_a_in, self_in.address*2);
+                request_data_from_ram(ram_b_in, self_in.address*2+1);
             end if;
 
             if ram_read_is_ready(ram_a_out) 
@@ -140,9 +135,9 @@ begin
                 c <= resize(signed(get_ram_data(ram_b_out)), datawidth);
             end if;
 
-            out_address <= instruction_pipeline(5);
-            data_out    <= mpy_res(radix+ram_a_out.data'length-1 downto radix);
-            is_ready    <= true;
+            self_out.out_address <= instruction_pipeline(5);
+            self_out.data_out    <= mpy_res(radix+ram_a_out.data'length-1 downto radix);
+            self_out.is_ready    <= true;
 
         end if; -- rising_edge
     end process;
@@ -182,6 +177,7 @@ architecture vunit_simulation of measurement_scaling_tb is
 
     use work.dual_port_ram_pkg.all;
     use work.real_to_fixed_pkg.all;
+    use work.meas_scaler_pkg.all;
 
     constant word_length : natural := 40;
 
@@ -198,6 +194,8 @@ architecture vunit_simulation of measurement_scaling_tb is
     ,others => (others => '0'));
 
     signal address_out : natural;
+    signal self_in : meas_scaler_in_record;
+    signal self_out : meas_scaler_out_record;
 
 begin
 
@@ -216,6 +214,15 @@ begin
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
+            init_meas_scaler(self_in);
+
+            CASE simulation_counter is
+                WHEN 0 => request_scaler(self_in, signed(to_fixed(10.0)), 1);
+                WHEN 1 => request_scaler(self_in, signed(to_fixed(11.1)), 2);
+                WHEN 2 => request_scaler(self_in, signed(to_fixed(12.2)), 3);
+                WHEN 3 => request_scaler(self_in, signed(to_fixed(13.3)), 4);
+                WHEN others => --do nothing
+            end CASE;
 
         end if; -- rising_edge
     end process stimulus;	
@@ -224,11 +231,8 @@ begin
     generic map(init_values)
     port map(
         clock => simulator_clock
-
-        ,conversion_requested => true
-        ,data_in              => to_fixed(500.0, 16, 0)
-        ,address              => 15
-        ,out_address          => address_out
+        ,self_in
+        ,self_out
     );
 ------------------------------------------------------------------------
 end vunit_simulation;
