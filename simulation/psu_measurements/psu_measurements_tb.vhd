@@ -1,4 +1,56 @@
+LIBRARY ieee  ; 
+    USE ieee.NUMERIC_STD.all  ; 
+    USE ieee.std_logic_1164.all  ; 
 
+    use work.dual_port_ram_pkg.all;
+
+entity meas_scaler is
+    generic (init_values : work.dual_port_ram_pkg.ram_array);
+    port(
+        clock    : in std_logic
+        ;data_in : in signed
+    );
+end meas_scaler;
+
+architecture rtl of meas_scaler is
+
+    constant dp_ram_subtype : dpram_ref_record := 
+        create_ref_subtypes(
+            datawidth      => init_values(0)'length
+            , addresswidth => 10);
+
+    signal ram_a_in  : dp_ram_subtype.ram_in'subtype;
+    signal ram_a_out : dp_ram_subtype.ram_out'subtype;
+    --------------------
+    signal ram_b_in  : ram_a_in'subtype;
+    signal ram_b_out : ram_a_out'subtype;
+    
+begin
+
+    process(clock)
+    begin
+        if rising_edge(clock) then
+
+            init_ram(ram_a_in);
+            init_ram(ram_b_in);
+
+        end if; -- rising_edge
+    end process;
+
+    u_dpram : entity work.dual_port_ram
+    generic map(dp_ram_subtype, init_values)
+    port map(
+    clock
+    , ram_a_in   
+    , ram_a_out  
+    --------------
+    , ram_b_in  
+    , ram_b_out);
+--------------------------------------------
+end rtl;
+
+--------------------------------------------
+--------------------------------------------
 LIBRARY ieee  ; 
     USE ieee.NUMERIC_STD.all  ; 
     USE ieee.std_logic_1164.all  ; 
@@ -19,11 +71,26 @@ architecture vunit_simulation of measurement_scaling_tb is
     signal simulation_counter : natural := 0;
 
     use work.dual_port_ram_pkg.all;
+    use work.real_to_fixed_pkg.all;
 
-    constant init_values : ram_array(0 to 159)(15 downto 0) := (others => (others => '0'));
-    constant dp_ram_subtype : dpram_ref_record := create_ref_subtypes(
-        datawidth      => init_values(0)'length
-        , addresswidth => 10);
+    constant word_length : natural := 40;
+
+    function to_fixed is new generic_to_fixed generic map(word_length => word_length, used_radix => 29);
+
+    constant init_values : ram_array(0 to 1023)(word_length-1 downto 0) := 
+    (
+     0 => to_fixed(10.0)
+    ,1 => to_fixed(0.5)
+
+    ,2 => to_fixed(10.0)
+    ,3 => to_fixed(0.5)
+
+    ,others => (others => '0'));
+
+    constant dp_ram_subtype : dpram_ref_record := 
+        create_ref_subtypes(
+            datawidth      => init_values(0)'length
+            , addresswidth => 10);
 
     signal ram_a_in  : dp_ram_subtype.ram_in'subtype;
     signal ram_a_out : dp_ram_subtype.ram_out'subtype;
@@ -48,7 +115,32 @@ begin
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
+
+            init_ram(ram_a_in);
+            init_ram(ram_b_in);
+
+
         end if; -- rising_edge
     end process stimulus;	
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+    u_dpram : entity work.dual_port_ram
+    generic map(dp_ram_subtype, init_values)
+    port map(
+    simulator_clock
+    , ram_a_in   
+    , ram_a_out  
+    --------------
+    , ram_b_in  
+    , ram_b_out);
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+    u_meas_scaler : entity work.meas_scaler
+    generic map(init_values)
+    port map(
+        clock => simulator_clock
+        ,data_in => to_fixed(15.0, 40, 30)
+    );
+
 ------------------------------------------------------------------------
 end vunit_simulation;
