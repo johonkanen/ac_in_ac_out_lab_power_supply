@@ -5,7 +5,8 @@ LIBRARY ieee  ;
     use work.dual_port_ram_pkg.all;
 
 entity meas_scaler is
-    generic (init_values : work.dual_port_ram_pkg.ram_array);
+    generic (init_values : work.dual_port_ram_pkg.ram_array
+            ;radix : natural := 30);
     port(
         clock                 : in std_logic
         ;conversion_requested : in boolean
@@ -30,6 +31,10 @@ architecture rtl of meas_scaler is
     type instruction_array is array(integer range 0 to 15) of natural;
     signal instruction_pipeline : instruction_array := (0 => 0, 1 => 1, 2 => 2, others => 15);
     signal tessti : natural := 0;
+
+    constant datawidth : natural := dp_ram_subtype.ram_in.data'length;
+    signal a, b, c , cbuf : signed(datawidth-1 downto 0);
+    signal mpy_res        : signed(2*datawidth-1 downto 0);
     
 begin
     tessti <= instruction_pipeline(15);
@@ -37,11 +42,18 @@ begin
     process(clock)
     begin
         if rising_edge(clock) then
-
+            ---------------
+            mpy_res2 <= a * b;
+            cbuf     <= c;
+            mpy_res  <= mpy_res2 + shift_left(resize(cbuf , mpy_res'length), radix) ;
+            ---------------
             init_ram(ram_a_in);
             init_ram(ram_b_in);
             instruction_pipeline <= address & instruction_pipeline(0 to 14);
-            -- if conversion_requested
+            if conversion_requested
+            then 
+                request_data_from_ram(ram_a_in, address);
+            end if;
 
         end if; -- rising_edge
     end process;
