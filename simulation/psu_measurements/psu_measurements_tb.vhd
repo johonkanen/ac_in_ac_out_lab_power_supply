@@ -99,6 +99,7 @@ begin
             end if;
 
             out_address <= instruction_pipeline(5);
+            data_out    <= mpy_res(radix+ram_a_out.data'length-1 downto radix);
             is_ready    <= true;
 
         end if; -- rising_edge
