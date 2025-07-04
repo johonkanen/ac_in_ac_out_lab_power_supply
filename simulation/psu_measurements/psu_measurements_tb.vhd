@@ -16,7 +16,49 @@ package meas_scaler_pkg is
         is_ready             : boolean            ;
     end record;
 
+    procedure init_meas_scaler(signal self_in : out meas_scaler_in_record);
+    procedure request_scaler(signal self_in : out meas_scaler_in_record
+         ; data : in signed
+         ; address : in natural);
+
+    function conversion_is_ready(self_out : meas_scaler_out_record) return boolean;
+    function get_converted_meas(self_out : meas_scaler_out_record) return signed;
+    function get_converted_address(self_out : meas_scaler_out_record) return natural;
+
 end package meas_scaler_pkg;
+
+package body meas_scaler_pkg is
+
+    procedure init_meas_scaler(signal self_in : out meas_scaler_in_record) is
+    begin
+        self_in.conversion_requested <= false;
+    end init_meas_scaler;
+
+    procedure request_scaler(signal self_in : out meas_scaler_in_record
+         ; data : in signed
+         ; address : in natural) is
+    begin
+        self_in.conversion_requested <= true;
+        self_in.data_in <= data;
+        self_in.address <= address;
+    end request_scaler;
+
+    function conversion_is_ready(self_out : meas_scaler_out_record) return boolean is
+    begin
+        return self_out.is_ready;
+    end conversion_is_ready;
+
+    function get_converted_meas(self_out : meas_scaler_out_record) return signed is
+    begin
+        return self_out.data_out;
+    end get_converted_meas;
+
+    function get_converted_address(self_out : meas_scaler_out_record) return natural is
+    begin
+        return self_out.out_address;
+    end get_converted_address;
+
+end package body meas_scaler_pkg;
 
 LIBRARY ieee  ; 
     USE ieee.NUMERIC_STD.all  ; 
