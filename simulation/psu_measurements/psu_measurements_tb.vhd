@@ -12,6 +12,9 @@ entity meas_scaler is
         ;conversion_requested : in boolean
         ;data_in              : in signed(15 downto 0)
         ;address              : in natural
+        ;data_out             : out signed(39 downto 0)
+        ;out_address          : out natural
+        ;is_ready             : out boolean
     );
 end meas_scaler;
 
@@ -61,8 +64,18 @@ begin
 
             if conversion_requested
             then 
-                request_data_from_ram(ram_a_in, address);
+                request_data_from_ram(ram_a_in, address/2);
+                request_data_from_ram(ram_b_in, address/2+1);
             end if;
+
+            if ram_read_is_ready(ram_a_out) 
+            then
+                a <= resize(data_pipeline(3), datawidth);
+                b <= resize(signed(get_ram_data(ram_a_out)), datawidth);
+                c <= resize(signed(get_ram_data(ram_b_out)), datawidth);
+            end if;
+
+            
 
         end if; -- rising_edge
     end process;
