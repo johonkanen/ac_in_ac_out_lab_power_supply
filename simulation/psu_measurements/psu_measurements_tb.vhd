@@ -191,6 +191,12 @@ architecture vunit_simulation of measurement_scaling_tb is
     ,2 => to_fixed(10.0)
     ,3 => to_fixed(0.5)
 
+    ,4 => to_fixed(0.001)
+    ,5 => to_fixed(0.5)
+
+    ,6 => to_fixed(-0.001)
+    ,7 => to_fixed(0.5)
+
     ,others => (others => '0'));
 
     signal address_out : natural;
@@ -217,10 +223,10 @@ begin
             init_meas_scaler(self_in);
 
             CASE simulation_counter is
-                WHEN 0 => request_scaler(self_in, signed(to_fixed(10.0)), 1);
-                WHEN 1 => request_scaler(self_in, signed(to_fixed(11.1)), 2);
-                WHEN 2 => request_scaler(self_in, signed(to_fixed(12.2)), 3);
-                WHEN 3 => request_scaler(self_in, signed(to_fixed(13.3)), 4);
+                WHEN 0 => request_scaler(self_in, signed(to_fixed(10.0)), 0);
+                WHEN 1 => request_scaler(self_in, signed(to_fixed(11.1)), 1);
+                WHEN 2 => request_scaler(self_in, signed(to_fixed(12.2)), 2);
+                WHEN 3 => request_scaler(self_in, signed(to_fixed(13.3)), 3);
                 WHEN others => --do nothing
             end CASE;
 
