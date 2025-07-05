@@ -20,7 +20,10 @@ architecture vunit_simulation of adc_scaler_tb is
     signal simulator_clock : std_logic := '0';
     signal simulation_counter : natural := 0;
 
-    use work.dual_port_ram_pkg.all;
+    signal test_out : real := 0.0;
+    signal test_vector : real_vector(0 to 3) := (0.0, 0.0, 0.0, 0.0);
+
+    use work.dual_port_ram_pkg.ram_array;
     use work.real_to_fixed_pkg.all;
     use work.adc_scaler_pkg.all;
 
@@ -48,10 +51,16 @@ architecture vunit_simulation of adc_scaler_tb is
     signal self_in : adc_scaler_in_record(data_in(word_length-1 downto 0));
     signal self_out : adc_scaler_out_record(data_out(word_length-1 downto 0));
 
-    signal test_out : real := 0.0;
-    signal test_vector : real_vector(0 to 3) := (0.0, 0.0, 0.0, 0.0);
-
 begin
+
+    u_adc_scaler : entity work.adc_scaler
+    generic map(init_values, used_radix)
+    port map(
+        clock => simulator_clock
+        ,self_in
+        ,self_out
+    );
+------------------------------------------------------------------------
 
 ------------------------------------------------------------------------
     simtime : process
@@ -90,13 +99,5 @@ begin
 
         end if; -- rising_edge
     end process stimulus;	
-------------------------------------------------------------------------
-    u_adc_scaler : entity work.adc_scaler
-    generic map(init_values, used_radix)
-    port map(
-        clock => simulator_clock
-        ,self_in
-        ,self_out
-    );
 ------------------------------------------------------------------------
 end vunit_simulation;
