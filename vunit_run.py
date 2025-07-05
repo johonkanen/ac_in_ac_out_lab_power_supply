@@ -55,6 +55,8 @@ top_lib.add_source_files(ROOT / "source/measurements/measurements.vhd")
 
 top_lib.add_source_files(ROOT / "simulation/top_tb.vhd")
 
+top_lib.add_source_files(ROOT / "source/adc_scaler/adc_scaler.vhd")
+
 top_lib.add_source_files(ROOT / "simulation/psu_measurements/psu_measurements_tb.vhd")
 
 aux = VU.add_library("auxiliary_pwm")
