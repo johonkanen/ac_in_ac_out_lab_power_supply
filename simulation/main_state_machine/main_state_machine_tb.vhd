@@ -72,11 +72,15 @@ begin
             simulation_counter <= simulation_counter + 1;
 
             create_main_state_machine(main_state_machine
-                ,start_requested    => (simulation_counter = 5) or (simulation_counter = 9)
+                ,start_requested    => 
+                    (simulation_counter = 5) 
+                    or (simulation_counter = 9) 
                 ,precharge_ready    => simulation_counter = 13
                 ,fault_detected     => simulation_counter = 23
                 ,fault_acknowledged => simulation_counter = 43
-                ,shutdown_requested => simulation_counter = 6
+                ,shutdown_requested => 
+                    simulation_counter = 6
+                    or simulation_counter = 28
             );
 
             idle_was_reached      <= idle_was_reached      or main_state = idle;
@@ -87,6 +91,7 @@ begin
             CASE simulation_counter is
                 WHEN 7  => check(main_state_machine.main_state = idle, "shutdown unsuccessful");
                 WHEN 10 => check(main_state_machine.main_state = precharge, "restart unsuccessful");
+                WHEN 31 => check(main_state_machine.main_state = fault, "idle restarted in fault unsuccessful");
                 WHEN others => -- do nothing
             end CASE;
 

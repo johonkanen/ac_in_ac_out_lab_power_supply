@@ -76,6 +76,11 @@ package body main_state_machine_pkg is
             self.main_state <= fault;
         end if;
 
+        if fault_acknowledged and self.main_state = fault
+        then
+            self.main_state <= idle;
+        end if;
+
     end generic_main_state_machine;
 
     function report_state(self : main_state_record) return natural is
