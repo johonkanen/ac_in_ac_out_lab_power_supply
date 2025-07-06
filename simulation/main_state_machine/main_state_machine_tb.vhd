@@ -28,6 +28,9 @@ architecture vunit_simulation of main_state_machine_tb is
     signal running_was_reached   : boolean := false;
     signal fault_was_reached     : boolean := false;
 
+
+    signal precharge_delay_counter : natural := 0;
+
 begin
 
 ------------------------------------------------------------------------
@@ -48,21 +51,44 @@ begin
     simulator_clock <= not simulator_clock after clock_period/2.0;
 ------------------------------------------------------------------------
     stimulus : process(simulator_clock)
+
+        procedure precharge_delay is
+        begin
+            if precharge_delay_counter < integer(50.0e-3 * 120.0e6)
+            then
+                precharge_delay_counter <= precharge_delay_counter + 1;
+            end if;
+
+            if precharge_delay_counter = integer(50.0e-3 * 120.0e6)
+            then
+            end if;
+        end precharge_delay;
+
+        procedure create_main_state_machine is new generic_main_state_machine 
+            generic map(start_precharge => precharge_delay);
+
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
 
             create_main_state_machine(main_state_machine
-                ,start_requested    => simulation_counter = 5
+                ,start_requested    => (simulation_counter = 5) or (simulation_counter = 9)
                 ,precharge_ready    => simulation_counter = 13
                 ,fault_detected     => simulation_counter = 23
                 ,fault_acknowledged => simulation_counter = 43
+                ,shutdown_requested => simulation_counter = 6
             );
 
-            idle_was_reached      <= idle_was_reached or main_state = idle;
+            idle_was_reached      <= idle_was_reached      or main_state = idle;
             precharge_was_reached <= precharge_was_reached or main_state = precharge;
-            running_was_reached   <= running_was_reached or main_state = running;
-            fault_was_reached     <= fault_was_reached or main_state = fault;
+            running_was_reached   <= running_was_reached   or main_state = running;
+            fault_was_reached     <= fault_was_reached     or main_state = fault;
+
+            CASE simulation_counter is
+                WHEN 7  => check(main_state_machine.main_state = idle, "shutdown unsuccessful");
+                WHEN 10 => check(main_state_machine.main_state = precharge, "restart unsuccessful");
+                WHEN others => -- do nothing
+            end CASE;
 
             if main_state_machine.main_state = fault
             then

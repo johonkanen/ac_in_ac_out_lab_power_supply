@@ -1,10 +1,9 @@
-
-
 library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
 package pwm_pkg is
+
     type pwm_record is record
         carrier_max : natural range 0 to 2**16-1;
         carrier     : natural range 0 to 2**16-1;
@@ -13,16 +12,26 @@ package pwm_pkg is
         pwm         : std_logic                 ;
         enabled : boolean;
     end record;
-    constant init_pwm : pwm_record := (1000 , 0 , 100 , phase => 0 , pwm => '0' , enabled => false);
 
+    constant init_pwm : pwm_record := (
+    carrier_max => 1000
+    , carrier   => 0
+    , duty      => 100
+    , phase     => 0
+    , pwm       => '0'
+    , enabled   => false);
+
+-----------------------------------------------
     procedure create_pwm (signal self : inout pwm_record
                           ;signal pwm_out : out std_logic
                          );
+-----------------------------------------------
 
 end package pwm_pkg;
 
 package body pwm_pkg is
 
+-----------------------------------------------
     procedure create_pwm (signal self : inout pwm_record
                           ;signal pwm_out : out std_logic
                          )
@@ -49,5 +58,6 @@ package body pwm_pkg is
         if self.enabled then
         end if;
     end procedure;
+-----------------------------------------------
 
 end package body;

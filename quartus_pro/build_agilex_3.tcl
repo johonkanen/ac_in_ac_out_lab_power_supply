@@ -90,6 +90,7 @@ set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_microprogr
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_microprogram_processor/source/hVHDL_memory_library/vhdl2008/dp_ram_w_configurable_recrods.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_microprogram_processor/source/hVHDL_memory_library/vhdl2008/arch_rtl_dp_ram_w_configurable_records.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/test_processor/uproc_test.vhd
+set_global_assignment -name VHDL_FILE $this_file_path/../source/main_state_machine/main_state_machine_pkg.vhd
 set_global_assignment -name IP_FILE $this_file_path/ip/main_clock/main_clock.ip
 
 
@@ -128,3 +129,5 @@ set_global_assignment -name IP_FILE $this_file_path/ip/main_clock/main_clock.ip
 
 # Commit assignments
 export_assignments
+
+execute_flow -compile

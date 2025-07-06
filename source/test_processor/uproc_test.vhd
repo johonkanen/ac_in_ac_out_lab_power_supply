@@ -105,13 +105,12 @@ architecture rtl of uproc_test is
         , 13 => op(program_end)
 
         -- lc filter
-        , 128 => op(set_rpt     , 200)
         , 129 => op(neg_mpy_add , inductor_voltage , duty             , cap_voltage      , input_voltage)
         , 130 => op(mpy_sub     , cap_current      , duty             , inductor_current , load)
         , 136 => op(neg_mpy_add , inductor_voltage , ind_res          , inductor_current , inductor_voltage)
         , 137 => op(mpy_add     , cap_voltage      , cap_current      , voltage_gain     , cap_voltage)
-        , 140 => op(jump        , 129)
         , 143 => op(mpy_add     , inductor_current , inductor_voltage , current_gain     , inductor_current)
+        , 144 => op(program_end)
 
         , others => op(nop));
 
@@ -133,8 +132,6 @@ architecture rtl of uproc_test is
 
     signal simcurrent : std_logic_vector(word_length-1 downto 0) := to_fixed(0.0);
     signal simvoltage : std_logic_vector(word_length-1 downto 0) := to_fixed(0.0);
-
-
 
 begin 
 

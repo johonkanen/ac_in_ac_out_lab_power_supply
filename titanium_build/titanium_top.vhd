@@ -107,6 +107,11 @@ architecture rtl of titanium_top is
     signal divider : division_record   := init_division;
 
     signal conversion_requested : boolean := false;
+
+    use work.main_state_machine_pkg.all;
+    signal main_state_machine : main_state_record := init_main_state;
+
+    signal precharge_delay_counter : natural range 0 to 65535 := 65535;
         
 begin
 
@@ -130,9 +135,56 @@ begin
 
 ------------------------------------------------------------------------
     process(main_clock) is
+
+        ----------------------
+        impure function start_requested return boolean is
+        begin
+            return write_is_requested_to_address(bus_from_communications, 10) 
+                and get_data(bus_from_communications) = 1;
+        end start_requested;
+
+        impure function shutdown_requested return boolean is
+        begin
+            return write_is_requested_to_address(bus_from_communications, 10) 
+                and get_data(bus_from_communications) = 0;
+        end shutdown_requested;
+
+        impure function acknowledge_fault return boolean is
+        begin
+            return write_is_requested_to_address(bus_from_communications, 10) 
+                and get_data(bus_from_communications) = 2;
+        end acknowledge_fault;
+        ----------------------
+        procedure start_precharge is
+        begin
+            if precharge_delay_counter < integer(50.0e-3 * 120.0e6)
+            then
+                precharge_delay_counter <= precharge_delay_counter + 1;
+            end if;
+
+            if start_requested
+            then
+                precharge_delay_counter <= 0;
+            end if;
+
+        end start_precharge;
+        ----------------------
+        ----------------------
+        procedure create_main_state_machine is new generic_main_state_machine 
+            generic map(start_precharge);
+        ----------------------
+
     begin
         if rising_edge(main_clock) then
             init_bus(bus_from_top);
+
+            create_main_state_machine(main_state_machine
+                 , start_requested    => start_requested
+                 , precharge_ready    => precharge_delay_counter = integer(50.0e-3 * 120.0e6)
+                 , fault_detected     => false
+                 , fault_acknowledged => acknowledge_fault
+                 , shutdown_requested => shutdown_requested
+            );
 
             create_pwm(pwm,grid_inu_leg2_low);
             
@@ -149,6 +201,7 @@ begin
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 6 , 2**15 + get_cic_filter_output(grid_inu_filter));
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 7 , 2**15 + get_cic_filter_output(output_inu_filter));
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 8 , 2**15 + get_cic_filter_output(dab_filter));
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 12 , report_state(main_state_machine));
 
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 100 , git_hash_pkg.git_hash(31 downto 16));
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 101 , git_hash_pkg.git_hash(15 downto 0));

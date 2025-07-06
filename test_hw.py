@@ -21,6 +21,12 @@ def stream_data(address, number_of_points):
     uart.request_data_stream_from_address(address, number_of_points)
     return uart.get_streamed_data(number_of_points)
 
+def start_stream(address, number_of_points):
+    uart.request_data_stream_from_address(address, number_of_points)
+
+def get_stream(number_of_points):
+    return uart.get_streamed_data(number_of_points)
+
 def set(address, data):
     uart.write_data_to_address(address, int(data))
     print(uart.request_data_from_address(address))
