@@ -143,12 +143,14 @@ begin
                 and get_data(bus_from_communications) = 1;
         end start_requested;
 
+        ----------------------
         impure function shutdown_requested return boolean is
         begin
             return write_is_requested_to_address(bus_from_communications, 10) 
                 and get_data(bus_from_communications) = 0;
         end shutdown_requested;
 
+        ----------------------
         impure function acknowledge_fault return boolean is
         begin
             return write_is_requested_to_address(bus_from_communications, 10) 

@@ -80,10 +80,22 @@ end adc_scaler;
 
 architecture rtl of adc_scaler is
 
+    function address_width return integer is
+        variable temp   : integer := init_values'length;
+        variable retval : integer := 0;
+    begin
+        while temp > 1 loop
+            retval := retval + 1;
+            temp   := temp / 2;
+        end loop;
+
+        return retval;
+    end function;
+
     constant dp_ram_subtype : dpram_ref_record := 
         create_ref_subtypes(
             datawidth      => init_values(0)'length
-            , addresswidth => 10);
+            , addresswidth => address_width);
 
     --------------------
     signal ram_a_in  : dp_ram_subtype.ram_in'subtype;

@@ -13,8 +13,9 @@ package main_state_machine_pkg is
     constant init_main_state : main_state_record := (main_state => idle);
 
     procedure generic_main_state_machine
-    generic (procedure start_precharge is <>)
-    (
+    generic (
+        procedure start_precharge is <>
+    )(
         signal self : inout main_state_record
         ;start_requested    : in boolean
         ;precharge_ready    : in boolean

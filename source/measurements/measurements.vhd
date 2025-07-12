@@ -38,8 +38,22 @@ architecture rtl of measurements is
     package div_pkg is new work.division_generic_pkg generic map(mpy_pkg, g_max_shift => 8);
         use div_pkg.all;
 
-
     ---- measurement module signals
+
+    type t_list_of_measurements is (
+        vac_in        -- 0
+        , vfilter_in  -- 1
+        , vdc_in      -- 2
+        , vdc_out     -- 3
+        , vfilter_out -- 4
+        , vac_out     -- 5
+        , iac_in      -- 6
+        , iac_out     -- 7
+        , i_dab);     -- 8
+
+    type meas_indices is array (t_list_of_measurements range t_list_of_measurements'range) of natural;
+    constant meas : meas_indices := (0,1,2,3,4,5,6,7,8);
+
     constant pri_input_voltage_gain   : real := 1.0/16.763636363636365;
     constant pri_input_voltage_offset : real := 8137.90909090909 * pri_input_voltage_gain;
 
@@ -70,9 +84,60 @@ architecture rtl of measurements is
 
     ---- end measurement module signals
 
+    use work.dual_port_ram_pkg.ram_array;
+    use work.adc_scaler_pkg.all;
+    constant word_length : natural := 40;
+    constant used_radix  : natural := 28;
+
+    function to_fixed is new generic_to_fixed 
+        generic map(word_length => word_length, used_radix => used_radix);
+
+    constant init_values : ram_array(0 to 63)(word_length-1 downto 0) := 
+    (
+     meas(vac_in)*2     => to_fixed(pri_input_voltage_gain)
+    ,meas(vac_in)*2 + 1 => to_fixed(pri_input_voltage_offset)
+
+    ,meas(vfilter_in)*2     => to_fixed(pri_input_voltage_gain)
+    ,meas(vfilter_in)*2 + 1 => to_fixed(pri_input_voltage_offset)
+
+    ,meas(vdc_in)*2     => to_fixed(pri_dc_link_gain)
+    ,meas(vdc_in)*2 + 1 => to_fixed(pri_dc_link_offset)
+
+    ,meas(vdc_out)*2     => to_fixed(pri_dc_link_gain)
+    ,meas(vdc_out)*2 + 1 => to_fixed(pri_dc_link_offset)
+
+    ,meas(vfilter_out)*2     => to_fixed(pri_bridge_voltage_gain)
+    ,meas(vfilter_out)*2 + 1 => to_fixed(pri_bridge_voltage_offset)
+
+    ,meas(vac_out)*2     => to_fixed(pri_dc_link_gain)
+    ,meas(vac_out)*2 + 1 => to_fixed(pri_dc_link_offset)
+
+    ,meas(iac_in)*2     => to_fixed(pri_dc_link_gain)
+    ,meas(iac_in)*2 + 1 => to_fixed(pri_dc_link_offset)
+
+    ,meas(iac_out)*2     => to_fixed(pri_dc_link_gain)
+    ,meas(iac_out)*2 + 1 => to_fixed(pri_dc_link_offset)
+
+    ,meas(i_dab)*2     => to_fixed(pri_dc_link_gain)
+    ,meas(i_dab)*2 + 1 => to_fixed(pri_dc_link_offset)
+
+    ,others => (others => '0'));
+
+    signal self_in  : adc_scaler_in_record(data_in(word_length-1 downto 0));
+    signal self_out : adc_scaler_out_record(data_out(word_length-1 downto 0));
 
 begin
 
+----------------
+    u_adc_scaler : entity work.adc_scaler
+    generic map(init_values, used_radix)
+    port map(
+        main_clock
+        ,self_in
+        ,self_out
+    );
+
+----------------
     measurement_scaling : process(main_clock)
     begin
         if rising_edge(main_clock) then
