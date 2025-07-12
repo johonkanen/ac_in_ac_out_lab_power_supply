@@ -92,8 +92,8 @@ architecture vunit_simulation of psu_measurements_tb is
 
     signal sdm_counter : natural := 0;
 
-    signal sdm1, sdm2, sdm3 : unsigned(15 downto 0) := (others => '0');
-    signal sdm1_ready, sdm2_ready, sdm3_ready : boolean := false;
+    signal sdm1, sdm2, sdm3, spiadc1, spiadc2 : unsigned(15 downto 0) := (others => '0');
+    signal sdm1_ready, sdm2_ready, sdm3_ready, spi1_ready, spi2_ready : boolean := false;
 
 begin
 
@@ -134,6 +134,16 @@ begin
                 WHEN others => --do nothing
             end CASE;
 
+            if simulation_counter mod 13 = 0
+            then
+                spi1_ready <= true;
+            end if;
+
+            if simulation_counter mod 17 = 0
+            then
+                spi2_ready <= true;
+            end if;
+
             if sdm1_ready
             then
                 sdm1_ready <= false;
@@ -143,6 +153,12 @@ begin
             elsif sdm3_ready
             then
                 sdm3_ready <= false;
+            elsif spi1_ready
+            then
+                spi1_ready <= false;
+            elsif spi2_ready
+            then
+                spi2_ready <= false;
             end if;
 
         end if; -- rising_edge
@@ -156,6 +172,5 @@ begin
         ,self_in
         ,self_out
     );
-
 ------------------------------------------------------------------------
 end vunit_simulation;
