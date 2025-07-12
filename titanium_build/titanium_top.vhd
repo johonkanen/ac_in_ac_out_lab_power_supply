@@ -84,9 +84,6 @@ architecture rtl of titanium_top is
     signal test_data2 : STD_LOGIC_VECTOR(15 downto 0) := (others => '0');
     signal test_data3 : STD_LOGIC_VECTOR(15 downto 0) := (others => '0');
 
-    signal mux_selection : std_logic_vector(15 downto 0) := (others => '0');
-    signal adc_counter : natural range 0 to 1023 := 0;
-
     signal aux_pwm : aux_pwm_record := init_aux_period_and_duty(period => 500, duty_cycle => 220);
 
     signal grid_inu_filter : cic_filter_record := init_cic_filter;
@@ -112,6 +109,21 @@ architecture rtl of titanium_top is
     signal main_state_machine : main_state_record := init_main_state;
 
     signal precharge_delay_counter : natural range 0 to 65535 := 65535;
+    signal adc_scaler_out : work.adc_scaler_pkg.adc_scaler_out_record(data_out(work.meas_pkg.word_length-1 downto 0));
+
+    use work.dual_port_ram_pkg.all;
+    constant meas_ram_subtype : dpram_ref_record := 
+        create_ref_subtypes(
+            datawidth      => work.meas_pkg.word_length
+            , addresswidth => 4);
+
+    --------------------
+    signal meas_ram_a_in  : meas_ram_subtype.ram_in'subtype;
+    signal meas_ram_a_out : meas_ram_subtype.ram_out'subtype;
+    --------------------
+    signal meas_ram_b_in  : meas_ram_a_in'subtype;
+    signal meas_ram_b_out : meas_ram_a_out'subtype;
+    --------------------
         
 begin
 
@@ -176,6 +188,7 @@ begin
             generic map(start_precharge);
         ----------------------
 
+
     begin
         if rising_edge(main_clock) then
             init_bus(bus_from_top);
@@ -208,14 +221,13 @@ begin
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 100 , git_hash_pkg.git_hash(31 downto 16));
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 101 , git_hash_pkg.git_hash(15 downto 0));
 
-            ad_mux1_io <= test_data3(2 downto 0);
-            ad_mux2_io <= test_data3(2 downto 0);
-
-            adc_counter <= adc_counter + 1;
-            conversion_requested <= false;
-            if adc_counter > 1000 then
-                conversion_requested <= true;
-                adc_counter <= 0;
+            init_ram(meas_ram_b_in);
+            if data_is_requested_from_address_range(bus_from_communications, 200, 209)
+            then
+                request_data_from_ram(meas_ram_b_in, get_address(bus_from_communications) - 200);
+            end if;
+            if ram_read_is_ready(meas_ram_b_out) then
+                write_data_to_address(bus_from_top, 0, get_ram_data(meas_ram_b_out)(39-15 to 39));
             end if;
 
             create_aux_pwm(aux_pwm);
@@ -258,22 +270,41 @@ begin
     end process;
 
 ------------------------------------------------------------------------
+    u_meas_ram : entity work.dual_port_ram
+    generic map(meas_ram_subtype)
+    port map(
+    main_clock
+    , meas_ram_a_in   
+    , meas_ram_a_out  
+    --------------
+    , meas_ram_b_in  
+    , meas_ram_b_out);
+
+    -- TODO, make a subroutine for this
+    meas_ram_a_in <=(address => to_unsigned(adc_scaler_out.out_address,4)
+                    ,read_is_requested => '0'
+                    ,data => std_logic_vector(adc_scaler_out.data_out)
+                    ,write_requested => adc_scaler_out.is_ready);
+
+------------------------------------------------------------------------
     u_measurements : entity work.measurements
     port map (
         main_clock => main_clock
 
+        , ad_mux1_io => ad_mux1_io
         , ads_7056_chip_select_pri => ads_7056_chip_select_pri
         , ads_7056_clock_pri       => ads_7056_clock_pri
         , ads_7056_input_data_pri  => ads_7056_input_data_pri
 
+        , ad_mux2_io => ad_mux2_io
         , ads_7056_chip_select => ads_7056_chip_select
         , ads_7056_clock       => ads_7056_clock
         , ads_7056_input_data  => ads_7056_input_data
 
-         , test_data3              => test_data3
-         , conversion_requested    => conversion_requested
-         , bus_from_communications => bus_from_communications
-         , bus_from_measurements   => bus_from_measurements
+        , bus_from_communications => bus_from_communications
+        , bus_from_measurements   => bus_from_measurements
+
+        , adc_scaler_out => adc_scaler_out
 
     );
 ------------------------------------------------------------------------

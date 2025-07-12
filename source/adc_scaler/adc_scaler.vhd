@@ -6,15 +6,15 @@ LIBRARY ieee  ;
 package adc_scaler_pkg is
 
     type adc_scaler_in_record is record
-        conversion_requested : boolean;
-        data_in              : signed;
-        address              : natural;
+        conversion_requested : boolean ;
+        data_in              : signed  ;
+        address              : natural ;
     end record;
 
     type adc_scaler_out_record is record
-        data_out             : signed;
-        out_address          : natural            ;
-        is_ready             : boolean            ;
+        data_out             : signed  ;
+        out_address          : natural ;
+        is_ready             : std_logic ;
     end record;
 
     procedure init_adc_scaler(signal self_in : out adc_scaler_in_record);
@@ -25,6 +25,14 @@ package adc_scaler_pkg is
     function scaler_is_ready(self_out : adc_scaler_out_record) return boolean;
     function get_converted_meas(self_out : adc_scaler_out_record) return signed;
     function get_converted_address(self_out : adc_scaler_out_record) return natural;
+
+    procedure scale_measurement(
+        signal self_in    : out adc_scaler_in_record
+        ;signal requested : inout boolean
+        ; variable ready  : inout boolean
+        ; measurement     : unsigned
+        ; address         : integer
+        ; word_length     : in integer := 40);
 
 end package adc_scaler_pkg;
 
@@ -46,7 +54,7 @@ package body adc_scaler_pkg is
 
     function scaler_is_ready(self_out : adc_scaler_out_record) return boolean is
     begin
-        return self_out.is_ready;
+        return self_out.is_ready = '1';
     end scaler_is_ready;
 
     function get_converted_meas(self_out : adc_scaler_out_record) return signed is
@@ -58,6 +66,24 @@ package body adc_scaler_pkg is
     begin
         return self_out.out_address;
     end get_converted_address;
+
+    procedure scale_measurement(
+        signal self_in : out adc_scaler_in_record 
+        ;signal requested : inout boolean 
+        ; variable ready : inout boolean
+        ; measurement : unsigned
+        ; address : integer
+        ; word_length : in integer := 40) is
+    begin
+        if requested and ready
+        then
+            request_scaling(self_in, resize(signed(measurement), word_length)
+            ,address => address);
+            requested <= false;
+            ready := false;
+        end if;
+    end procedure;
+    ----
 
 end package body adc_scaler_pkg;
 
@@ -151,7 +177,7 @@ begin
 
             self_out.out_address <= address_pipeline(5);
             self_out.data_out    <= mpy_res(radix+ram_a_out.data'length-1 downto radix);
-            self_out.is_ready    <= ready_pipeline(5) = '1';
+            self_out.is_ready    <= ready_pipeline(5);
 
         end if; -- rising_edge
     end process;

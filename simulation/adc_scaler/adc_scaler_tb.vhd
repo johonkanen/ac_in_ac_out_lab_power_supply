@@ -23,6 +23,7 @@ architecture vunit_simulation of adc_scaler_tb is
     use work.dual_port_ram_pkg.ram_array;
     use work.real_to_fixed_pkg.all;
     use work.adc_scaler_pkg.all;
+    use work.meas_pkg.all;
 
     constant word_length : natural := 40;
     constant used_radix : natural := 28;
@@ -45,7 +46,7 @@ architecture vunit_simulation of adc_scaler_tb is
 
     ,others => (others => '0'));
 
-    signal self_in : adc_scaler_in_record(data_in(word_length-1 downto 0));
+    signal self_in  : adc_scaler_in_record(data_in(word_length-1 downto 0));
     signal self_out : adc_scaler_out_record(data_out(word_length-1 downto 0));
 
 begin

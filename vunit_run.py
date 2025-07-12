@@ -115,6 +115,6 @@ s7.add_source_files(ROOT / "source/vhdl_serial/source/max11115/max11115_generic_
 
 # s7.add_source_files(ROOT / "spartan7/measurements.vhd")
 
-# VU.set_sim_option("nvc.sim_flags", ["-w"])
+VU.set_sim_option("nvc.sim_flags", ["-w"])
 
 VU.main()

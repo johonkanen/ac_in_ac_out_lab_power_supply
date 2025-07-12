@@ -35,6 +35,13 @@ architecture vunit_simulation of psu_measurements_tb is
     signal sdm1_ready, sdm2_ready, sdm3_ready, spi1_ready, spi2_ready : boolean := false;
     signal sdm1_counter, sdm2_counter, sdm3_counter, spi1_counter, spi2_counter : natural := 0;
 
+    procedure count_ready(is_ready : boolean; signal counter : inout integer) is
+    begin
+        if is_ready
+        then
+            counter <= counter + 1;
+        end if;
+    end count_ready;
 begin
 
 ------------------------------------------------------------------------
@@ -51,28 +58,6 @@ begin
 
     stimulus : process(simulator_clock)
 
-        procedure scale_measurement(
-        signal requested : inout boolean 
-        ; variable ready : inout boolean
-        ; measurement : unsigned
-        ; address : integer) is
-        begin
-            if requested and ready
-            then
-                request_scaling(self_in, resize(signed(measurement), word_length)
-                ,address => address);
-                requested <= false;
-                ready := false;
-            end if;
-        end procedure;
-
-        procedure count_ready(is_ready : boolean; signal counter : inout integer) is
-        begin
-            if is_ready
-            then
-                counter <= counter + 1;
-            end if;
-        end count_ready;
 
         variable ready : boolean := false;
 
@@ -87,45 +72,49 @@ begin
                 sdm_counter <= 0;
             end if;
 
-            CASE sdm_counter is
-                WHEN 0 => 
-                    sdm1 <= to_unsigned(5358  , 16);
-                    sdm1_ready <= true;
-                WHEN 2 => 
-                    sdm2 <= to_unsigned(10358 , 16);
-                    sdm2_ready <= true;
-                WHEN 4 => 
-                    sdm3 <= to_unsigned(15358 , 16);
-                    sdm3_ready <= true;
-                WHEN others => --do nothing
-            end CASE;
-
-            if simulation_counter mod 13 = 0
+            if simulation_counter > 100
             then
-                spi1 <= to_unsigned(8500, 16);
-                spi1_ready <= true;
-            end if;
+                CASE sdm_counter is
+                    WHEN 0 => 
+                        sdm1 <= to_unsigned(5358  , 16);
+                        sdm1_ready <= true;
+                    WHEN 2 => 
+                        sdm2 <= to_unsigned(10358 , 16);
+                        sdm2_ready <= true;
+                    WHEN 4 => 
+                        sdm3 <= to_unsigned(15358 , 16);
+                        sdm3_ready <= true;
+                    WHEN others => --do nothing
+                end CASE;
 
-            if simulation_counter mod 17 = 0
-            then
-                spi2 <= to_unsigned(3457, 16);
-                spi2_ready <= true;
-            end if;
+                if simulation_counter mod 13 = 0
+                then
+                    spi1 <= to_unsigned(8500, 16);
+                    spi1_ready <= true;
+                end if;
 
-            init_adc_scaler(self_in);
-            ---- scheduler
-            ready := true;
-            scale_measurement(sdm1_ready , ready , sdm1 , 1);
-            scale_measurement(sdm2_ready , ready , sdm2 , 2);
-            scale_measurement(sdm3_ready , ready , sdm3 , 3);
-            scale_measurement(spi1_ready , ready , spi1 , 4);
-            scale_measurement(spi2_ready , ready , spi2 , 5);
+                if simulation_counter mod 17 = 0
+                then
+                    spi2 <= to_unsigned(3457, 16);
+                    spi2_ready <= true;
+                end if;
+            end if;
 
             count_ready(sdm1_ready, sdm1_counter);
             count_ready(sdm2_ready, sdm2_counter);
             count_ready(sdm3_ready, sdm3_counter);
             count_ready(spi1_ready, spi1_counter);
             count_ready(spi2_ready, spi2_counter);
+
+            init_adc_scaler(self_in);
+            ---- scheduler
+            ready := true;
+            scale_measurement(self_in, sdm1_ready , ready , sdm1 , 1);
+            scale_measurement(self_in, sdm2_ready , ready , sdm2 , 2);
+            scale_measurement(self_in, sdm3_ready , ready , sdm3 , 3);
+            scale_measurement(self_in, spi1_ready , ready , spi1 , 4);
+            scale_measurement(self_in, spi2_ready , ready , spi2 , 5);
+
 
         end if; -- rising_edge
     end process stimulus;	
