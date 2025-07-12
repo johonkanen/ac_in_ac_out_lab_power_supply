@@ -33,6 +33,7 @@ architecture vunit_simulation of psu_measurements_tb is
 
     signal sdm1, sdm2, sdm3, spi1, spi2 : unsigned(15 downto 0) := (others => '0');
     signal sdm1_ready, sdm2_ready, sdm3_ready, spi1_ready, spi2_ready : boolean := false;
+    signal sdm1_counter, sdm2_counter, sdm3_counter, spi1_counter, spi2_counter : natural := 0;
 
 begin
 
@@ -64,6 +65,14 @@ begin
                 ready := false;
             end if;
         end procedure;
+
+        procedure count_ready(is_ready : boolean; signal counter : inout integer) is
+        begin
+            if is_ready
+            then
+                counter <= counter + 1;
+            end if;
+        end count_ready;
 
         variable ready : boolean := false;
 
@@ -106,11 +115,17 @@ begin
             init_adc_scaler(self_in);
             ---- scheduler
             ready := true;
-            scale_measurement(sdm1_ready , ready , sdm1 , meas(iac_in));
-            scale_measurement(sdm2_ready , ready , sdm2 , meas(iac_out));
-            scale_measurement(sdm3_ready , ready , sdm3 , meas(i_dab));
-            scale_measurement(spi1_ready , ready , spi1 , meas(vfilter_in));
-            scale_measurement(spi2_ready , ready , spi2 , meas(vfilter_in));
+            scale_measurement(sdm1_ready , ready , sdm1 , 1);
+            scale_measurement(sdm2_ready , ready , sdm2 , 2);
+            scale_measurement(sdm3_ready , ready , sdm3 , 3);
+            scale_measurement(spi1_ready , ready , spi1 , 4);
+            scale_measurement(spi2_ready , ready , spi2 , 5);
+
+            count_ready(sdm1_ready, sdm1_counter);
+            count_ready(sdm2_ready, sdm2_counter);
+            count_ready(sdm3_ready, sdm3_counter);
+            count_ready(spi1_ready, spi1_counter);
+            count_ready(spi2_ready, spi2_counter);
 
         end if; -- rising_edge
     end process stimulus;	
