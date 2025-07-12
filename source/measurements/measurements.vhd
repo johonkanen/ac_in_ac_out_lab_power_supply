@@ -85,7 +85,6 @@ architecture rtl of measurements is
     ---- end measurement module signals
 
     use work.dual_port_ram_pkg.ram_array;
-    use work.adc_scaler_pkg.all;
     constant word_length : natural := 40;
     constant used_radix  : natural := 28;
 
@@ -94,37 +93,41 @@ architecture rtl of measurements is
 
     constant init_values : ram_array(0 to 63)(word_length-1 downto 0) := 
     (
-     meas(vac_in)*2     => to_fixed(pri_input_voltage_gain)
-    ,meas(vac_in)*2 + 1 => to_fixed(pri_input_voltage_offset)
+    meas(vac_in)*2           => to_fixed(pri_input_voltage_gain)
+    ,meas(vac_in)*2 + 1      => to_fixed(pri_input_voltage_offset)
+    
+    ,meas(vfilter_in)*2      => to_fixed(pri_input_voltage_gain)
+    ,meas(vfilter_in)*2 + 1  => to_fixed(pri_input_voltage_offset)
+    
+    ,meas(vdc_in)*2          => to_fixed(pri_dc_link_gain)
+    ,meas(vdc_in)*2 + 1      => to_fixed(pri_dc_link_offset)
+    
+    ,meas(vdc_out)*2         => to_fixed(pri_dc_link_gain)
+    ,meas(vdc_out)*2 + 1     => to_fixed(pri_dc_link_offset)
+    
+    ,meas(vfilter_out)*2     => to_fixed(pri_input_voltage_gain)
+    ,meas(vfilter_out)*2 + 1 => to_fixed(pri_input_voltage_offset)
+    
+    ,meas(vac_out)*2         => to_fixed(pri_dc_link_gain)
+    ,meas(vac_out)*2 + 1     => to_fixed(pri_dc_link_offset)
+    
+    ,meas(iac_in)*2          => to_fixed(pri_dc_link_gain)
+    ,meas(iac_in)*2 + 1      => to_fixed(pri_dc_link_offset)
+    
+    ,meas(iac_out)*2         => to_fixed(pri_dc_link_gain)
+    ,meas(iac_out)*2 + 1     => to_fixed(pri_dc_link_offset)
 
-    ,meas(vfilter_in)*2     => to_fixed(pri_input_voltage_gain)
-    ,meas(vfilter_in)*2 + 1 => to_fixed(pri_input_voltage_offset)
-
-    ,meas(vdc_in)*2     => to_fixed(pri_dc_link_gain)
-    ,meas(vdc_in)*2 + 1 => to_fixed(pri_dc_link_offset)
-
-    ,meas(vdc_out)*2     => to_fixed(pri_dc_link_gain)
-    ,meas(vdc_out)*2 + 1 => to_fixed(pri_dc_link_offset)
-
-    ,meas(vfilter_out)*2     => to_fixed(pri_bridge_voltage_gain)
-    ,meas(vfilter_out)*2 + 1 => to_fixed(pri_bridge_voltage_offset)
-
-    ,meas(vac_out)*2     => to_fixed(pri_dc_link_gain)
-    ,meas(vac_out)*2 + 1 => to_fixed(pri_dc_link_offset)
-
-    ,meas(iac_in)*2     => to_fixed(pri_dc_link_gain)
-    ,meas(iac_in)*2 + 1 => to_fixed(pri_dc_link_offset)
-
-    ,meas(iac_out)*2     => to_fixed(pri_dc_link_gain)
-    ,meas(iac_out)*2 + 1 => to_fixed(pri_dc_link_offset)
-
-    ,meas(i_dab)*2     => to_fixed(pri_dc_link_gain)
-    ,meas(i_dab)*2 + 1 => to_fixed(pri_dc_link_offset)
+    ,meas(i_dab)*2           => to_fixed(pri_dc_link_gain)
+    ,meas(i_dab)*2 + 1       => to_fixed(pri_dc_link_offset)
 
     ,others => (others => '0'));
 
+    use work.adc_scaler_pkg.all;
     signal self_in  : adc_scaler_in_record(data_in(word_length-1 downto 0));
     signal self_out : adc_scaler_out_record(data_out(word_length-1 downto 0));
+
+    signal sampled_pri_mux_pos : natural := 0;
+    signal sampled_sec_mux_pos : natural := 0;
 
 begin
 
@@ -164,12 +167,18 @@ begin
 
             if conversion_requested then
                 request_conversion(pri_ads7056);
+                sampled_pri_mux_pos <= to_integer(unsigned(test_data3(2 downto 0)));
+            end if;
+
+            if conversion_requested then
                 request_conversion(sec_ads7056);
+                sampled_sec_mux_pos <= to_integer(unsigned(test_data3(2 downto 0)));
             end if;
 
             if ad_conversion_is_ready(pri_ads7056) then
-                conversion_counter <= 0;
-                -- sample_and_hold_delay_counter <= 0;
+            end if;
+
+            if ad_conversion_is_ready(sec_ads7056) then
             end if;
 
             conversion_mux_pos <= to_integer(unsigned(test_data3(2 downto 0)));
