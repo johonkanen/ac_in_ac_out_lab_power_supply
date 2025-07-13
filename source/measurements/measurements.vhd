@@ -52,29 +52,29 @@ package meas_pkg is
     meas(vac_in)*2           => to_fixed(1.0)
     ,meas(vac_in)*2 + 1      => to_fixed(0.0)
     
-    ,meas(vfilter_in)*2      => to_fixed(pri_input_voltage_gain)
-    ,meas(vfilter_in)*2 + 1  => to_fixed(pri_input_voltage_offset)
+    ,meas(vfilter_in)*2      => to_fixed(1.0)
+    ,meas(vfilter_in)*2 + 1  => to_fixed(0.0)
     
-    ,meas(vdc_in)*2          => to_fixed(pri_dc_link_gain)
-    ,meas(vdc_in)*2 + 1      => to_fixed(pri_dc_link_offset)
+    ,meas(vdc_in)*2          => to_fixed(1.0)
+    ,meas(vdc_in)*2 + 1      => to_fixed(0.0)
     
-    ,meas(vdc_out)*2         => to_fixed(pri_dc_link_gain)
-    ,meas(vdc_out)*2 + 1     => to_fixed(pri_dc_link_offset)
+    ,meas(vdc_out)*2         => to_fixed(1.0)
+    ,meas(vdc_out)*2 + 1     => to_fixed(0.0)
     
-    ,meas(vfilter_out)*2     => to_fixed(pri_input_voltage_gain)
-    ,meas(vfilter_out)*2 + 1 => to_fixed(pri_input_voltage_offset)
+    ,meas(vfilter_out)*2     => to_fixed(1.0)
+    ,meas(vfilter_out)*2 + 1 => to_fixed(0.0)
     
-    ,meas(vac_out)*2         => to_fixed(pri_dc_link_gain)
-    ,meas(vac_out)*2 + 1     => to_fixed(pri_dc_link_offset)
+    ,meas(vac_out)*2         => to_fixed(1.0)
+    ,meas(vac_out)*2 + 1     => to_fixed(0.0)
     
-    ,meas(iac_in)*2          => to_fixed(pri_dc_link_gain)
-    ,meas(iac_in)*2 + 1      => to_fixed(pri_dc_link_offset)
+    ,meas(iac_in)*2          => to_fixed(1.0)
+    ,meas(iac_in)*2 + 1      => to_fixed(0.0)
     
-    ,meas(iac_out)*2         => to_fixed(pri_dc_link_gain)
-    ,meas(iac_out)*2 + 1     => to_fixed(pri_dc_link_offset)
+    ,meas(iac_out)*2         => to_fixed(1.0)
+    ,meas(iac_out)*2 + 1     => to_fixed(0.0)
 
-    ,meas(i_dab)*2           => to_fixed(pri_dc_link_gain)
-    ,meas(i_dab)*2 + 1       => to_fixed(pri_dc_link_offset)
+    ,meas(i_dab)*2           => to_fixed(1.0)
+    ,meas(i_dab)*2 + 1       => to_fixed(0.0)
 
     ,others => (others => '0'));
 
@@ -163,7 +163,7 @@ begin
                                   ,serial_io     => ads_7056_input_data);
 
             ad_counter <= ad_counter + 1;
-            if ad_counter > 200
+            if ad_counter > 80
             then
                 ad_counter <= 0;
             end if;

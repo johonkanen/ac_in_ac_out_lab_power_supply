@@ -26,6 +26,13 @@ architecture vunit_simulation of inu_model_tb is
     signal realtime : real := 0.0;
     constant timestep : real := 10.0e-6;
     constant stoptime : real := 10.0e-3;
+    constant c1   : natural := 0;
+    constant l1   : natural := 1;
+    constant c2   : natural := 2;
+    constant l2   : natural := 3;
+    constant c3   : natural := 4;
+    constant lpri : natural := 5;
+    constant cdc  : natural := 6;
 
 begin
 
@@ -47,33 +54,38 @@ begin
         variable i_load : real := 0.0;
         constant l      : real := 100.0e-6;
         constant c      : real := 100.0e-6;
+        variable grid_voltage : real := 0.0;
+
+        constant c1_val = 7.0e-6;
+        constant rc1 = 10.0e-3;
+        constant l1_val = 2.2e-6;
+
+        -- c1, l1, c2, l2, c3, lpri, cdc
+        variable grid_inverter_states : real_vector(0 to 6) := (6 => 400.0, others => 0.0);
 
         impure function deriv_lcr (states : real_vector) return real_vector is
-            variable retval : real_vector(0 to 1) := (0.0, 0.0);
+            variable retval : grid_inverter_states'subtype := (others => 0.0);
+            variable voltage_over_bridge : real := 0.0;
+            variable bridge_current : real := 0.0;
         begin
-            retval(0) := (u_in - states(0) * 0.1 - states(1)) * (1.0/l);
-            retval(1) := (states(0) - i_load) * (1.0/c);
+            grid_voltage := sin(t*50.0*math_pi*2.0) * 230.0;
+
+            voltage_over_bridge := states(cdc) - grid_voltage;
+            bridge_current := 0.0;
+            if voltage_over_bridge > 0.0
+            then
+                bridge_current := voltage_over_bridge * 500.0;
+            end if;
+
+            retval(c1) := (grid_voltage - states(c1))/rc1 / c1_val;
+            -- retval(l1) := (states(c1) - states(c2)) / l1_val
+            -- retval(c2) := (states(c2) - i_load) / l1_val
 
             return retval;
 
         end function;
 
-        procedure rk1 is new generic_rk1 generic map(deriv_lcr);
-        procedure rk2 is new generic_rk2 generic map(deriv_lcr);
-        procedure rk4 is new generic_rk4 generic map(deriv_lcr);
-
-        variable k2 : am_array := (others => (others => 0.0));
-        procedure am2 is new am2_generic generic map(deriv_lcr);
-
-        variable k4 : am_array := (others => (others => 0.0));
-        procedure am4 is new am4_generic generic map(deriv_lcr);
-
-        variable lcr_rk1 : real_vector(0 to 1) := (0.0, 0.0);
-        variable lcr_rk2 : real_vector(0 to 1) := (0.0, 0.0);
-        variable lcr_rk4 : real_vector(0 to 1) := (0.0, 0.0);
-
-        variable lcr_am2 : real_vector(0 to 1) := (0.0, 0.0);
-        variable lcr_am4 : real_vector(0 to 1) := (0.0, 0.0);
+        procedure rk is new generic_rk5 generic map(deriv_lcr);
 
         file file_handler : text open write_mode is "inu_model_tb.dat";
     begin
@@ -82,37 +94,26 @@ begin
             if simulation_counter = 0 then
                 init_simfile(file_handler, ("time"
                 ,"T_u0"
-                ,"T_u1"
-                ,"T_u2"
-                ,"T_u3"
-                ,"B_i0"
-                ,"B_i1"
-                ,"B_i2"
+                -- ,"T_u1"
+                -- ,"T_u2"
+                -- ,"T_u3"
+                -- ,"B_i0"
+                -- ,"B_i1"
+                -- ,"B_i2"
                 ,"B_i3"
                 ));
             end if;
 
             if simulation_counter > 0 then
 
-                rk1(lcr_rk1, timestep);
-                rk2(lcr_rk2, timestep);
-                rk4(lcr_rk4, timestep);
-
-                am2(k2,lcr_am2, timestep);
-                am4(k4,lcr_am4, timestep);
+                rk(grid_inverter_states, timestep);
 
                 if realtime > 5.0e-3 then i_load := 2.0; end if;
 
                 realtime <= realtime + timestep;
                 write_to(file_handler,(realtime
-                        ,lcr_rk1(0) 
-                        ,lcr_rk2(0) 
-                        ,lcr_am2(0) 
-                        ,lcr_am4(0) 
-                        ,lcr_rk1(1) 
-                        ,lcr_rk2(1) 
-                        ,lcr_am2(1) 
-                        ,lcr_am4(1)
+                        ,grid_inverter_states(c1) 
+                        ,grid_inverter_states(l1)
                     ));
 
             end if;
