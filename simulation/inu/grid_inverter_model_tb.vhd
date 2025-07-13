@@ -67,7 +67,6 @@ begin
             return retval;
         end bridge_voltage;
         -----------------------------
-        variable grid_voltage : real := 0.0;
 
         variable timestep        : real := 2.0e-6;
         constant c1_val          : real := 2.0e-6;
@@ -80,47 +79,62 @@ begin
         constant Lpri_val        : real := 1.0e-3;
         constant lgrid           : real := 10.0e-6;
         constant dc_link_cap_val : real := 1500.0e-6;
-        variable load_current    : real := 10.0;
+
+        constant int : natural := 8;
 
         -- c1, l1, c2, l2, c3, lpri, cdc
-        variable grid_inverter_states : real_vector(0 to 7) := (cdc => 300.0, others => 0.0);
+        variable grid_inverter_states : real_vector(0 to 8) := (cdc => 400.0, others => 0.0);
 
-        impure function deriv_lcr (t : real ; states : real_vector) return real_vector is
+        function deriv_lcr (t : real ; states : real_vector) return real_vector is
+
             variable retval : grid_inverter_states'subtype := (others => 0.0);
-            variable bridge_current : real := 0.0;
-            variable l1_voltage : real := 0.0;
-            variable c1_current : real := 0.0;
-            variable l2_voltage : real := 0.0;
-            variable c2_current : real := 0.0;
-            variable lpri_voltage : real := 0.0;
+            variable bridge_current  : real := 0.0;
+            variable l1_voltage      : real := 0.0;
+            variable c1_current      : real := 0.0;
+            variable l2_voltage      : real := 0.0;
+            variable c2_current      : real := 0.0;
+            variable lpri_voltage    : real := 0.0;
+            variable dc_link_current : real := 0.0;
 
+            variable grid_voltage : real := 0.0;
+            variable load_current : real := 10.0;
+
+            variable pi_out : real := 0.0;
+            variable modulator_voltage : real := 0.0;
+            variable i_err : real := 0.0;
 
         begin
             grid_voltage := sin(t*50.0*math_pi*2.0 mod (2.0*math_pi)) * 325.0;
 
+            i_err := grid_voltage/325.0 * 10.0 - states(lpri);
+            pi_out := i_err * 10.0;
+            modulator_voltage := (pi_out + states(c2)) / states(cdc);
 
             l1_voltage := grid_voltage - states(c1) - rc1*(states(l1) - states(l2));
             c1_current := states(l1) - states(l2);
             l2_voltage := states(c1) - states(c2) - rc1*(states(l1) - states(l2)) - rc2*(states(l2) - states(lpri));
             c2_current := states(l2) - states(lpri);
 
-            lpri_voltage   := 0.0;
-            bridge_current := 0.0;
+            lpri_voltage := bridge_voltage(
+                dc_link_voltage   => states(cdc)
+                ,input_voltage    => states(c2)
+                ,inductor_current => states(lpri)
+            );
 
-            lpri_voltage := bridge_voltage(states(cdc), states(c2), states(lpri));
+            dc_link_current := (states(lpri) - load_current);
 
             retval(l1)   := l1_voltage / l1_val;
             retval(c1)   := c1_current / c1_val;
             retval(l2)   := l2_voltage / l2_val;
             retval(c2)   := c2_current / c2_val;
             retval(lpri) := lpri_voltage / Lpri_val;
-            retval(cdc)  := (states(lpri) - load_current) / dc_link_cap_val;
+            -- retval(cdc)  := dc_link_current / dc_link_cap_val;
 
             return retval;
 
         end function;
 
-        procedure rk is new generic_rk4 generic map(deriv_lcr);
+        procedure rk is new generic_rk5 generic map(deriv_lcr);
 
         file file_handler : text open write_mode is "inu_model_tb.dat";
     begin
