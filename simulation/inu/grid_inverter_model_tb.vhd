@@ -50,6 +50,23 @@ begin
 
     stimulus : process(simulator_clock)
 
+        -----------------------------
+        function bridge_voltage(
+            dc_link_voltage : real
+            ;input_voltage : real
+            ;inductor_current : real
+        ) return real is
+            variable retval : real := 0.0;
+        begin
+
+            if (dc_link_voltage < abs(input_voltage)) or (inductor_current > 0.0)
+            then
+                retval := abs(input_voltage) - dc_link_voltage;
+            end if;
+
+            return retval;
+        end bridge_voltage;
+        -----------------------------
         variable grid_voltage : real := 0.0;
 
         variable timestep        : real := 2.0e-6;
@@ -77,17 +94,6 @@ begin
             variable c2_current : real := 0.0;
             variable lpri_voltage : real := 0.0;
 
-            impure function bridge_voltage(dc_link_voltage : real) return real is
-                variable retval : real := 0.0;
-            begin
-
-                if (dc_link_voltage < abs(states(c2))) or (states(lpri) > 0.0)
-                then
-                    retval := abs(states(c2)) - dc_link_voltage;
-                end if;
-
-                return retval;
-            end bridge_voltage;
 
         begin
             grid_voltage := sin(t*50.0*math_pi*2.0 mod (2.0*math_pi)) * 325.0;
@@ -101,7 +107,7 @@ begin
             lpri_voltage   := 0.0;
             bridge_current := 0.0;
 
-            lpri_voltage := bridge_voltage(states(cdc));
+            lpri_voltage := bridge_voltage(states(cdc), states(c2), states(lpri));
 
             retval(l1)   := l1_voltage / l1_val;
             retval(c1)   := c1_current / c1_val;
