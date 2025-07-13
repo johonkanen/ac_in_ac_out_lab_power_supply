@@ -70,13 +70,25 @@ begin
 
         impure function deriv_lcr (t : real ; states : real_vector) return real_vector is
             variable retval : grid_inverter_states'subtype := (others => 0.0);
-            variable bridge_voltage : real := 0.0;
             variable bridge_current : real := 0.0;
             variable l1_voltage : real := 0.0;
             variable c1_current : real := 0.0;
             variable l2_voltage : real := 0.0;
             variable c2_current : real := 0.0;
             variable lpri_voltage : real := 0.0;
+
+            impure function bridge_voltage(dc_link_voltage : real) return real is
+                variable retval : real := 0.0;
+            begin
+
+                if (dc_link_voltage < abs(states(c2))) or (states(lpri) > 0.0)
+                then
+                    retval := abs(states(c2)) - dc_link_voltage;
+                end if;
+
+                return retval;
+            end bridge_voltage;
+
         begin
             grid_voltage := sin(t*50.0*math_pi*2.0 mod (2.0*math_pi)) * 325.0;
 
@@ -89,10 +101,7 @@ begin
             lpri_voltage   := 0.0;
             bridge_current := 0.0;
 
-            if (states(cdc) < (abs(states(c2)))) or (states(lpri) > 0.0)
-            then
-                lpri_voltage := abs(states(c2)) - states(cdc);
-            end if;
+            lpri_voltage := bridge_voltage(states(cdc));
 
             retval(l1)   := l1_voltage / l1_val;
             retval(c1)   := c1_current / c1_val;
