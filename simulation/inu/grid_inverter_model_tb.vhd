@@ -24,7 +24,7 @@ architecture vunit_simulation of grid_inverter_model_tb is
     -- simulation specific signals ----
 
     signal realtime : real := 0.0;
-    constant stoptime : real := 100.0e-3;
+    constant stoptime : real := 300.0e-3;
     constant c1    : natural := 0;
     constant l1    : natural := 1;
     constant c2    : natural := 2;
@@ -55,14 +55,20 @@ begin
             dc_link_voltage : real
             ;input_voltage : real
             ;inductor_current : real
+            ;modulation_index : real := 1.0
         ) return real is
             variable retval : real := 0.0;
         begin
 
-            if (dc_link_voltage < abs(input_voltage)) or (inductor_current > 0.0)
-            then
-                retval := abs(input_voltage) - dc_link_voltage;
-            end if;
+            -- if modulation_index = 1.0
+            -- then
+            --     if (dc_link_voltage < abs(input_voltage)) or (inductor_current > 0.0)
+            --     then
+            --         retval := abs(input_voltage) - dc_link_voltage * modulation_index;
+            --     end if;
+            -- else
+                retval := input_voltage - dc_link_voltage * modulation_index;
+            -- end if;
 
             return retval;
         end bridge_voltage;
@@ -81,9 +87,10 @@ begin
         constant dc_link_cap_val : real := 1500.0e-6;
 
         constant int : natural := 8;
+        constant vint : natural := 9;
 
         -- c1, l1, c2, l2, c3, lpri, cdc
-        variable grid_inverter_states : real_vector(0 to 8) := (cdc => 400.0, others => 0.0);
+        variable grid_inverter_states : real_vector(0 to 9) := (cdc => 400.0, others => 0.0);
 
         function deriv_lcr (t : real ; states : real_vector) return real_vector is
 
@@ -100,15 +107,29 @@ begin
             variable load_current : real := 10.0;
 
             variable pi_out : real := 0.0;
-            variable modulator_voltage : real := 0.0;
+            variable modulation_index : real := 0.0;
             variable i_err : real := 0.0;
+            variable iref : real := 0.0;
+
+            variable vpi_out : real := 0.0;
+            variable verr : real := 0.0;
 
         begin
             grid_voltage := sin(t*50.0*math_pi*2.0 mod (2.0*math_pi)) * 325.0;
 
-            i_err := grid_voltage/325.0 * 10.0 - states(lpri);
-            pi_out := i_err * 10.0;
-            modulator_voltage := (pi_out + states(c2)) / states(cdc);
+
+            load_current := 2.0;
+
+            if t > 150.0e-3 then load_current := -10.0; end if;
+
+            verr := 400.0 - states(cdc);
+            vpi_out := verr * 0.3 + states(vint);
+            retval(vint) := verr * 100.0;
+
+            i_err       := grid_voltage/325.0 * vpi_out - states(lpri);
+            pi_out      := i_err * 250.0 + states(int);
+            retval(int) := i_err * 100000.0;
+            modulation_index := -(pi_out + states(c2)) / states(cdc);
 
             l1_voltage := grid_voltage - states(c1) - rc1*(states(l1) - states(l2));
             c1_current := states(l1) - states(l2);
@@ -119,16 +140,17 @@ begin
                 dc_link_voltage   => states(cdc)
                 ,input_voltage    => states(c2)
                 ,inductor_current => states(lpri)
+                ,modulation_index => modulation_index
             );
 
-            dc_link_current := (states(lpri) - load_current);
+            dc_link_current := (modulation_index * states(lpri) - load_current);
 
             retval(l1)   := l1_voltage / l1_val;
             retval(c1)   := c1_current / c1_val;
             retval(l2)   := l2_voltage / l2_val;
             retval(c2)   := c2_current / c2_val;
             retval(lpri) := lpri_voltage / Lpri_val;
-            -- retval(cdc)  := dc_link_current / dc_link_cap_val;
+            retval(cdc)  := dc_link_current / dc_link_cap_val;
 
             return retval;
 
@@ -144,8 +166,8 @@ begin
                 init_simfile(file_handler
                 , ("time"
                 ,"T_u0"
-                ,"T_u1"
-                ,"T_u2"
+                -- ,"T_u1"
+                -- ,"T_u2"
                 -- ,"T_u2"
                 -- ,"T_u3"
                 ,"B_i0"
@@ -157,8 +179,8 @@ begin
             end if;
             write_to(file_handler
                     ,(realtime
-                    ,grid_inverter_states(c1) 
-                    ,grid_inverter_states(c2) 
+                    -- ,grid_inverter_states(c1) 
+                    -- ,grid_inverter_states(c2) 
                     ,grid_inverter_states(cdc) 
                     ,grid_inverter_states(lpri) 
                     -- ,(grid_voltage - grid_inverter_states(c1)) / rc1
