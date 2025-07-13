@@ -95,6 +95,7 @@ ode.add_source_files(ROOT / "source/hVHDL_fixed_point/real_to_fixed/real_to_fixe
 
 ode.add_source_files(ROOT / "simulation/sw_model_generic_pkg.vhd")
 ode.add_source_files(ROOT / "simulation/inu/half_bridge_tb.vhd")
+ode.add_source_files(ROOT / "simulation/inu/grid_inverter_model_tb.vhd")
 
 #--------------------------------------
 s7 = VU.add_library("s7")
@@ -115,6 +116,6 @@ s7.add_source_files(ROOT / "source/vhdl_serial/source/max11115/max11115_generic_
 
 # s7.add_source_files(ROOT / "spartan7/measurements.vhd")
 
-VU.set_sim_option("nvc.sim_flags", ["-w"])
+# VU.set_sim_option("nvc.sim_flags", ["-w"])
 
 VU.main()
