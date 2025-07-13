@@ -60,15 +60,15 @@ begin
             variable retval : real := 0.0;
         begin
 
-            -- if modulation_index = 1.0
-            -- then
-            --     if (dc_link_voltage < abs(input_voltage)) or (inductor_current > 0.0)
-            --     then
-            --         retval := abs(input_voltage) - dc_link_voltage * modulation_index;
-            --     end if;
-            -- else
+            if modulation_index >= 1.0
+            then
+                if (dc_link_voltage < abs(input_voltage)) or (inductor_current > 0.0)
+                then
+                    retval := abs(input_voltage) - dc_link_voltage * modulation_index;
+                end if;
+            else
                 retval := input_voltage - dc_link_voltage * modulation_index;
-            -- end if;
+            end if;
 
             return retval;
         end bridge_voltage;
@@ -92,7 +92,7 @@ begin
         -- c1, l1, c2, l2, c3, lpri, cdc
         variable grid_inverter_states : real_vector(0 to 9) := (cdc => 400.0, others => 0.0);
 
-        function deriv_lcr (t : real ; states : real_vector) return real_vector is
+        impure function deriv_lcr (t : real ; states : real_vector) return real_vector is
 
             variable retval : grid_inverter_states'subtype := (others => 0.0);
             variable bridge_current  : real := 0.0;
@@ -106,13 +106,14 @@ begin
             variable grid_voltage : real := 0.0;
             variable load_current : real := 10.0;
 
-            variable pi_out : real := 0.0;
+            variable pi_out           : real := 0.0;
             variable modulation_index : real := 0.0;
-            variable i_err : real := 0.0;
-            variable iref : real := 0.0;
+            variable i_err            : real := 0.0;
+            variable iref             : real := 0.0;
 
             variable vpi_out : real := 0.0;
             variable verr : real := 0.0;
+            variable vref : real := 400.0;
 
         begin
             grid_voltage := sin(t*50.0*math_pi*2.0 mod (2.0*math_pi)) * 325.0;
@@ -120,9 +121,12 @@ begin
 
             load_current := 2.0;
 
-            if t > 150.0e-3 then load_current := -10.0; end if;
+            if t > 150.0e-3 then load_current := 10.0; end if;
 
-            verr := 400.0 - states(cdc);
+            if t > 70.0e-3 then vref := 410.0; end if;
+
+            -- control
+            verr := vref - states(cdc);
             vpi_out := verr * 0.3 + states(vint);
             retval(vint) := verr * 100.0;
 
@@ -130,6 +134,7 @@ begin
             pi_out      := i_err * 250.0 + states(int);
             retval(int) := i_err * 100000.0;
             modulation_index := -(pi_out + states(c2)) / states(cdc);
+            --
 
             l1_voltage := grid_voltage - states(c1) - rc1*(states(l1) - states(l2));
             c1_current := states(l1) - states(l2);
@@ -145,11 +150,11 @@ begin
 
             dc_link_current := (modulation_index * states(lpri) - load_current);
 
-            retval(l1)   := l1_voltage / l1_val;
-            retval(c1)   := c1_current / c1_val;
-            retval(l2)   := l2_voltage / l2_val;
-            retval(c2)   := c2_current / c2_val;
-            retval(lpri) := lpri_voltage / Lpri_val;
+            retval(l1)   := l1_voltage      / l1_val;
+            retval(c1)   := c1_current      / c1_val;
+            retval(l2)   := l2_voltage      / l2_val;
+            retval(c2)   := c2_current      / c2_val;
+            retval(lpri) := lpri_voltage    / Lpri_val;
             retval(cdc)  := dc_link_current / dc_link_cap_val;
 
             return retval;
