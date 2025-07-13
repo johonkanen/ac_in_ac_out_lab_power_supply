@@ -24,15 +24,15 @@ architecture vunit_simulation of grid_inverter_model_tb is
     -- simulation specific signals ----
 
     signal realtime : real := 0.0;
-    constant timestep : real := 1.0e-7;
     constant stoptime : real := 100.0e-3;
-    constant c1   : natural := 0;
-    constant l1   : natural := 1;
-    constant c2   : natural := 2;
-    constant l2   : natural := 3;
-    constant c3   : natural := 4;
-    constant lpri : natural := 5;
-    constant cdc  : natural := 6;
+    constant c1    : natural := 0;
+    constant l1    : natural := 1;
+    constant c2    : natural := 2;
+    constant l2    : natural := 3;
+    constant c3    : natural := 4;
+    constant lpri  : natural := 5;
+    constant cdc   : natural := 6;
+    constant lgrid : natural := 7;
 
 begin
 
@@ -52,42 +52,60 @@ begin
 
         variable grid_voltage : real := 0.0;
 
-        constant c1_val          : real := 7.0e-6;
+        variable timestep        : real := 2.0e-6;
+        constant c1_val          : real := 2.0e-6;
         constant c2_val          : real := 7.0e-6;
         constant rc1             : real := 10.0e-3;
+        constant rc2             : real := 10.0e-3;
+
         constant l1_val          : real := 2.2e-6;
         constant l2_val          : real := 2.2e-6;
+        constant Lpri_val        : real := 1.0e-3;
+        constant lgrid           : real := 10.0e-6;
         constant dc_link_cap_val : real := 1500.0e-6;
-        variable load_current    : real := 1.0;
+        variable load_current    : real := 10.0;
 
         -- c1, l1, c2, l2, c3, lpri, cdc
-        variable grid_inverter_states : real_vector(0 to 6) := ( cdc => 400.0, others => 0.0);
+        variable grid_inverter_states : real_vector(0 to 7) := (cdc => 300.0, others => 0.0);
 
         impure function deriv_lcr (t : real ; states : real_vector) return real_vector is
             variable retval : grid_inverter_states'subtype := (others => 0.0);
-            variable voltage_over_bridge : real := 0.0;
+            variable bridge_voltage : real := 0.0;
             variable bridge_current : real := 0.0;
+            variable l1_voltage : real := 0.0;
+            variable c1_current : real := 0.0;
+            variable l2_voltage : real := 0.0;
+            variable c2_current : real := 0.0;
+            variable lpri_voltage : real := 0.0;
         begin
-            grid_voltage := sin(t*50.0*math_pi*2.0 mod (2.0*math_pi)) * 230.0;
+            grid_voltage := sin(t*50.0*math_pi*2.0 mod (2.0*math_pi)) * 325.0;
 
-            -- voltage_over_bridge := states(cdc) - (abs(states(c1)));
-            -- bridge_current := 0.0;
-            -- if voltage_over_bridge > 0.0
-            -- then
-            --     bridge_current := voltage_over_bridge * 500.0;
-            -- end if;
 
-            retval(c1) := (grid_voltage - states(c1)) / rc1 / c1_val;
+            l1_voltage := grid_voltage - states(c1) - rc1*(states(l1) - states(l2));
+            c1_current := states(l1) - states(l2);
+            l2_voltage := states(c1) - states(c2) - rc1*(states(l1) - states(l2)) - rc2*(states(l2) - states(lpri));
+            c2_current := states(l2) - states(lpri);
 
-            retval(cdc) := (bridge_current - load_current*0.0) / dc_link_cap_val;
-            -- retval(l1) := (states(c1) - states(c2) * states(l1) * 1.0e-3) / l1_val;
-            -- retval(c2) := (states(l1)) / c2_val;
+            lpri_voltage   := 0.0;
+            bridge_current := 0.0;
+
+            if (states(cdc) < (abs(states(c2)))) or (states(lpri) > 0.0)
+            then
+                lpri_voltage := abs(states(c2)) - states(cdc);
+            end if;
+
+            retval(l1)   := l1_voltage / l1_val;
+            retval(c1)   := c1_current / c1_val;
+            retval(l2)   := l2_voltage / l2_val;
+            retval(c2)   := c2_current / c2_val;
+            retval(lpri) := lpri_voltage / Lpri_val;
+            retval(cdc)  := (states(lpri) - load_current) / dc_link_cap_val;
 
             return retval;
 
         end function;
 
-        procedure rk is new generic_rk5 generic map(deriv_lcr);
+        procedure rk is new generic_rk4 generic map(deriv_lcr);
 
         file file_handler : text open write_mode is "inu_model_tb.dat";
     begin
@@ -98,28 +116,28 @@ begin
                 , ("time"
                 ,"T_u0"
                 ,"T_u1"
+                ,"T_u2"
                 -- ,"T_u2"
                 -- ,"T_u3"
-                -- ,"B_i0"
+                ,"B_i0"
                 -- ,"B_i1"
                 -- ,"B_i2"
-                ,"B_i3"
+                -- ,"B_i3"
                 ));
+
             end if;
+            write_to(file_handler
+                    ,(realtime
+                    ,grid_inverter_states(c1) 
+                    ,grid_inverter_states(c2) 
+                    ,grid_inverter_states(cdc) 
+                    ,grid_inverter_states(lpri) 
+                    -- ,(grid_voltage - grid_inverter_states(c1)) / rc1
+                ));
 
-            -- if simulation_counter > 0 then
+            rk(realtime, grid_inverter_states, timestep);
+            realtime <= realtime + timestep;
 
-                rk(realtime, grid_inverter_states, timestep);
-
-                realtime <= realtime + timestep;
-                write_to(file_handler
-                        ,(realtime
-                        ,grid_inverter_states(c1) 
-                        ,grid_inverter_states(cdc) 
-                        ,(grid_voltage - grid_inverter_states(c1)) / rc1
-                    ));
-
-            -- end if;
 
         end if; -- rising_edge
     end process stimulus;	
