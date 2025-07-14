@@ -2,29 +2,9 @@ LIBRARY ieee  ;
     USE ieee.NUMERIC_STD.all  ; 
     USE ieee.std_logic_1164.all  ; 
     use ieee.math_real.all;
-    use std.textio.all;
 
-library vunit_lib;
-context vunit_lib.vunit_context;
+package grid_inverter_model_pkg is
 
-    use work.write_pkg.all;
-    use work.ode_pkg.all;
-
-entity grid_inverter_model_tb is
-  generic (runner_cfg : string);
-end;
-
-architecture vunit_simulation of grid_inverter_model_tb is
-
-    constant clock_period : time := 1 ns;
-    
-    signal simulator_clock    : std_logic := '0';
-    signal simulation_counter : natural   := 0;
-    -----------------------------------
-    -- simulation specific signals ----
-
-    signal realtime : real := 0.0;
-    constant stoptime : real := 300.0e-3;
     constant c1    : natural := 0;
     constant l1    : natural := 1;
     constant c2    : natural := 2;
@@ -32,38 +12,13 @@ architecture vunit_simulation of grid_inverter_model_tb is
     constant c3    : natural := 4;
     constant lpri  : natural := 5;
     constant cdc   : natural := 6;
-    constant lgrid : natural := 7;
-
-    signal control_is_ready : boolean := false;
-    signal request_control : boolean := false;
-    signal modulation_index : real := 0.0;
-
-    signal v_int   : real := 0.0;
-    signal i_int   : real := 0.0;
-    signal pi_out  : real := 0.0;
-    signal vpi_out : real := 0.0;
-
-    signal lpri_meas : real := 0.0;
-    signal cap_voltage_meas : real := 0.0;
-    signal dc_link_meas : real := 0.0;
-
     constant timestep : real := 2.0e-6;
 
-begin
+    function deriv_grid_inverter(states : real_vector; modulation_index : real ; load_current : real; grid_voltage : real) return real_vector;
 
-------------------------------------------------------------------------
-    simtime : process
-    begin
-        test_runner_setup(runner, runner_cfg);
-        wait until realtime >= stoptime;
-        test_runner_cleanup(runner); -- Simulation ends here
-        wait;
-    end process simtime;	
+end package grid_inverter_model_pkg;
 
-    simulator_clock <= not simulator_clock after clock_period/2.0;
-------------------------------------------------------------------------
-
-    stimulus : process(simulator_clock)
+package body grid_inverter_model_pkg is
 
         -----------------------------
         function bridge_voltage(
@@ -100,6 +55,105 @@ begin
         constant lgrid           : real := 10.0e-6;
         constant dc_link_cap_val : real := 1500.0e-6;
 
+            function deriv_grid_inverter(states : real_vector; modulation_index : real ; load_current : real; grid_voltage : real) return real_vector is
+                variable l1_voltage      : real := 0.0;
+                variable c1_current      : real := 0.0;
+                variable l2_voltage      : real := 0.0;
+                variable c2_current      : real := 0.0;
+                variable lpri_voltage    : real := 0.0;
+                variable dc_link_current : real := 0.0;
+                variable bridge_current  : real := 0.0;
+
+                variable retval : states'subtype := (others => 0.0);
+
+            begin
+                l1_voltage := grid_voltage - states(c1) - rc1*(states(l1) - states(l2));
+                c1_current := states(l1) - states(l2);
+                l2_voltage := states(c1) - states(c2) - rc1*(states(l1) - states(l2)) - rc2*(states(l2) - states(lpri));
+                c2_current := states(l2) - states(lpri);
+
+                lpri_voltage := bridge_voltage(
+                    dc_link_voltage   => states(cdc)
+                    ,input_voltage    => states(c2)
+                    ,inductor_current => states(lpri)
+                    ,modulation_index => modulation_index
+                );
+
+                dc_link_current := (modulation_index * states(lpri) - load_current);
+
+                retval(l1)   := l1_voltage      / l1_val;
+                retval(c1)   := c1_current      / c1_val;
+                retval(l2)   := l2_voltage      / l2_val;
+                retval(c2)   := c2_current      / c2_val;
+                retval(lpri) := lpri_voltage    / Lpri_val;
+                retval(cdc)  := dc_link_current / dc_link_cap_val;
+
+                return retval;
+            end deriv_grid_inverter;
+
+end package body grid_inverter_model_pkg;
+
+----
+LIBRARY ieee  ; 
+    USE ieee.NUMERIC_STD.all  ; 
+    USE ieee.std_logic_1164.all  ; 
+    use ieee.math_real.all;
+    use std.textio.all;
+
+library vunit_lib;
+context vunit_lib.vunit_context;
+
+    use work.write_pkg.all;
+    use work.ode_pkg.all;
+    use work.grid_inverter_model_pkg.all;
+
+entity grid_inverter_model_tb is
+  generic (runner_cfg : string);
+end;
+
+architecture vunit_simulation of grid_inverter_model_tb is
+
+    constant clock_period : time := 1 ns;
+    
+    signal simulator_clock    : std_logic := '0';
+    signal simulation_counter : natural   := 0;
+    -----------------------------------
+    -- simulation specific signals ----
+
+    signal realtime : real := 0.0;
+    constant stoptime : real := 300.0e-3;
+
+    signal control_is_ready : boolean := false;
+    signal request_control : boolean := false;
+    signal modulation_index : real := 0.0;
+
+    signal v_int   : real := 0.0;
+    signal i_int   : real := 0.0;
+    signal pi_out  : real := 0.0;
+    signal vpi_out : real := 0.0;
+
+    signal lpri_meas : real := 0.0;
+    signal cap_voltage_meas : real := 0.0;
+    signal dc_link_meas : real := 0.0;
+
+
+begin
+
+------------------------------------------------------------------------
+    simtime : process
+    begin
+        test_runner_setup(runner, runner_cfg);
+        wait until realtime >= stoptime;
+        test_runner_cleanup(runner); -- Simulation ends here
+        wait;
+    end process simtime;	
+
+    simulator_clock <= not simulator_clock after clock_period/2.0;
+------------------------------------------------------------------------
+
+    stimulus : process(simulator_clock)
+
+
         constant int  : natural := 8;
         constant vint : natural := 9;
 
@@ -109,16 +163,9 @@ begin
         impure function deriv_lcr (t : real ; states : real_vector) return real_vector is
 
             variable retval : grid_inverter_states'subtype := (others => 0.0);
-            variable bridge_current  : real := 0.0;
-            variable l1_voltage      : real := 0.0;
-            variable c1_current      : real := 0.0;
-            variable l2_voltage      : real := 0.0;
-            variable c2_current      : real := 0.0;
-            variable lpri_voltage    : real := 0.0;
-            variable dc_link_current : real := 0.0;
-
             variable grid_voltage : real := 0.0;
             variable load_current : real := 10.0;
+
 
 
         begin
@@ -132,28 +179,8 @@ begin
             -- if t > 70.0e-3 then vref := 410.0; end if;
 
 
-            l1_voltage := grid_voltage - states(c1) - rc1*(states(l1) - states(l2));
-            c1_current := states(l1) - states(l2);
-            l2_voltage := states(c1) - states(c2) - rc1*(states(l1) - states(l2)) - rc2*(states(l2) - states(lpri));
-            c2_current := states(l2) - states(lpri);
 
-            lpri_voltage := bridge_voltage(
-                dc_link_voltage   => states(cdc)
-                ,input_voltage    => states(c2)
-                ,inductor_current => states(lpri)
-                ,modulation_index => modulation_index
-            );
-
-            dc_link_current := (modulation_index * states(lpri) - load_current);
-
-            retval(l1)   := l1_voltage      / l1_val;
-            retval(c1)   := c1_current      / c1_val;
-            retval(l2)   := l2_voltage      / l2_val;
-            retval(c2)   := c2_current      / c2_val;
-            retval(lpri) := lpri_voltage    / Lpri_val;
-            retval(cdc)  := dc_link_current / dc_link_cap_val;
-
-            return retval;
+            return deriv_grid_inverter(states, modulation_index, load_current, grid_voltage);
 
         end function;
 
@@ -206,9 +233,9 @@ begin
 ------------------------------------------------------------------------
 
     control : process(simulator_clock)
-        variable verr : real := 0.0;
-        variable i_err            : real := 0.0;
-        variable vref : real := 400.0;
+        variable verr  : real := 0.0;
+        variable i_err : real := 0.0;
+        variable vref  : real := 400.0;
     begin
         if rising_edge(simulator_clock)
         then
