@@ -2,44 +2,11 @@ LIBRARY ieee  ;
     USE ieee.NUMERIC_STD.all  ; 
     USE ieee.std_logic_1164.all  ; 
     use ieee.math_real.all;
-    use std.textio.all;
 
-library vunit_lib;
-context vunit_lib.vunit_context;
+    use work.ram_connector_pkg.all;
 
-    use work.write_pkg.all;
-    use work.ode_pkg.all;
-    use work.grid_inverter_model_pkg.all;
+package grid_inverter_microprogram_pkg is
 
-entity grid_inverter_control_rtl_tb is
-  generic (runner_cfg : string);
-end;
-
-architecture vunit_simulation of grid_inverter_control_rtl_tb is
-
-    constant clock_period : time := 1 ns;
-    
-    signal simulator_clock    : std_logic := '0';
-    signal simulation_counter : natural   := 0;
-    -----------------------------------
-    -- simulation specific signals ----
-
-    signal realtime : real := 0.0;
-    constant stoptime : real := 60.0e-3;
-
-    signal control_is_ready : boolean := false;
-    signal request_control : boolean := false;
-    signal modulation_index : real := 0.0;
-
-    signal v_int   : real := 0.0;
-    signal i_int   : real := 0.0;
-    signal pi_out  : real := 0.0;
-    signal vpi_out : real := 0.0;
-
-    signal lpri_meas        : real := 0.0;
-    signal cap_voltage_meas : real := 0.0;
-    signal dc_link_meas     : real := 0.0;
-------------------------------------------------------------------------
     constant instruction_length : natural := 32;
     constant word_length : natural := 40;
     constant used_radix : natural := 29;
@@ -55,11 +22,6 @@ architecture vunit_simulation of grid_inverter_control_rtl_tb is
 
     constant instr_ref_subtype : subtype_ref_record := create_ref_subtypes(readports => 1, datawidth => 32, addresswidth => 10);
 
-    signal mc_read_in  : ref_subtype.ram_read_in'subtype;
-    signal mc_read_out : ref_subtype.ram_read_out'subtype;
-    signal mc_output   : ref_subtype.ram_write_in'subtype;
-
-    use work.ram_connector_pkg.all;
 
     constant readports    : natural := 3;
     constant addresswidth : natural := 10;
@@ -79,8 +41,6 @@ architecture vunit_simulation of grid_inverter_control_rtl_tb is
                     data_is_ready => '0'
                 )
             ));
-
-    signal ram_connector : ram_connector_ref'subtype;
 
     constant y    : natural := 50;
     constant u    : natural := 60;
@@ -139,8 +99,56 @@ architecture vunit_simulation of grid_inverter_control_rtl_tb is
 
         , others => op(nop));
 
+end package grid_inverter_microprogram_pkg;
+
     ----
+LIBRARY ieee  ; 
+    USE ieee.NUMERIC_STD.all  ; 
+    USE ieee.std_logic_1164.all  ; 
+    use ieee.math_real.all;
+    use std.textio.all;
+
+library vunit_lib;
+context vunit_lib.vunit_context;
+
+    use work.write_pkg.all;
+    use work.ode_pkg.all;
+    use work.grid_inverter_model_pkg.all;
+    use work.grid_inverter_microprogram_pkg.all;
+
+entity grid_inverter_control_rtl_tb is
+  generic (runner_cfg : string);
+end;
+
+architecture vunit_simulation of grid_inverter_control_rtl_tb is
+
+    constant clock_period : time := 1 ns;
+    
+    signal simulator_clock    : std_logic := '0';
+    signal simulation_counter : natural   := 0;
+    -----------------------------------
+    -- simulation specific signals ----
+
+    signal realtime : real := 0.0;
+    constant stoptime : real := 60.0e-3;
+
+    signal control_is_ready : boolean := false;
+    signal request_control : boolean := false;
+    signal modulation_index : real := 0.0;
+
+    signal v_int   : real := 0.0;
+    signal i_int   : real := 0.0;
+    signal pi_out  : real := 0.0;
+    signal vpi_out : real := 0.0;
+
+    signal lpri_meas        : real := 0.0;
+    signal cap_voltage_meas : real := 0.0;
+    signal dc_link_meas     : real := 0.0;
+------------------------------------------------------------------------
     signal ext_input : std_logic_vector(word_length-1 downto 0) := to_fixed(-22.351);
+    signal mc_read_in  : ref_subtype.ram_read_in'subtype;
+    signal mc_read_out : ref_subtype.ram_read_out'subtype;
+    signal mc_output   : ref_subtype.ram_write_in'subtype;
 
     signal current : real := 0.0;
     signal voltage : real := 0.0;
@@ -148,6 +156,7 @@ architecture vunit_simulation of grid_inverter_control_rtl_tb is
     signal lc_load : std_logic_vector(word_length-1 downto 0)          := to_fixed(1.0);
     signal lc_duty : std_logic_vector(word_length-1 downto 0)          := to_fixed(0.5);
     signal lc_input_voltage : std_logic_vector(word_length-1 downto 0) := to_fixed(10.0);
+
     use work.microprogram_processor_pkg.all;
 
     signal mproc_in  : microprogram_processor_in_record;
@@ -157,6 +166,9 @@ architecture vunit_simulation of grid_inverter_control_rtl_tb is
 
     signal simcurrent : std_logic_vector(word_length-1 downto 0) := to_fixed(0.0);
     signal simvoltage : std_logic_vector(word_length-1 downto 0) := to_fixed(0.0);
+
+    use work.ram_connector_pkg.all;
+    signal ram_connector : ram_connector_ref'subtype;
 
 
 
