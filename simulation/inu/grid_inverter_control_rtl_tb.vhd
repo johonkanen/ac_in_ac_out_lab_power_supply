@@ -1,4 +1,3 @@
-----
 LIBRARY ieee  ; 
     USE ieee.NUMERIC_STD.all  ; 
     USE ieee.std_logic_1164.all  ; 
@@ -12,11 +11,11 @@ context vunit_lib.vunit_context;
     use work.ode_pkg.all;
     use work.grid_inverter_model_pkg.all;
 
-entity grid_inverter_model_tb is
+entity grid_inverter_control_rtl_tb is
   generic (runner_cfg : string);
 end;
 
-architecture vunit_simulation of grid_inverter_model_tb is
+architecture vunit_simulation of grid_inverter_control_rtl_tb is
 
     constant clock_period : time := 1 ns;
     
@@ -83,7 +82,7 @@ begin
 
         procedure rk is new generic_rk5 generic map(deriv_lcr);
 
-        file file_handler : text open write_mode is "grid_inverter_model_tb.dat";
+        file file_handler : text open write_mode is "grid_inverter_control_rtl_tb.dat";
 
     begin
         if rising_edge(simulator_clock) then

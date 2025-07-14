@@ -99,6 +99,8 @@ ode.add_source_files(ROOT / "simulation/inu/half_bridge_tb.vhd")
 ode.add_source_files(ROOT / "simulation/inu/grid_inverter_model_pkg.vhd")
 ode.add_source_files(ROOT / "simulation/inu/grid_inverter_model_tb.vhd")
 
+ode.add_source_files(ROOT / "simulation/inu/grid_inverter_control_rtl_tb.vhd")
+
 #--------------------------------------
 s7 = VU.add_library("s7")
 # s7.add_source_files(ROOT / "spartan7/testbench/measurements_tb.vhd")
