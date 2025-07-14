@@ -34,6 +34,11 @@ architecture vunit_simulation of grid_inverter_model_tb is
     constant cdc   : natural := 6;
     constant lgrid : natural := 7;
 
+    signal v_int : real := 0.0;
+
+    signal control_is_ready : boolean := false;
+    signal request_control : boolean := false;
+
 begin
 
 ------------------------------------------------------------------------
@@ -86,7 +91,7 @@ begin
         constant lgrid           : real := 10.0e-6;
         constant dc_link_cap_val : real := 1500.0e-6;
 
-        constant int : natural := 8;
+        constant int  : natural := 8;
         constant vint : natural := 9;
 
             variable pi_out           : real := 0.0;
@@ -98,9 +103,6 @@ begin
             variable vref : real := 400.0;
 
             variable modulation_index : real := 0.0;
-
-            variable v_int : real := 0.0;
-            variable v_int2 : real := 0.0;
 
         -- c1, l1, c2, l2, c3, lpri, cdc
         variable grid_inverter_states : real_vector(0 to 9) := (cdc => 400.0, others => 0.0);
@@ -177,29 +179,48 @@ begin
                 ));
 
             end if;
-            write_to(file_handler
-                    ,(realtime
-                    -- ,grid_inverter_states(c1) 
-                    -- ,grid_inverter_states(c2) 
-                    ,grid_inverter_states(cdc) 
-                    ,grid_inverter_states(lpri) 
-                    -- ,(grid_voltage - grid_inverter_states(c1)) / rc1
-                ));
 
-            verr     := vref - grid_inverter_states(cdc);
-            vpi_out  := verr * 0.2 + grid_inverter_states(vint);
-            grid_inverter_states(vint) := verr * 50.0 * timestep + grid_inverter_states(vint);
+            request_control <= false;
+            if control_is_ready or simulation_counter = 0
+            then
+                write_to(file_handler
+                        ,(realtime
+                        -- ,grid_inverter_states(c1) 
+                        -- ,grid_inverter_states(c2) 
+                        ,grid_inverter_states(cdc) 
+                        ,grid_inverter_states(lpri) 
+                        -- ,(grid_voltage - grid_inverter_states(c1)) / rc1
+                    ));
 
-            i_err                     := grid_inverter_states(c2)/325.0 * vpi_out - grid_inverter_states(lpri);
-            pi_out                    := i_err * 250.0 + grid_inverter_states(int);
-            grid_inverter_states(int) := i_err * 100000.0* timestep+ grid_inverter_states(int);
-            modulation_index          := -(pi_out + grid_inverter_states(c2)) / grid_inverter_states(cdc);
+                rk(realtime, grid_inverter_states, timestep);
+                realtime <= realtime + timestep;
+                request_control <= true;
+            end if;
 
-            rk(realtime, grid_inverter_states, timestep);
-            realtime <= realtime + timestep;
+            control_is_ready <= false;
+            if request_control
+            then
+                verr     := vref - grid_inverter_states(cdc);
+                vpi_out  := verr * 0.2 + grid_inverter_states(vint);
+                grid_inverter_states(vint) := verr * 50.0 * timestep + grid_inverter_states(vint);
 
+                i_err                     := grid_inverter_states(c2)/325.0 * vpi_out - grid_inverter_states(lpri);
+                pi_out                    := i_err * 250.0 + grid_inverter_states(int);
+                grid_inverter_states(int) := i_err * 100000.0* timestep+ grid_inverter_states(int);
+                modulation_index          := -(pi_out + grid_inverter_states(c2)) / grid_inverter_states(cdc);
+                control_is_ready <= true;
+            end if;
 
         end if; -- rising_edge
     end process stimulus;	
+------------------------------------------------------------------------
+
+    control : process(simulator_clock)
+    begin
+        if rising_edge(simulator_clock)
+        then
+            -- do control 
+        end if;
+    end process;
 ------------------------------------------------------------------------
 end vunit_simulation;
