@@ -171,14 +171,8 @@ begin
         begin
             grid_voltage := sin(t*50.0*math_pi*2.0 mod (2.0*math_pi)) * 325.0;
 
-
             load_current := 2.0;
-
             if t > 150.0e-3 then load_current := 10.0; end if;
-
-            -- if t > 70.0e-3 then vref := 410.0; end if;
-
-
 
             return deriv_grid_inverter(states, modulation_index, load_current, grid_voltage);
 
@@ -186,7 +180,8 @@ begin
 
         procedure rk is new generic_rk5 generic map(deriv_lcr);
 
-        file file_handler : text open write_mode is "inu_model_tb.dat";
+        file file_handler : text open write_mode is "grid_inverter_model_tb.dat";
+
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
