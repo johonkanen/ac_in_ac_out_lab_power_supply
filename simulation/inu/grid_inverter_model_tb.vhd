@@ -62,7 +62,7 @@ begin
 
             if modulation_index >= 1.0
             then
-                if (dc_link_voltage < abs(input_voltage)) or (inductor_current > 0.0)
+                if (modulation_index * dc_link_voltage < input_voltage) or (inductor_current > 0.0)
                 then
                     retval := abs(input_voltage) - dc_link_voltage * modulation_index;
                 end if;
@@ -89,6 +89,19 @@ begin
         constant int : natural := 8;
         constant vint : natural := 9;
 
+            variable pi_out           : real := 0.0;
+            variable i_err            : real := 0.0;
+            variable iref             : real := 0.0;
+
+            variable vpi_out : real := 0.0;
+            variable verr : real := 0.0;
+            variable vref : real := 400.0;
+
+            variable modulation_index : real := 0.0;
+
+            variable v_int : real := 0.0;
+            variable v_int2 : real := 0.0;
+
         -- c1, l1, c2, l2, c3, lpri, cdc
         variable grid_inverter_states : real_vector(0 to 9) := (cdc => 400.0, others => 0.0);
 
@@ -106,14 +119,6 @@ begin
             variable grid_voltage : real := 0.0;
             variable load_current : real := 10.0;
 
-            variable pi_out           : real := 0.0;
-            variable modulation_index : real := 0.0;
-            variable i_err            : real := 0.0;
-            variable iref             : real := 0.0;
-
-            variable vpi_out : real := 0.0;
-            variable verr : real := 0.0;
-            variable vref : real := 400.0;
 
         begin
             grid_voltage := sin(t*50.0*math_pi*2.0 mod (2.0*math_pi)) * 325.0;
@@ -123,18 +128,8 @@ begin
 
             if t > 150.0e-3 then load_current := 10.0; end if;
 
-            if t > 70.0e-3 then vref := 410.0; end if;
+            -- if t > 70.0e-3 then vref := 410.0; end if;
 
-            -- control
-            verr := vref - states(cdc);
-            vpi_out := verr * 0.3 + states(vint);
-            retval(vint) := verr * 100.0;
-
-            i_err       := grid_voltage/325.0 * vpi_out - states(lpri);
-            pi_out      := i_err * 250.0 + states(int);
-            retval(int) := i_err * 100000.0;
-            modulation_index := -(pi_out + states(c2)) / states(cdc);
-            --
 
             l1_voltage := grid_voltage - states(c1) - rc1*(states(l1) - states(l2));
             c1_current := states(l1) - states(l2);
@@ -190,6 +185,15 @@ begin
                     ,grid_inverter_states(lpri) 
                     -- ,(grid_voltage - grid_inverter_states(c1)) / rc1
                 ));
+
+            verr     := vref - grid_inverter_states(cdc);
+            vpi_out  := verr * 0.2 + grid_inverter_states(vint);
+            grid_inverter_states(vint) := verr * 50.0 * timestep + grid_inverter_states(vint);
+
+            i_err                     := grid_inverter_states(c2)/325.0 * vpi_out - grid_inverter_states(lpri);
+            pi_out                    := i_err * 250.0 + grid_inverter_states(int);
+            grid_inverter_states(int) := i_err * 100000.0* timestep+ grid_inverter_states(int);
+            modulation_index          := -(pi_out + grid_inverter_states(c2)) / grid_inverter_states(cdc);
 
             rk(realtime, grid_inverter_states, timestep);
             realtime <= realtime + timestep;
