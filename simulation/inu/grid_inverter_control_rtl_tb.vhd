@@ -16,12 +16,10 @@ package grid_inverter_microprogram_pkg is
     generic map(word_length => word_length, used_radix => used_radix);
 
     use work.microinstruction_pkg.all;
-
     use work.multi_port_ram_pkg.all;
+
     constant ref_subtype : subtype_ref_record := create_ref_subtypes(readports => 3, datawidth => word_length, addresswidth => 10);
-
     constant instr_ref_subtype : subtype_ref_record := create_ref_subtypes(readports => 1, datawidth => 32, addresswidth => 10);
-
 
     constant readports    : natural := 3;
     constant addresswidth : natural := 10;
@@ -59,6 +57,32 @@ package grid_inverter_microprogram_pkg is
     constant inductor_voltage : natural := 29;
     constant rxi              : natural := 30;
     constant cap_current      : natural := 31;
+    -- 
+    constant scaled_udc :     natural := 10;
+    constant scaled_uin :     natural := 11;
+    constant scaled_current : natural := 12;
+    constant scaled_ubridge : natural := 12;
+
+    constant ad_udc_gain       : natural := 13;
+    constant ad_udc_offset     : natural := 14;
+    constant ad_uin_gain       : natural := 15;
+    constant ad_uin_offset     : natural := 16;
+    constant ad_current_gain   : natural := 17;
+    constant ad_current_offset : natural := 18;
+    constant ad_ubridge_gain   : natural := 19;
+    constant ad_ubridge_offset : natural := 20;
+
+    constant uerror_x_kp : natural := 21;
+    constant udckp : natural := 22;
+    constant uerror_x_ki : natural := 23;
+
+    constant ad_udc_meas      : natural := 119;
+    constant ad_uin_meas      : natural := 120;
+    constant ad_current_meas  : natural := 121;
+    constant ad_ubridge_meas : natural := 122;
+
+    constant udc_ref : natural := 123;
+
 
     constant sampletime : real := 1.0e-6;
 
@@ -82,14 +106,17 @@ package grid_inverter_microprogram_pkg is
     );
 
     constant test_program : work.dual_port_ram_pkg.ram_array(0 to instr_ref_subtype.address_high)(instr_ref_subtype.data'range) := (
-        6    => sub(5, 1, 1)
-        , 7  => add(6, 1, 1)
-        , 8  => mpy(7, 2, 2)
-        , 9  => op(mpy_add,8, 2, 2, 1)
-        , 10  => op(mpy_sub,9, 2, 2, 1)
-        , 13 => op(program_end)
+        --
+        0   => op(mpy_add, scaled_udc, ad_udc_gain, ad_udc_meas , ad_udc_offset)
 
-        -- lc filter
+        , 1 => op(mpy_add , scaled_uin     , ad_uin_gain     , ad_uin_meas     , ad_uin_offset)
+        , 2 => op(mpy_add , scaled_current , ad_current_gain , ad_current_meas , ad_current_offset)
+        , 3 => op(mpy_add , scaled_ubridge , ad_ubridge_gain , ad_ubridge_meas , ad_ubridge_offset)
+
+
+        , 7 => op(a_sub_b_mpy_c , uerror_x_kp , udc_ref, scaled_udc, udckp)
+        , 8 => op(a_sub_b_mpy_c , uerror_x_ki , udc_ref, scaled_udc, udckp)
+        -- boost model
         , 129 => op(neg_mpy_add , inductor_voltage , duty             , cap_voltage      , input_voltage)
         , 130 => op(mpy_sub     , cap_current      , duty             , inductor_current , load)
         , 136 => op(neg_mpy_add , inductor_voltage , ind_res          , inductor_current , inductor_voltage)
@@ -169,8 +196,6 @@ architecture vunit_simulation of grid_inverter_control_rtl_tb is
 
     use work.ram_connector_pkg.all;
     signal ram_connector : ram_connector_ref'subtype;
-
-
 
 ------------------------------------------------------------------------
 begin
