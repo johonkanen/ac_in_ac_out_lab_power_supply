@@ -73,16 +73,30 @@ package grid_inverter_microprogram_pkg is
     constant ad_ubridge_offset : natural := 20;
 
     constant uerror_x_kp : natural := 21;
-    constant udckp : natural := 22;
-    constant uerror_x_ki : natural := 23;
+    constant uerror_x_ki : natural := 22;
+    constant iref_max    : natural := 23;
+    constant iref_min    : natural := 24;
 
-    constant ad_udc_meas      : natural := 119;
-    constant ad_uin_meas      : natural := 120;
-    constant ad_current_meas  : natural := 121;
+    constant udckp   : natural := 25;
+    constant udcki   : natural := 26;
+    constant upi_out : natural := 27;
+
+    constant idckp   : natural := 25;
+    constant idcki   : natural := 26;
+    constant ipi_out : natural := 27;
+
+    constant ierror_x_kp : natural := 28;
+    constant ierror_x_ki : natural := 29;
+    constant uref_max    : natural := 30;
+    constant uref_min    : natural := 31;
+
+    ---------- external data
+    constant ad_udc_meas     : natural := 119;
+    constant ad_uin_meas     : natural := 120;
+    constant ad_current_meas : natural := 121;
     constant ad_ubridge_meas : natural := 122;
 
     constant udc_ref : natural := 123;
-
 
     constant sampletime : real := 1.0e-6;
 
@@ -102,20 +116,45 @@ package grid_inverter_microprogram_pkg is
         , input_voltage    => to_fixed(10.0)
         , inductor_voltage => to_fixed(0.0)
 
+        -- get correct parameters for conversions
+        ,ad_udc_gain       => to_fixed(1.0)
+        ,ad_udc_offset     => to_fixed(0.0)
+        ,ad_uin_gain       => to_fixed(1.0)
+        ,ad_uin_offset     => to_fixed(0.0)
+        ,ad_current_gain   => to_fixed(1.0)
+        ,ad_current_offset => to_fixed(0.0)
+        ,ad_ubridge_gain   => to_fixed(1.0)
+        ,ad_ubridge_offset => to_fixed(0.0)
+
+        , udckp => to_fixed(0.2)
+        , udcki => to_fixed(50.0 * sampletime)
+        , idckp => to_fixed(250.0)
+        , idcki => to_fixed(100000.0 * sampletime)
+
         , others => (others => '0')
     );
 
     constant test_program : work.dual_port_ram_pkg.ram_array(0 to instr_ref_subtype.address_high)(instr_ref_subtype.data'range) := (
         --
         0   => op(mpy_add, scaled_udc, ad_udc_gain, ad_udc_meas , ad_udc_offset)
-
         , 1 => op(mpy_add , scaled_uin     , ad_uin_gain     , ad_uin_meas     , ad_uin_offset)
         , 2 => op(mpy_add , scaled_current , ad_current_gain , ad_current_meas , ad_current_offset)
         , 3 => op(mpy_add , scaled_ubridge , ad_ubridge_gain , ad_ubridge_meas , ad_ubridge_offset)
 
-
         , 7 => op(a_sub_b_mpy_c , uerror_x_kp , udc_ref, scaled_udc, udckp)
-        , 8 => op(a_sub_b_mpy_c , uerror_x_ki , udc_ref, scaled_udc, udckp)
+        , 8 => op(a_sub_b_mpy_c , uerror_x_ki , udc_ref, scaled_udc, udcki)
+
+        , 14 => op(acc, uerror_x_kp)
+        , 15 => op(get_acc_and_zero, upi_out, uerror_x_ki)
+
+        -- current control
+        , 22 => op(a_sub_b_mpy_c, ierror_x_kp , upi_out, scaled_current, idckp)
+        , 23 => op(a_sub_b_mpy_c, ierror_x_ki , upi_out, scaled_current, idcki)
+
+        , 30 => op(acc, ierror_x_kp)
+        , 31 => op(get_acc_and_zero, ipi_out, ierror_x_ki)
+
+        , 32 => op(program_end)
         -- boost model
         , 129 => op(neg_mpy_add , inductor_voltage , duty             , cap_voltage      , input_voltage)
         , 130 => op(mpy_sub     , cap_current      , duty             , inductor_current , load)
@@ -296,10 +335,11 @@ begin
 
 
             init_ram_connector(ram_connector);
-            connect_data_to_ram_bus(ram_connector, mc_read_in, mc_read_out, 120, ext_input);
-            connect_data_to_ram_bus(ram_connector, mc_read_in, mc_read_out, 121, lc_load);
-            connect_data_to_ram_bus(ram_connector, mc_read_in, mc_read_out, 122, lc_duty);
-            connect_data_to_ram_bus(ram_connector, mc_read_in, mc_read_out, 123, lc_input_voltage);
+            connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , ad_ubridge_meas , to_fixed(cap_voltage_meas));
+            connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , ad_current_meas , to_fixed(lpri_meas));
+            connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , ad_udc_meas     , to_fixed(dc_link_meas));
+            connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , udc_ref         , to_fixed(vref));
+
             connect_ram_write_to_address(mc_output , inductor_current , simcurrent);
             connect_ram_write_to_address(mc_output , cap_voltage      , simvoltage);
 
@@ -314,7 +354,7 @@ begin
                 pi_out           <= i_err * 250.0 + i_int;
                 i_int            <= i_err * 100000.0* timestep+ i_int;
                 modulation_index <= -(pi_out + cap_voltage_meas) / dc_link_meas;
-                calculate(mproc_in, 129);
+                calculate(mproc_in, 0);
                 start_counter <= 0;
             end if;
 
@@ -322,11 +362,7 @@ begin
                 start_counter <= start_counter + 1;
             end if;
 
-            control_is_ready <= false;
-            if start_counter = 80
-            then
-                control_is_ready <= true;
-            end if;
+            control_is_ready <= is_ready(mproc_out);
 
         end if;
     end process;
