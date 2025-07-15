@@ -118,7 +118,7 @@ package grid_inverter_microprogram_pkg is
 
         -- get correct parameters for conversions
         ,ad_udc_gain       => to_fixed(1.0)
-        ,ad_udc_offset     => to_fixed(0.0)
+        ,ad_udc_offset     => to_fixed(1.0)
         ,ad_uin_gain       => to_fixed(1.0)
         ,ad_uin_offset     => to_fixed(0.0)
         ,ad_current_gain   => to_fixed(1.0)
@@ -136,25 +136,25 @@ package grid_inverter_microprogram_pkg is
 
     constant test_program : work.dual_port_ram_pkg.ram_array(0 to instr_ref_subtype.address_high)(instr_ref_subtype.data'range) := (
         --
-        0   => op(mpy_add, scaled_udc, ad_udc_gain, ad_udc_meas , ad_udc_offset)
-        , 1 => op(mpy_add , scaled_uin     , ad_uin_gain     , ad_uin_meas     , ad_uin_offset)
-        , 2 => op(mpy_add , scaled_current , ad_current_gain , ad_current_meas , ad_current_offset)
-        , 3 => op(mpy_add , scaled_ubridge , ad_ubridge_gain , ad_ubridge_meas , ad_ubridge_offset)
+        1   => op(mpy_add , scaled_udc     , ad_udc_gain     , ad_udc_meas     , ad_udc_offset)
+        , 2 => op(mpy_add , scaled_uin     , ad_uin_gain     , ad_uin_meas     , ad_uin_offset)
+        , 3 => op(mpy_add , scaled_current , ad_current_gain , ad_current_meas , ad_current_offset)
+        , 4 => op(mpy_add , scaled_ubridge , ad_ubridge_gain , ad_ubridge_meas , ad_ubridge_offset)
 
-        , 7 => op(a_sub_b_mpy_c , uerror_x_kp , udc_ref, scaled_udc, udckp)
-        , 8 => op(a_sub_b_mpy_c , uerror_x_ki , udc_ref, scaled_udc, udcki)
+        , 8 => op(a_sub_b_mpy_c , uerror_x_kp , udc_ref, scaled_udc, udckp)
+        , 9 => op(a_sub_b_mpy_c , uerror_x_ki , udc_ref, scaled_udc, udcki)
 
-        , 14 => op(acc, uerror_x_kp)
-        , 15 => op(get_acc_and_zero, upi_out, uerror_x_ki)
+        , 15 => op(acc, uerror_x_kp)
+        , 16 => op(get_acc_and_zero, upi_out, uerror_x_ki)
 
         -- current control
-        , 22 => op(a_sub_b_mpy_c, ierror_x_kp , upi_out, scaled_current, idckp)
-        , 23 => op(a_sub_b_mpy_c, ierror_x_ki , upi_out, scaled_current, idcki)
+        , 23 => op(a_sub_b_mpy_c, ierror_x_kp , upi_out, scaled_current, idckp)
+        , 24 => op(a_sub_b_mpy_c, ierror_x_ki , upi_out, scaled_current, idcki)
 
-        , 30 => op(acc, ierror_x_kp)
-        , 31 => op(get_acc_and_zero, ipi_out, ierror_x_ki)
+        , 31 => op(acc, ierror_x_kp)
+        , 32 => op(get_acc_and_zero, ipi_out, ierror_x_ki)
 
-        , 32 => op(program_end)
+        , 33 => op(program_end)
         -- boost model
         , 129 => op(neg_mpy_add , inductor_voltage , duty             , cap_voltage      , input_voltage)
         , 130 => op(mpy_sub     , cap_current      , duty             , inductor_current , load)
@@ -236,6 +236,8 @@ architecture vunit_simulation of grid_inverter_control_rtl_tb is
     use work.ram_connector_pkg.all;
     signal ram_connector : ram_connector_ref'subtype;
 
+    signal test1 : real := 0.0;
+
 ------------------------------------------------------------------------
 begin
 
@@ -307,7 +309,8 @@ begin
                         -- ,grid_inverter_states(c1) 
                         -- ,grid_inverter_states(c2) 
                         ,grid_inverter_states(cdc) 
-                        ,grid_inverter_states(lpri) 
+                        ,test1 
+                        -- ,simcurrent 
                         -- ,(grid_voltage - grid_inverter_states(c1)) / rc1
                     ));
 
@@ -329,6 +332,14 @@ begin
         variable verr  : real := 0.0;
         variable i_err : real := 0.0;
         variable vref  : real := 400.0;
+
+        function convert(data_in : std_logic_vector) return real is
+        begin
+            return work.real_to_fixed_pkg.to_real(signed(data_in), used_radix);
+        end convert;
+
+        procedure connect_ram_write_to_address is new generic_connect_ram_write_to_address generic map(return_type => real, conv => convert);
+
     begin
         if rising_edge(simulator_clock)
         then
@@ -340,7 +351,7 @@ begin
             connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , ad_udc_meas     , to_fixed(dc_link_meas));
             connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , udc_ref         , to_fixed(vref));
 
-            connect_ram_write_to_address(mc_output , inductor_current , simcurrent);
+            connect_ram_write_to_address(mc_output , scaled_udc , test1);
             connect_ram_write_to_address(mc_output , cap_voltage      , simvoltage);
 
             init_mproc(mproc_in);
@@ -354,12 +365,7 @@ begin
                 pi_out           <= i_err * 250.0 + i_int;
                 i_int            <= i_err * 100000.0* timestep+ i_int;
                 modulation_index <= -(pi_out + cap_voltage_meas) / dc_link_meas;
-                calculate(mproc_in, 0);
-                start_counter <= 0;
-            end if;
-
-            if start_counter < 81 then
-                start_counter <= start_counter + 1;
+                calculate(mproc_in, 1);
             end if;
 
             control_is_ready <= is_ready(mproc_out);
