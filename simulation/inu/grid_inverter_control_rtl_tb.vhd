@@ -61,7 +61,7 @@ package grid_inverter_microprogram_pkg is
     constant scaled_udc :     natural := 10;
     constant scaled_uin :     natural := 11;
     constant scaled_current : natural := 12;
-    constant scaled_ubridge : natural := 12;
+    constant scaled_ubridge : natural := 13;
 
     constant ad_udc_gain       : natural := 13;
     constant ad_udc_offset     : natural := 14;
@@ -137,25 +137,25 @@ package grid_inverter_microprogram_pkg is
 
     constant test_program : work.dual_port_ram_pkg.ram_array(0 to instr_ref_subtype.address_high)(instr_ref_subtype.data'range) := (
         --
-        5   => op(mpy_add , scaled_udc     , ad_udc_gain     , ad_udc_meas     , ad_udc_offset)
-        , 6 => op(mpy_add , scaled_uin     , ad_uin_gain     , ad_uin_meas     , ad_uin_offset)
-        , 7 => op(mpy_add , scaled_current , ad_current_gain , ad_current_meas , ad_current_offset)
-        , 8 => op(mpy_add , scaled_ubridge , ad_ubridge_gain , ad_ubridge_meas , ad_ubridge_offset)
+        0   => op(mpy_add , scaled_udc     , ad_udc_gain     , ad_udc_meas     , ad_udc_offset)
+        , 1 => op(mpy_add , scaled_uin     , ad_uin_gain     , ad_uin_meas     , ad_uin_offset)
+        , 2 => op(mpy_add , scaled_current , ad_current_gain , ad_current_meas , ad_current_offset)
+        , 3 => op(mpy_add , scaled_ubridge , ad_ubridge_gain , ad_ubridge_meas , ad_ubridge_offset)
 
-        , 12 => op(a_sub_b_mpy_c , uerror_x_kp , udc_ref, scaled_udc, udckp)
-        , 13 => op(a_sub_b_mpy_c , uerror_x_ki , udc_ref, scaled_udc, udcki)
+        , 7 => op(a_sub_b_mpy_c , uerror_x_kp , udc_ref, scaled_udc, udckp)
+        , 8 => op(a_sub_b_mpy_c , uerror_x_ki , udc_ref, scaled_udc, udcki)
 
-        , 19 => op(acc, uerror_x_kp)
-        , 20 => op(get_acc_and_zero, upi_out, uerror_x_ki)
+        , 14 => op(acc, uerror_x_kp)
+        , 15 => op(get_acc_and_zero, upi_out, uerror_x_ki)
 
         -- current control
-        , 27 => op(a_sub_b_mpy_c, ierror_x_kp , upi_out, scaled_current, idckp)
-        , 28 => op(a_sub_b_mpy_c, ierror_x_ki , upi_out, scaled_current, idcki)
+        , 22 => op(a_sub_b_mpy_c, ierror_x_kp , upi_out, scaled_current, idckp)
+        , 23 => op(a_sub_b_mpy_c, ierror_x_ki , upi_out, scaled_current, idcki)
 
-        , 35 => op(acc, ierror_x_kp)
-        , 36 => op(get_acc_and_zero, ipi_out, ierror_x_ki)
+        , 30 => op(acc, ierror_x_kp)
+        , 31 => op(get_acc_and_zero, ipi_out, ierror_x_ki)
 
-        , 37 => op(program_end)
+        , 32 => op(program_end)
         -- boost model
         , 129 => op(neg_mpy_add , inductor_voltage , duty             , cap_voltage      , input_voltage)
         , 130 => op(mpy_sub     , cap_current      , duty             , inductor_current , load)
