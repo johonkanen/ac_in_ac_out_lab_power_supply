@@ -106,7 +106,7 @@ package grid_inverter_microprogram_pkg is
 
     constant udc_ref : natural := 126;
 
-    constant sampletime : real := 2.0e-6;
+    constant sampletime : real := 20.0e-6;
 
     constant program_data : work.dual_port_ram_pkg.ram_array(0 to ref_subtype.address_high)(ref_subtype.data'range) := (
            0 => to_fixed(0.0) -- currently zero address is bugged
@@ -138,7 +138,7 @@ package grid_inverter_microprogram_pkg is
 
         , udckp => to_fixed(0.2)
         , udcki => to_fixed(50.0 * sampletime)
-        , idckp => to_fixed(250.0)
+        , idckp => to_fixed(40.0)
         , idcki => to_fixed(100000.0 * sampletime)
 
         , others => (others => '0')
@@ -171,7 +171,7 @@ package grid_inverter_microprogram_pkg is
 
         , 42 => op(neg_mpy_add, modulation_index_addr, ipi_out, inverse_udc, 4)
 
-        , 43 => op(program_end)
+        , 48 => op(program_end)
 
         -- boost model
         , 129 => op(neg_mpy_add , inductor_voltage , duty             , cap_voltage      , input_voltage)
@@ -214,7 +214,7 @@ architecture vunit_simulation of grid_inverter_control_rtl_tb is
     -- simulation specific signals ----
 
     signal realtime : real := 0.0;
-    constant stoptime : real := 60.0e-3;
+    constant stoptime : real := 250.0e-3;
 
     signal control_is_ready : boolean := false;
     signal request_control : boolean := false;
@@ -259,6 +259,8 @@ architecture vunit_simulation of grid_inverter_control_rtl_tb is
     signal uproc_current : real := 0.0;
     signal uproc_upi_out : real := 0.0;
     signal uproc_ipi_out : real := 0.0;
+
+    signal control_counter : natural := 9;
 
 ------------------------------------------------------------------------
 begin
@@ -324,7 +326,7 @@ begin
             end if;
 
             request_control <= false;
-            if control_is_ready or simulation_counter = 0
+            if control_is_ready or (control_counter < 10) or simulation_counter = 0
             then
                 write_to(file_handler
                         ,(realtime
@@ -341,10 +343,20 @@ begin
                 rk(realtime, grid_inverter_states, timestep);
                 realtime <= realtime + timestep;
 
-                request_control  <= true;
                 lpri_meas        <= grid_inverter_states(lpri);
                 cap_voltage_meas <= grid_inverter_states(c2);
                 dc_link_meas     <= grid_inverter_states(cdc);
+
+                control_counter <= control_counter + 1;
+                if control_counter = 9 
+                then
+                    request_control <= true;
+                end if;
+
+            end if;
+            if control_is_ready
+            then
+                control_counter <= 0;
             end if;
 
 
