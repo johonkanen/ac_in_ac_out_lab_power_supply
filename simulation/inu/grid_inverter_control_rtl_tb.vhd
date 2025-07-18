@@ -95,6 +95,7 @@ package grid_inverter_microprogram_pkg is
     constant uin_scale   : natural := 39;
     constant iref_scale  : natural := 40;
     constant current_ref : natural := 41;
+    constant modulation_index_addr : natural := 42;
 
     ---------- external data
     constant ad_udc_meas     : natural := 120;
@@ -108,7 +109,7 @@ package grid_inverter_microprogram_pkg is
     constant sampletime : real := 2.0e-6;
 
     constant program_data : work.dual_port_ram_pkg.ram_array(0 to ref_subtype.address_high)(ref_subtype.data'range) := (
-           0 => to_fixed(0.0)
+           0 => to_fixed(0.0) -- currently zero address is bugged
         ,  1 => to_fixed(1.0)
         ,  2 => to_fixed(2.0)
         ,  3 => to_fixed(-3.0)
@@ -163,11 +164,15 @@ package grid_inverter_microprogram_pkg is
         , 28 => op(a_sub_b_mpy_c, ierror_x_kp , current_ref, scaled_current, idckp)
         , 29 => op(a_sub_b_mpy_c, ierror_x_ki , current_ref, scaled_current, idcki)
 
+        , 34 => op(acc, scaled_ubridge)
         , 35 => op(acc, i_integral)
         , 36 => op(get_acc_and_zero, ipi_out, ierror_x_kp)
         , 37 => op(mpy_add, i_integral, ierror_x_ki, 1, i_integral)
 
-        , 38 => op(program_end)
+        , 42 => op(neg_mpy_add, modulation_index_addr, ipi_out, inverse_udc, 4)
+
+        , 43 => op(program_end)
+
         -- boost model
         , 129 => op(neg_mpy_add , inductor_voltage , duty             , cap_voltage      , input_voltage)
         , 130 => op(mpy_sub     , cap_current      , duty             , inductor_current , load)
@@ -371,13 +376,13 @@ begin
             connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , udc_ref         , to_fixed(vref));
             connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , inverse_udc     , to_fixed(1.0/dc_link_meas));
 
-            connect_ram_write_to_address(mc_output , scaled_uin     , uproc_udc_voltage);
-            connect_ram_write_to_address(mc_output , scaled_ubridge , uproc_uc_voltage);
-            connect_ram_write_to_address(mc_output , scaled_current , uproc_current);
-            connect_ram_write_to_address(mc_output , upi_out        , uproc_upi_out);
-            connect_ram_write_to_address(mc_output , ipi_out        , uproc_ipi_out);
-            connect_ram_write_to_address(mc_output , cap_voltage    , simvoltage);
-            
+            connect_ram_write_to_address(mc_output , scaled_uin            , uproc_udc_voltage);
+            connect_ram_write_to_address(mc_output , scaled_ubridge        , uproc_uc_voltage);
+            connect_ram_write_to_address(mc_output , scaled_current        , uproc_current);
+            connect_ram_write_to_address(mc_output , upi_out               , uproc_upi_out);
+            connect_ram_write_to_address(mc_output , ipi_out               , uproc_ipi_out);
+            connect_ram_write_to_address(mc_output , modulation_index_addr , modulation_index);
+            connect_ram_write_to_address(mc_output , cap_voltage           , simvoltage);
 
             init_mproc(mproc_in);
             if request_control
@@ -389,7 +394,7 @@ begin
                 -- i_err  := cap_voltage_meas/325.0 * uproc_upi_out - lpri_meas;
                 -- pi_out           <= i_err * 250.0 + i_int;
                 -- i_int            <= i_err * 100000.0* timestep+ i_int;
-                modulation_index <= -(uproc_ipi_out + cap_voltage_meas) / dc_link_meas;
+                -- modulation_index <= -(uproc_ipi_out) / dc_link_meas;
                 calculate(mproc_in, 0);
             end if;
 
