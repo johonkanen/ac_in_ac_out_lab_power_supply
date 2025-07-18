@@ -9,7 +9,7 @@ package grid_inverter_microprogram_pkg is
 
     constant instruction_length : natural := 32;
     constant word_length : natural := 40;
-    constant used_radix : natural := 29;
+    constant used_radix : natural := 23;
     
     use work.real_to_fixed_pkg.all;
     function to_fixed is new generic_to_fixed 
@@ -63,41 +63,41 @@ package grid_inverter_microprogram_pkg is
     constant scaled_current : natural := 12;
     constant scaled_ubridge : natural := 13;
 
-    constant ad_udc_gain       : natural := 13;
-    constant ad_udc_offset     : natural := 14;
-    constant ad_uin_gain       : natural := 15;
-    constant ad_uin_offset     : natural := 16;
-    constant ad_current_gain   : natural := 17;
-    constant ad_current_offset : natural := 18;
-    constant ad_ubridge_gain   : natural := 19;
-    constant ad_ubridge_offset : natural := 20;
+    constant ad_udc_gain       : natural := 14;
+    constant ad_udc_offset     : natural := 15;
+    constant ad_uin_gain       : natural := 16;
+    constant ad_uin_offset     : natural := 17;
+    constant ad_current_gain   : natural := 18;
+    constant ad_current_offset : natural := 19;
+    constant ad_ubridge_gain   : natural := 20;
+    constant ad_ubridge_offset : natural := 21;
 
-    constant uerror_x_kp : natural := 21;
-    constant uerror_x_ki : natural := 22;
-    constant iref_max    : natural := 23;
-    constant iref_min    : natural := 24;
+    constant uerror_x_kp : natural := 22;
+    constant uerror_x_ki : natural := 23;
+    constant iref_max    : natural := 24;
+    constant iref_min    : natural := 25;
 
-    constant udckp   : natural := 25;
-    constant udcki   : natural := 26;
-    constant upi_out : natural := 27;
+    constant udckp   : natural := 26;
+    constant udcki   : natural := 27;
+    constant upi_out : natural := 28;
 
-    constant idckp   : natural := 25;
-    constant idcki   : natural := 26;
-    constant ipi_out : natural := 27;
+    constant idckp   : natural := 29;
+    constant idcki   : natural := 30;
+    constant ipi_out : natural := 31;
 
-    constant ierror_x_kp : natural := 28;
-    constant ierror_x_ki : natural := 29;
-    constant uref_max    : natural := 30;
-    constant uref_min    : natural := 31;
+    constant ierror_x_kp : natural := 32;
+    constant ierror_x_ki : natural := 33;
+    constant uref_max    : natural := 34;
+    constant uref_min    : natural := 35;
 
     ---------- external data
-    constant ad_udc_meas     : natural := 119;
-    constant ad_uin_meas     : natural := 120;
-    constant ad_current_meas : natural := 121;
-    constant ad_ubridge_meas : natural := 122;
-    constant inverse_udc : natural := 123;
+    constant ad_udc_meas     : natural := 120;
+    constant ad_uin_meas     : natural := 122;
+    constant ad_current_meas : natural := 123;
+    constant ad_ubridge_meas : natural := 124;
+    constant inverse_udc : natural := 125;
 
-    constant udc_ref : natural := 123;
+    constant udc_ref : natural := 126;
 
     constant sampletime : real := 1.0e-6;
 
@@ -107,19 +107,19 @@ package grid_inverter_microprogram_pkg is
         ,  2 => to_fixed(2.0)
         ,  3 => to_fixed(-3.0)
 
-        , duty             => to_fixed(0.5)
-        , inductor_current => to_fixed(0.0)
-        , cap_voltage      => to_fixed(0.0)
-        , ind_res          => to_fixed(0.9)
-        , load             => to_fixed(0.0)
-        , current_gain     => to_fixed(sampletime*1.0/2.0e-6)
-        , voltage_gain     => to_fixed(sampletime*1.0/3.0e-6)
-        , input_voltage    => to_fixed(10.0)
-        , inductor_voltage => to_fixed(0.0)
+        -- , duty             => to_fixed(0.5)
+        -- , inductor_current => to_fixed(0.0)
+        -- , cap_voltage      => to_fixed(0.0)
+        -- , ind_res          => to_fixed(0.9)
+        -- , load             => to_fixed(0.0)
+        -- , current_gain     => to_fixed(sampletime*1.0/2.0e-6)
+        -- , voltage_gain     => to_fixed(sampletime*1.0/3.0e-6)
+        -- , input_voltage    => to_fixed(10.0)
+        -- , inductor_voltage => to_fixed(0.0)
 
         -- get correct parameters for conversions
         ,ad_udc_gain       => to_fixed(1.0)
-        ,ad_udc_offset     => to_fixed(1.0)
+        ,ad_udc_offset     => to_fixed(0.0)
         ,ad_uin_gain       => to_fixed(1.0)
         ,ad_uin_offset     => to_fixed(0.0)
         ,ad_current_gain   => to_fixed(1.0)
@@ -237,7 +237,7 @@ architecture vunit_simulation of grid_inverter_control_rtl_tb is
     use work.ram_connector_pkg.all;
     signal ram_connector : ram_connector_ref'subtype;
 
-    signal test1 : real := 0.0;
+    signal test1 : real := 400.0;
 
 ------------------------------------------------------------------------
 begin
@@ -346,14 +346,15 @@ begin
         then
 
             init_ram_connector(ram_connector);
+            connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , ad_udc_meas     , to_fixed(dc_link_meas));
+            connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , ad_uin_meas     , to_fixed(cap_voltage_meas));
             connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , ad_ubridge_meas , to_fixed(cap_voltage_meas));
             connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , ad_current_meas , to_fixed(lpri_meas));
-            connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , ad_udc_meas     , to_fixed(dc_link_meas));
             connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , udc_ref         , to_fixed(vref));
             connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , inverse_udc     , to_fixed(1.0/dc_link_meas));
 
-            connect_ram_write_to_address(mc_output , scaled_current , test1);
-            connect_ram_write_to_address(mc_output , cap_voltage    , simvoltage);
+            connect_ram_write_to_address(mc_output , scaled_udc  , test1);
+            connect_ram_write_to_address(mc_output , cap_voltage , simvoltage);
 
             init_mproc(mproc_in);
             if request_control
@@ -366,7 +367,7 @@ begin
                 pi_out           <= i_err * 250.0 + i_int;
                 i_int            <= i_err * 100000.0* timestep+ i_int;
                 modulation_index <= -(pi_out + cap_voltage_meas) / dc_link_meas;
-                calculate(mproc_in, 1);
+                calculate(mproc_in, 0);
             end if;
 
             control_is_ready <= is_ready(mproc_out);
