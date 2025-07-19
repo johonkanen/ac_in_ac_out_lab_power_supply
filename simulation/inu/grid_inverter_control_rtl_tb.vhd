@@ -97,6 +97,15 @@ package grid_inverter_microprogram_pkg is
     constant current_ref : natural := 41;
     constant modulation_index_addr : natural := 42;
 
+    constant ipi_out_high  : natural := 43;
+    constant ipi_out_low   : natural := 44;
+
+    constant duty_max : natural := 45;
+    constant duty_min : natural := 46;
+
+    constant upi_out_max : natural := 47;
+    constant upi_out_min : natural := 48;
+
     ---------- external data
     constant ad_udc_meas     : natural := 120;
     constant ad_uin_meas     : natural := 122;
@@ -139,25 +148,30 @@ package grid_inverter_microprogram_pkg is
         , udckp => to_fixed(0.2)
         , udcki => to_fixed(50.0 * sampletime)
         , idckp => to_fixed(40.0)
-        , idcki => to_fixed(100000.0 * sampletime)
+        , idcki => to_fixed(280000.0 * sampletime)
 
         , others => (others => '0')
     );
 
     constant test_program : work.dual_port_ram_pkg.ram_array(0 to instr_ref_subtype.address_high)(instr_ref_subtype.data'range) := (
-        --
+        -- measurement scaling
         0   => op(mpy_add , scaled_udc     , ad_udc_gain     , ad_udc_meas     , ad_udc_offset)
         , 1 => op(mpy_add , scaled_uin     , ad_uin_gain     , ad_uin_meas     , ad_uin_offset)
         , 2 => op(mpy_add , scaled_current , ad_current_gain , ad_current_meas , ad_current_offset)
         , 3 => op(mpy_add , scaled_ubridge , ad_ubridge_gain , ad_ubridge_meas , ad_ubridge_offset)
 
-        , 7 => op(a_sub_b_mpy_c , uerror_x_kp , udc_ref        , scaled_udc , udckp)
-        , 8 => op(a_sub_b_mpy_c , uerror_x_ki , udc_ref        , scaled_udc , udcki)
+        -- voltage control
+        , 7 => op(a_sub_b_mpy_c , uerror_x_kp , udc_ref    , scaled_udc , udckp)
+        , 8 => op(a_sub_b_mpy_c , uerror_x_ki , udc_ref    , scaled_udc , udcki)
         , 9 => op(mpy_add       , iref_scale  , scaled_uin , uin_scale  , 4)
 
         , 13 => op(acc, u_integral)
         , 14 => op(get_acc_and_zero, upi_out, uerror_x_kp)
         , 15 => op(mpy_add, u_integral, uerror_x_ki, 1, u_integral)
+
+        -- calculate saturation limits
+        -- , 16 => op(mpy_add , 
+        
 
         -- current control
         , 21 => op(mpy_add , current_ref , upi_out , iref_scale, 4)
@@ -169,18 +183,10 @@ package grid_inverter_microprogram_pkg is
         , 36 => op(get_acc_and_zero, ipi_out, ierror_x_kp)
         , 37 => op(mpy_add, i_integral, ierror_x_ki, 1, i_integral)
 
+        -- modulator
         , 42 => op(neg_mpy_add, modulation_index_addr, ipi_out, inverse_udc, 4)
 
         , 48 => op(program_end)
-
-        -- boost model
-        , 129 => op(neg_mpy_add , inductor_voltage , duty             , cap_voltage      , input_voltage)
-        , 130 => op(mpy_sub     , cap_current      , duty             , inductor_current , load)
-        , 136 => op(neg_mpy_add , inductor_voltage , ind_res          , inductor_current , inductor_voltage)
-        , 137 => op(mpy_add     , cap_voltage      , cap_current      , voltage_gain     , cap_voltage)
-        , 143 => op(mpy_add     , inductor_current , inductor_voltage , current_gain     , inductor_current)
-        , 144 => op(program_end)
-
         , others => op(nop));
 
 end package grid_inverter_microprogram_pkg;
@@ -319,7 +325,7 @@ begin
                 -- ,"T_u3"
                 ,"B_i0"
                 ,"B_i1"
-                -- ,"B_i2"
+                ,"B_i2"
                 -- ,"B_i3"
                 ));
 
@@ -336,7 +342,7 @@ begin
                         ,uproc_udc_voltage 
                         ,uproc_uc_voltage 
                         ,uproc_current 
-                        -- ,simcurrent 
+                        ,uproc_ipi_out 
                         -- ,(grid_voltage - grid_inverter_states(c1)) / rc1
                     ));
 
@@ -392,7 +398,8 @@ begin
             connect_ram_write_to_address(mc_output , scaled_ubridge        , uproc_uc_voltage);
             connect_ram_write_to_address(mc_output , scaled_current        , uproc_current);
             connect_ram_write_to_address(mc_output , upi_out               , uproc_upi_out);
-            connect_ram_write_to_address(mc_output , ipi_out               , uproc_ipi_out);
+            -- connect_ram_write_to_address(mc_output , ipi_out               , uproc_ipi_out);
+            connect_ram_write_to_address(mc_output , current_ref           , uproc_ipi_out);
             connect_ram_write_to_address(mc_output , modulation_index_addr , modulation_index);
             connect_ram_write_to_address(mc_output , cap_voltage           , simvoltage);
 
