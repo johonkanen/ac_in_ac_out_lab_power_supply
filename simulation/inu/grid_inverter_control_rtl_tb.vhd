@@ -165,26 +165,32 @@ package grid_inverter_microprogram_pkg is
         , 8 => op(a_sub_b_mpy_c , uerror_x_ki , udc_ref    , scaled_udc , udcki)
         , 9 => op(mpy_add       , iref_scale  , scaled_uin , uin_scale  , 4)
 
+        -- max_voltage = duty_max * dc_link - c2
+        -- min_voltage = duty_min * dc_link - c2
+        , 10 => op(mpy_sub , ipi_out_high , duty_max , scaled_udc , scaled_ubridge)
+        , 11 => op(mpy_sub , ipi_out_low  , duty_min , scaled_udc , scaled_ubridge)
+
         , 13 => op(acc, u_integral)
-        , 14 => op(get_acc_and_zero, upi_out, uerror_x_kp)
-        , 15 => op(mpy_add, u_integral, uerror_x_ki, 1, u_integral)
+        , 14 => op(acc, uerror_x_kp)
+        -- , 15 => op(check_and_saturate_acc, imax, )
+
+        , 17 => op(get_acc_and_zero, upi_out, 4)
+        , 18 => op(mpy_add, u_integral, uerror_x_ki, 1, u_integral)
 
         -- calculate saturation limits
-        -- , 16 => op(mpy_add , 
-        
 
         -- current control
-        , 21 => op(mpy_add , current_ref , upi_out , iref_scale, 4)
-        , 28 => op(a_sub_b_mpy_c, ierror_x_kp , current_ref, scaled_current, idckp)
-        , 29 => op(a_sub_b_mpy_c, ierror_x_ki , current_ref, scaled_current, idcki)
+        , 23 => op(mpy_add , current_ref , upi_out , iref_scale, 4)
+        , 30 => op(a_sub_b_mpy_c, ierror_x_kp , current_ref, scaled_current, idckp)
+        , 31 => op(a_sub_b_mpy_c, ierror_x_ki , current_ref, scaled_current, idcki)
 
-        , 34 => op(acc, scaled_ubridge)
-        , 35 => op(acc, i_integral)
-        , 36 => op(get_acc_and_zero, ipi_out, ierror_x_kp)
-        , 37 => op(mpy_add, i_integral, ierror_x_ki, 1, i_integral)
+        , 36 => op(acc, scaled_ubridge)
+        , 37 => op(acc, i_integral)
+        , 38 => op(get_acc_and_zero, ipi_out, ierror_x_kp)
+        , 39 => op(mpy_add, i_integral, ierror_x_ki, 1, i_integral)
 
         -- modulator
-        , 42 => op(neg_mpy_add, modulation_index_addr, ipi_out, inverse_udc, 4)
+        , 44 => op(neg_mpy_add, modulation_index_addr, ipi_out, inverse_udc, 4)
 
         , 48 => op(program_end)
         , others => op(nop));
