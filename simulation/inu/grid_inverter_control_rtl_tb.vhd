@@ -274,6 +274,12 @@ architecture vunit_simulation of grid_inverter_control_rtl_tb is
 
     signal control_counter : natural := 9;
 
+    use work.reciproc_pkg.all;
+    use work.real_to_fixed_pkg.all;
+    constant init_reciproc : reciprocal_record := create_reciproc_typeref(word_length);
+    signal reciproc : init_reciproc'subtype := init_reciproc;
+    signal inv_test : real := 0.0;
+
 ------------------------------------------------------------------------
 begin
 
@@ -327,8 +333,8 @@ begin
                 ,"T_u0"
                 ,"T_u1"
                 ,"T_u2"
-                -- ,"T_u2"
-                -- ,"T_u3"
+                ,"T_u3"
+
                 ,"B_i0"
                 ,"B_i1"
                 ,"B_i2"
@@ -347,6 +353,8 @@ begin
                         ,grid_inverter_states(cdc) 
                         ,uproc_udc_voltage 
                         ,uproc_uc_voltage 
+                        ,inv_test
+
                         ,uproc_current 
                         ,uproc_ipi_out 
                         -- ,(grid_voltage - grid_inverter_states(c1)) / rc1
@@ -392,6 +400,8 @@ begin
         if rising_edge(simulator_clock)
         then
 
+            create_reciproc(reciproc, max_shift => 8, output_int_length => 11);
+
             init_ram_connector(ram_connector);
             connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , ad_udc_meas     , to_fixed(dc_link_meas));
             connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , ad_uin_meas     , to_fixed(cap_voltage_meas));
@@ -412,15 +422,13 @@ begin
             init_mproc(mproc_in);
             if request_control
             then
-                -- verr     := vref - dc_link_meas;
-                -- vpi_out <= verr * 0.2 + v_int;
-                -- v_int   <= verr * 50.0 * timestep + v_int;
-
-                -- i_err  := cap_voltage_meas/325.0 * uproc_upi_out - lpri_meas;
-                -- pi_out           <= i_err * 250.0 + i_int;
-                -- i_int            <= i_err * 100000.0* timestep+ i_int;
-                -- modulation_index <= -(uproc_ipi_out) / dc_link_meas;
+                request_inv(reciproc, signed(to_fixed(dc_link_meas)), iterations => 1);
                 calculate(mproc_in, 0);
+            end if;
+
+            if is_ready(reciproc)
+            then
+                inv_test <= 1.0/to_real(get_result(reciproc), word_length-3);
             end if;
 
             control_is_ready <= is_ready(mproc_out);

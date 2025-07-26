@@ -95,6 +95,7 @@ top_lib.add_source_files(ROOT / "source/hVHDL_fixed_point/real_to_fixed/real_to_
 top_lib.add_source_files(ROOT / "simulation/sw_model_generic_pkg.vhd")
 top_lib.add_source_files(ROOT / "simulation/inu/half_bridge_tb.vhd")
 
+top_lib.add_source_files(ROOT / "source/hVHDL_fixed_point/testbenches/division_simulation/reciproc_pkg.vhd")
 top_lib.add_source_files(ROOT / "simulation/inu/grid_inverter_model_pkg.vhd")
 top_lib.add_source_files(ROOT / "simulation/inu/grid_inverter_model_tb.vhd")
 
