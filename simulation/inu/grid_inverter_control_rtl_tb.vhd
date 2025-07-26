@@ -8,8 +8,9 @@ LIBRARY ieee  ;
 package grid_inverter_microprogram_pkg is
 
     constant instruction_length : natural := 32;
-    constant word_length : natural := 40;
-    constant used_radix : natural := 29;
+    constant word_length : natural := 34;
+    constant integer_bits : natural := 11;
+    constant used_radix : natural := word_length-integer_bits;
     
     use work.real_to_fixed_pkg.all;
     function to_fixed is new generic_to_fixed 
@@ -428,7 +429,7 @@ begin
 
             if is_ready(reciproc)
             then
-                inv_test <= 1.0/to_real(get_result(reciproc), word_length-3);
+                inv_test <= 1.0/to_real(get_result(reciproc)/ 2 ** 8, used_radix);
             end if;
 
             control_is_ready <= is_ready(mproc_out);
