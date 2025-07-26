@@ -8,7 +8,7 @@ LIBRARY ieee  ;
 package grid_inverter_microprogram_pkg is
 
     constant instruction_length : natural := 32;
-    constant word_length : natural := 34;
+    constant word_length : natural := 40;
     constant integer_bits : natural := 11;
     constant used_radix : natural := word_length-integer_bits;
     
@@ -401,7 +401,7 @@ begin
         if rising_edge(simulator_clock)
         then
 
-            create_reciproc(reciproc, max_shift => 8, output_int_length => 11);
+            create_reciproc(reciproc, max_shift => 8, output_int_length => integer_bits);
 
             init_ram_connector(ram_connector);
             connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , ad_udc_meas     , to_fixed(dc_link_meas));
@@ -429,7 +429,7 @@ begin
 
             if is_ready(reciproc)
             then
-                inv_test <= 1.0/to_real(get_result(reciproc)/ 2 ** 8, used_radix);
+                inv_test <= 1.0/to_real(get_result(reciproc)/ (2**(integer_bits-3)), used_radix);
             end if;
 
             control_is_ready <= is_ready(mproc_out);
