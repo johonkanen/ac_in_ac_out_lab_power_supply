@@ -8,9 +8,9 @@ LIBRARY ieee  ;
 package grid_inverter_microprogram_pkg is
 
     constant instruction_length : natural := 32;
-    constant word_length : natural := 40;
+    constant word_length  : natural := 35;
     constant integer_bits : natural := 11;
-    constant used_radix : natural := word_length-integer_bits;
+    constant used_radix   : natural := 20;
     
     use work.real_to_fixed_pkg.all;
     function to_fixed is new generic_to_fixed 
@@ -401,7 +401,7 @@ begin
         if rising_edge(simulator_clock)
         then
 
-            create_reciproc(reciproc, max_shift => 8, output_int_length => integer_bits);
+            create_reciproc(reciproc, max_shift => 8, output_int_length => (word_length - used_radix)*2-3);
 
             init_ram_connector(ram_connector);
             connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , ad_udc_meas     , to_fixed(dc_link_meas));
@@ -410,6 +410,7 @@ begin
             connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , ad_current_meas , to_fixed(lpri_meas));
             connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , udc_ref         , to_fixed(vref));
             connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , inverse_udc     , to_fixed(1.0/dc_link_meas));
+            -- connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , inverse_udc     , std_logic_vector(get_result(reciproc)));
 
             connect_ram_write_to_address(mc_output , scaled_uin            , uproc_udc_voltage);
             connect_ram_write_to_address(mc_output , scaled_ubridge        , uproc_uc_voltage);
@@ -429,7 +430,7 @@ begin
 
             if is_ready(reciproc)
             then
-                inv_test <= 1.0/to_real(get_result(reciproc)/ (2**(integer_bits-3)), used_radix);
+                inv_test <= 1.0/to_real(get_result(reciproc), used_radix);
             end if;
 
             control_is_ready <= is_ready(mproc_out);
