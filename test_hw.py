@@ -29,7 +29,6 @@ def get_stream(number_of_points):
 
 def set(address, data):
     uart.write_data_to_address(address, int(data))
-    print(uart.request_data_from_address(address))
 
 def get(address):
     return uart.request_data_from_address(address)

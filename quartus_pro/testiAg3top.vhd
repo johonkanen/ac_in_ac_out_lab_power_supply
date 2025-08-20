@@ -13,6 +13,8 @@ entity testiAg3 is
         ;grid_inu_sdm_clock   : out std_logic
         ;output_inu_sdm_clock : out std_logic
         ;dab_sdm_clock        : out std_logic
+        ;enet_led             : out std_logic
+        ;enet_led1            : out std_logic
     );
 end entity testiAg3;
 
@@ -24,17 +26,49 @@ architecture rtl of testiAg3 is
 	    ;outclk_0 : out std_logic         -- outclk0.clk,   Output clock Channel 0 from I/O PLL.
 	);
 	end component;
-	
+
+        component reset_release is
+        port (
+            ninit_done : out std_logic   -- ninit_done
+        );
+    end component reset_release;
+
 	signal core_clock : std_logic;
+    signal init_done : std_logic;
+    signal led_state : std_logic := '0';
+    signal blink_counter : natural range 0 to 60e6 := 0;
 	 
 begin
 	u_main_clock : main_clock
 	port map(refclk => xclk,outclk_0 => core_clock);
 
+    u0 : component reset_release
+        port map (
+            ninit_done => init_done  -- ninit_done.ninit_done
+        );
+		  
+	enet_led <= '1';
+
+    process(core_clock)
+    begin
+        if rising_edge(core_clock)
+        then
+            blink_counter <= blink_counter + 1;
+            if blink_counter = 60e6-1
+            then
+                blink_counter <= 0;
+                led_state <= not led_state;
+            end if;
+            enet_led1 <= led_state;
+
+        end if;
+    end process;
+	
+
     u_titanium_top : entity work.titanium_top
     port map (
         main_clock                => core_clock
-        ,pll_locked               => '1'
+        ,pll_locked               => init_done
         ,uart_rx                  => uart_rx
         ,uart_tx                  => uart_tx
         ,grid_inu_leg1_hi         => open

@@ -91,12 +91,13 @@ set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_microprogr
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_microprogram_processor/source/hVHDL_memory_library/vhdl2008/arch_rtl_dp_ram_w_configurable_records.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/test_processor/uproc_test.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/main_state_machine/main_state_machine_pkg.vhd
-set_global_assignment -name VHDL_FILE $this_file_path/../source/adc_scaler/adc_scaler.vhd
+set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_fixed_point/adc_scaler/adc_scaler.vhd
 
 
 set_global_assignment -name IP_FILE $this_file_path/ip/main_clock/main_clock.ip
+set_global_assignment -name IP_FILE $this_file_path/ip/reset_ip/reset_release.ip
+set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6D
 
-	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6D
 	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6B
 	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6A
 	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6F
@@ -108,9 +109,11 @@ set_global_assignment -name IP_FILE $this_file_path/ip/main_clock/main_clock.ip
 	set_global_assignment -name OPTIMIZATION_MODE "SUPERIOR PERFORMANCE"
 	set_global_assignment -name POWER_APPLY_THERMAL_MARGIN ADDITIONAL
 	set_global_assignment -name FLOW_ENABLE_HYPER_RETIMER_FAST_FORWARD ON
+	set_global_assignment -name BOARD default
+	set_global_assignment -name IP_FILE ../ac_in_ac_out_lab_power_supply/quartus_pro/ip/reset_ip/reset_release.ip
 	set_instance_assignment -name PARTITION_COLOUR 4289658812 -to testiAg3 -entity testiAg3
-	# IOBANK_6D
-	set_location_assignment PIN_D18 -to uart_rx -comment IOBANK_6D
+	# IOBANK_6H
+	set_location_assignment PIN_AF1 -to uart_rx -comment IOBANK_6H
 	# IOBANK_6G
 	set_location_assignment PIN_AK2 -to xclk -comment IOBANK_6G
 	# IOBANK_6C
@@ -125,11 +128,32 @@ set_global_assignment -name IP_FILE $this_file_path/ip/main_clock/main_clock.ip
 	set_location_assignment PIN_B8 -to grid_inu_sdm_clock -comment IOBANK_6C
 	# IOBANK_6H
 	set_location_assignment PIN_N2 -to output_inu_sdm_clock -comment IOBANK_6H
-	# IOBANK_6D
-	set_location_assignment PIN_F18 -to uart_tx -comment IOBANK_6D
-	set_instance_assignment -name AUTO_GLOBAL_CLOCK ON -to *
+	# IOBANK_6C
+	set_location_assignment PIN_B19 -to uart_tx -comment IOBANK_6C
+	set_instance_assignment -name AUTO_GLOBAL_CLOCK ON -to * -entity testiAg3
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to grid_inu_sdm_data -entity testiAg3
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to xclk -entity testiAg3
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to output_inu_sdm_clock -entity testiAg3
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to output_inu_sdm_data -entity testiAg3
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to uart_rx -entity testiAg3
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to dab_sdm_clock -entity testiAg3
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to dab_sdm_data -entity testiAg3
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to uart_tx -entity testiAg3
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to grid_inu_sdm_clock -entity testiAg3
+	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to grid_inu_sdm_clock -entity testiAg3
+	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to uart_tx -entity testiAg3
+	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to dab_sdm_clock -entity testiAg3
+	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to output_inu_sdm_clock -entity testiAg3
+	# IOBANK_6A
+	set_location_assignment PIN_BN34 -to enet_led -comment IOBANK_6A
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to enet_led -entity testiAg3
+	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to enet_led -entity testiAg3
+	# IOBANK_6A
+	set_location_assignment PIN_BM34 -to enet_led1 -comment IOBANK_6A
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to enet_led1 -entity testiAg3
+	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to enet_led1 -entity testiAg3
 
-# Commit assignments
-export_assignments
+	# Commit assignments
+	export_assignments
 
 execute_flow -compile

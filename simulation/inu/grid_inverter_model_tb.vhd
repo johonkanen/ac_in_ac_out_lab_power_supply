@@ -25,6 +25,8 @@ architecture vunit_simulation of grid_inverter_model_tb is
     -----------------------------------
     -- simulation specific signals ----
 
+    constant timestep : real := 2.0e-6;
+
     signal realtime : real := 0.0;
     constant stoptime : real := 300.0e-3;
 

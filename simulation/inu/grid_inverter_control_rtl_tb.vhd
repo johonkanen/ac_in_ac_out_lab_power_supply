@@ -281,6 +281,8 @@ architecture vunit_simulation of grid_inverter_control_rtl_tb is
     signal reciproc : init_reciproc'subtype := init_reciproc;
     signal inv_test : real := 0.0;
 
+    constant timestep : real := 2.0e-6;
+
 ------------------------------------------------------------------------
 begin
 
@@ -401,7 +403,7 @@ begin
         if rising_edge(simulator_clock)
         then
 
-            create_reciproc(reciproc, max_shift => 8, output_int_length => (word_length - used_radix)*2-3);
+            create_reciproc(reciproc, max_shift => 8, output_int_length => (word_length - used_radix)*2-3 -11);
 
             init_ram_connector(ram_connector);
             connect_data_to_ram_bus(ram_connector , mc_read_in , mc_read_out , ad_udc_meas     , to_fixed(dc_link_meas));
@@ -430,7 +432,7 @@ begin
 
             if is_ready(reciproc)
             then
-                inv_test <= 1.0/to_real(get_result(reciproc), used_radix);
+                inv_test <= 1.0/to_real(get_result(reciproc), used_radix + 11);
             end if;
 
             control_is_ready <= is_ready(mproc_out);
