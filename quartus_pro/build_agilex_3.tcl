@@ -16,6 +16,10 @@
 # Quartus Prime: Generate Tcl File for Project
 # File: build_testiAg3.tcl
 # Generated on: Tue Jun 24 08:08:28 2025
+#
+# program with
+#
+# quartus_pgm.exe -m jtag -o "p;.\output_files\testiAg3.sof"
 
 # Load Quartus Prime Tcl Project package
 package require ::quartus::project
@@ -96,21 +100,22 @@ set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_fixed_poin
 
 set_global_assignment -name IP_FILE $this_file_path/ip/main_clock/main_clock.ip
 set_global_assignment -name IP_FILE $this_file_path/ip/reset_ip/reset_release.ip
-set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6D
+set_global_assignment -name IP_FILE $this_file_path/ip/native_fp32/native_fp32.ip
 
-	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6B
 	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6A
-	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6F
+	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6B
+	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6C
+    set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6D
 	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6E
+	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6F
 	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6G
 	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6H
-	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6C
 	set_global_assignment -name IOBANK_VCCIO 1.2V -section_id 3A_T
+
 	set_global_assignment -name OPTIMIZATION_MODE BALANCED
 	set_global_assignment -name POWER_APPLY_THERMAL_MARGIN ADDITIONAL
 	set_global_assignment -name FLOW_ENABLE_HYPER_RETIMER_FAST_FORWARD ON
 	set_global_assignment -name BOARD default
-	set_global_assignment -name IP_FILE ../ac_in_ac_out_lab_power_supply/quartus_pro/ip/reset_ip/reset_release.ip
 	set_instance_assignment -name PARTITION_COLOUR 4289658812 -to testiAg3 -entity testiAg3
 
 	# IOBANK_6F
@@ -166,11 +171,11 @@ set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6D
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ads_7056_clock -entity testiAg3
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ads_7056_chip_select -entity testiAg3
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ads_7056_input_data -entity testiAg3
-	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to ad_mux1_io[2] -entity testiAg3
-	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to ad_mux1_io[1] -entity testiAg3
-	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to ad_mux1_io[0] -entity testiAg3
+	set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ad_mux1_io[2] -entity testiAg3
+	set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ad_mux1_io[1] -entity testiAg3
+	set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ad_mux1_io[0] -entity testiAg3
 	set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ads_7056_clock -entity testiAg3
-	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to ads_7056_chip_select -entity testiAg3
+	set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ads_7056_chip_select -entity testiAg3
 	# IOBANK_6H
 	set_location_assignment PIN_AF1 -to ad_mux2_io[0] -comment IOBANK_6H
 	# IOBANK_6H
@@ -181,9 +186,9 @@ set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6D
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ad_mux2_io[1] -entity testiAg3
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ad_mux2_io[0] -entity testiAg3
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ad_mux2_io -entity testiAg3
-	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to ad_mux2_io[2] -entity testiAg3
-	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to ad_mux2_io[1] -entity testiAg3
-	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to ad_mux2_io[0] -entity testiAg3
+	set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ad_mux2_io[2] -entity testiAg3
+	set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ad_mux2_io[1] -entity testiAg3
+	set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ad_mux2_io[0] -entity testiAg3
 	# Commit assignments
 	export_assignments
 
