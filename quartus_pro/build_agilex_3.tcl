@@ -106,14 +106,15 @@ set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6D
 	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6H
 	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6C
 	set_global_assignment -name IOBANK_VCCIO 1.2V -section_id 3A_T
-	set_global_assignment -name OPTIMIZATION_MODE "SUPERIOR PERFORMANCE"
+	set_global_assignment -name OPTIMIZATION_MODE BALANCED
 	set_global_assignment -name POWER_APPLY_THERMAL_MARGIN ADDITIONAL
 	set_global_assignment -name FLOW_ENABLE_HYPER_RETIMER_FAST_FORWARD ON
 	set_global_assignment -name BOARD default
 	set_global_assignment -name IP_FILE ../ac_in_ac_out_lab_power_supply/quartus_pro/ip/reset_ip/reset_release.ip
 	set_instance_assignment -name PARTITION_COLOUR 4289658812 -to testiAg3 -entity testiAg3
-	# IOBANK_6H
-	set_location_assignment PIN_AF1 -to uart_rx -comment IOBANK_6H
+
+	# IOBANK_6F
+	set_location_assignment PIN_BJ1 -to uart_rx -comment IOBANK_6F
 	# IOBANK_6G
 	set_location_assignment PIN_AK2 -to xclk -comment IOBANK_6G
 	# IOBANK_6C
@@ -152,7 +153,37 @@ set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6D
 	set_location_assignment PIN_BM34 -to enet_led1 -comment IOBANK_6A
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to enet_led1 -entity testiAg3
 	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to enet_led1 -entity testiAg3
-
+	# IOBANK_6D
+	set_location_assignment PIN_H21 -to ads_7056_chip_select -comment IOBANK_6D
+	# IOBANK_6D
+	set_location_assignment PIN_D18 -to ads_7056_input_data -comment IOBANK_6D
+	# IOBANK_6D
+	set_location_assignment PIN_F18 -to ads_7056_clock -comment IOBANK_6D
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ad_mux1_io[2] -entity testiAg3
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ad_mux1_io[1] -entity testiAg3
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ad_mux1_io[0] -entity testiAg3
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ad_mux1_io -entity testiAg3
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ads_7056_clock -entity testiAg3
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ads_7056_chip_select -entity testiAg3
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ads_7056_input_data -entity testiAg3
+	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to ad_mux1_io[2] -entity testiAg3
+	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to ad_mux1_io[1] -entity testiAg3
+	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to ad_mux1_io[0] -entity testiAg3
+	set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ads_7056_clock -entity testiAg3
+	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to ads_7056_chip_select -entity testiAg3
+	# IOBANK_6H
+	set_location_assignment PIN_AF1 -to ad_mux2_io[0] -comment IOBANK_6H
+	# IOBANK_6H
+	set_location_assignment PIN_AG2 -to ad_mux2_io[1] -comment IOBANK_6H
+	# IOBANK_6H
+	set_location_assignment PIN_AF2 -to ad_mux2_io[2] -comment IOBANK_6H
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ad_mux2_io[2] -entity testiAg3
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ad_mux2_io[1] -entity testiAg3
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ad_mux2_io[0] -entity testiAg3
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ad_mux2_io -entity testiAg3
+	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to ad_mux2_io[2] -entity testiAg3
+	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to ad_mux2_io[1] -entity testiAg3
+	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to ad_mux2_io[0] -entity testiAg3
 	# Commit assignments
 	export_assignments
 

@@ -15,22 +15,27 @@ entity testiAg3 is
         ;dab_sdm_clock        : out std_logic
         ;enet_led             : out std_logic
         ;enet_led1            : out std_logic
+        ;ad_mux2_io           : out std_logic_vector(2 downto 0)
+        ;ads_7056_clock       : out std_logic
+        ;ads_7056_chip_select : out std_logic
+        ;ads_7056_input_data  : in  std_logic
     );
 end entity testiAg3;
 
 architecture rtl of testiAg3 is
+
 	component main_clock is
 	port (
-		refclk   : in  std_logic := '0' --  refclk.clk,   The reference clock source that drives the I/O PLL.
-	    ;rst      : in  std_logic := '0' --   reset.reset, The asynchronous reset port for the output clocks. Drive this port high to reset all output clocks to the value of 0.
-	    ;outclk_0 : out std_logic         -- outclk0.clk,   Output clock Channel 0 from I/O PLL.
+        refclk    : in  std_logic := '0'  -- refclk.clk,   The reference clock source that drives the I/O PLL.
+        ;rst      : in  std_logic := '0' -- reset.reset, The asynchronous reset port for the output clocks. Drive this port high to reset all output clocks to the value of 0.
+        ;outclk_0 : out std_logic        -- outclk0.clk,   Output clock Channel 0 from I/O PLL.
 	);
 	end component;
 
-        component reset_release is
-        port (
-            ninit_done : out std_logic   -- ninit_done
-        );
+    component reset_release is
+    port (
+        ninit_done : out std_logic   -- ninit_done
+    );
     end component reset_release;
 
 	signal core_clock : std_logic;
@@ -91,11 +96,11 @@ begin
         ,gate_power4_pwm          => open
         ,gate_power5_pwm          => open
         ,gate_power6_pwm          => open
-        ,ad_mux1_io               => open
-        ,ads_7056_clock           => open
-        ,ads_7056_chip_select     => open
-        ,ads_7056_input_data      => '1'
-        ,ad_mux2_io               => open
+        ,ad_mux2_io               => ad_mux2_io
+        ,ads_7056_clock           => ads_7056_clock      
+        ,ads_7056_chip_select     => ads_7056_chip_select
+        ,ads_7056_input_data      => ads_7056_input_data 
+        ,ad_mux1_io               => open          
         ,ads_7056_clock_pri       => open
         ,ads_7056_chip_select_pri => open
         ,ads_7056_input_data_pri  => '0'
