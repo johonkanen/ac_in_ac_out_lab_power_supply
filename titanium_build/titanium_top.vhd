@@ -124,8 +124,38 @@ architecture rtl of titanium_top is
     signal meas_ram_b_in  : meas_ram_a_in'subtype;
     signal meas_ram_b_out : meas_ram_a_out'subtype;
     --------------------
+    signal fp32_mult_a  : std_logic_vector(31 downto 0) := (others => 'X'); -- fp32_mult_a
+    signal fp32_mult_b  : std_logic_vector(31 downto 0) := (others => 'X'); -- fp32_mult_b
+    signal fp32_chainin : std_logic_vector(31 downto 0) := (others => 'X'); -- fp32_chainin
+    signal ena          : std_logic_vector(2 downto 0)  := (others => '1'); -- ena
+    signal fp32_result  : std_logic_vector(31 downto 0)                   ; -- fp32_result
+
+    -- agilex 3 only, left as blackbox in efinix titanium
+	component native_fp32 is
+		port (
+			fp32_mult_a  : in  std_logic_vector(31 downto 0) := (others => 'X'); -- fp32_mult_a
+			fp32_mult_b  : in  std_logic_vector(31 downto 0) := (others => 'X'); -- fp32_mult_b
+			fp32_chainin : in  std_logic_vector(31 downto 0) := (others => 'X'); -- fp32_chainin
+			clk          : in  std_logic                     := 'X';             -- clk
+			ena          : in  std_logic_vector(2 downto 0)  := (others => 'X'); -- ena
+			fp32_result  : out std_logic_vector(31 downto 0)                     -- fp32_result
+		);
+	end component native_fp32;
+
         
 begin
+
+    --------------------
+	u0 : component native_fp32
+		port map (
+            fp32_mult_a   => fp32_mult_a  -- fp32_mult_a.fp32_mult_a
+            ,fp32_mult_b  => fp32_mult_b  -- fp32_mult_b.fp32_mult_b
+            ,fp32_chainin => fp32_chainin -- fp32_chainin.fp32_chainin
+            ,clk          => main_clock                -- clk.clk
+            ,ena          => ena          -- ena.ena
+            ,fp32_result  => fp32_result  -- fp32_result.fp32_result
+		);
+    --------------------
 
     grid_inu_leg1_hi  <= '0';
     grid_inu_leg1_low <= '0';
@@ -187,6 +217,8 @@ begin
         procedure create_main_state_machine is new generic_main_state_machine 
             generic map(start_precharge);
         ----------------------
+
+
 
 
     begin
