@@ -131,6 +131,7 @@ architecture rtl of titanium_top is
     signal fp32_result  : std_logic_vector(31 downto 0)                   ; -- fp32_result
 
     -- agilex 3 only, left as blackbox in efinix titanium
+    -----------------------------------------------------
 	component native_fp32 is
 		port (
 			fp32_mult_a  : in  std_logic_vector(31 downto 0) := (others => 'X'); -- fp32_mult_a
@@ -141,7 +142,7 @@ architecture rtl of titanium_top is
 			fp32_result  : out std_logic_vector(31 downto 0)                     -- fp32_result
 		);
 	end component native_fp32;
-
+    -----------------------------------------------------
         
 begin
 
