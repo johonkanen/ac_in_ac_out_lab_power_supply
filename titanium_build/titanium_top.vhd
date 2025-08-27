@@ -80,7 +80,7 @@ architecture rtl of titanium_top is
     signal trigger_event : boolean;
     signal sampled_data : std_logic_vector(15 downto 0);
 
-    signal test_data : natural range 0 to 2**16-1 := 44252;
+    signal test_data : std_logic_vector(31 downto 0) :=x"abcdacdc";
     signal test_data2 : STD_LOGIC_VECTOR(15 downto 0) := (others => '0');
     signal test_data3 : STD_LOGIC_VECTOR(15 downto 0) := (others => '0');
 
