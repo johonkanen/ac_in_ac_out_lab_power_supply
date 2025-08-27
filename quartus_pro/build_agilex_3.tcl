@@ -48,7 +48,7 @@ if {[is_project_open]} {
 set_global_assignment -name TOP_LEVEL_ENTITY testiAg3
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 25.1.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "21:02:31  MAY 27, 2025"
-set_global_assignment -name LAST_QUARTUS_VERSION "25.1.0 Pro Edition"
+set_global_assignment -name LAST_QUARTUS_VERSION "25.1.1 Pro Edition"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 100
