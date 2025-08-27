@@ -10,7 +10,7 @@ from uart_communication_functions import *
 comport = sys.argv[1]
 linkspeed = eval(sys.argv[2])
 
-uart = uart_link(comport, linkspeed)
+uart = uart_link(comport, linkspeed, number_of_databytes = 4)
 
 print("test data from address 1 :")
 print(uart.request_data_from_address(1))

@@ -81,8 +81,9 @@ architecture rtl of titanium_top is
     signal sampled_data : std_logic_vector(15 downto 0);
 
     signal test_data : std_logic_vector(31 downto 0) :=x"abcdacdc";
-    signal test_data2 : STD_LOGIC_VECTOR(15 downto 0) := (others => '0');
-    signal test_data3 : STD_LOGIC_VECTOR(15 downto 0) := (others => '0');
+    signal test_data2 : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
+    signal test_data3 : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
+    signal test_data4 : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
 
     signal aux_pwm : aux_pwm_record := init_aux_period_and_duty(period => 500, duty_cycle => 220);
 
@@ -126,7 +127,7 @@ architecture rtl of titanium_top is
     --------------------
     signal fp32_mult_a  : std_logic_vector(31 downto 0) := (others => 'X'); -- fp32_mult_a
     signal fp32_mult_b  : std_logic_vector(31 downto 0) := (others => 'X'); -- fp32_mult_b
-    signal fp32_chainin : std_logic_vector(31 downto 0) := (others => 'X'); -- fp32_chainin
+    signal fp32_adder_a : std_logic_vector(31 downto 0) := (others => 'X'); -- fp32_chainin
     signal ena          : std_logic_vector(2 downto 0)  := (others => '1'); -- ena
     signal fp32_result  : std_logic_vector(31 downto 0)                   ; -- fp32_result
 
@@ -136,7 +137,7 @@ architecture rtl of titanium_top is
 		port (
 			fp32_mult_a  : in  std_logic_vector(31 downto 0) := (others => 'X'); -- fp32_mult_a
 			fp32_mult_b  : in  std_logic_vector(31 downto 0) := (others => 'X'); -- fp32_mult_b
-			fp32_chainin : in  std_logic_vector(31 downto 0) := (others => 'X'); -- fp32_chainin
+			fp32_adder_a : in  std_logic_vector(31 downto 0) := (others => 'X'); -- fp32_adder_a
 			clk          : in  std_logic                     := 'X';             -- clk
 			ena          : in  std_logic_vector(2 downto 0)  := (others => 'X'); -- ena
 			fp32_result  : out std_logic_vector(31 downto 0)                     -- fp32_result
@@ -151,9 +152,9 @@ begin
 		port map (
             fp32_mult_a   => fp32_mult_a  -- fp32_mult_a.fp32_mult_a
             ,fp32_mult_b  => fp32_mult_b  -- fp32_mult_b.fp32_mult_b
-            ,fp32_chainin => fp32_chainin -- fp32_chainin.fp32_chainin
+            ,fp32_adder_a  => fp32_adder_a  -- fp32_mult_b.fp32_mult_b
             ,clk          => main_clock                -- clk.clk
-            ,ena          => ena          -- ena.ena
+            ,ena          => "111"          -- ena.ena
             ,fp32_result  => fp32_result  -- fp32_result.fp32_result
 		);
     --------------------
@@ -238,6 +239,12 @@ begin
             
             connect_data_to_address(bus_from_communications , bus_from_top , 1 , test_data);
             connect_data_to_address(bus_from_communications , bus_from_top , 4 , test_data2);
+
+            connect_data_to_address(bus_from_communications , bus_from_top , 50 , fp32_mult_a );
+            connect_data_to_address(bus_from_communications , bus_from_top , 51 , fp32_mult_b );
+            connect_data_to_address(bus_from_communications , bus_from_top , 52 , fp32_adder_a);
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 53 , fp32_result);
+
 
             if write_is_requested_to_address(bus_from_communications, 10) and get_data(bus_from_communications) = 1 then
                 pwm.is_enabled <= true;
@@ -370,7 +377,7 @@ begin
 
 ------------------------------------------------------------------------
     u_fpga_communications : entity work.fpga_communications
-    generic map(fpga_interconnect_pkg => work.fpga_interconnect_pkg)
+    generic map(fpga_interconnect_pkg => work.fpga_interconnect_pkg, g_clock_divider => 24)
         port map(
             clock                    => main_clock
             ,uart_rx                 => uart_rx

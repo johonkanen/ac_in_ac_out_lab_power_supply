@@ -113,7 +113,7 @@ https://fpgasoftware.intel.com/eula.-->
       </ipxact:vendorExtensions>
     </ipxact:busInterface>
     <ipxact:busInterface>
-      <ipxact:name>fp32_chainin</ipxact:name>
+      <ipxact:name>fp32_adder_a</ipxact:name>
       <ipxact:busType vendor="intel" library="intel" name="conduit" version="25.1"></ipxact:busType>
       <ipxact:abstractionTypes>
         <ipxact:abstractionType>
@@ -121,10 +121,10 @@ https://fpgasoftware.intel.com/eula.-->
           <ipxact:portMaps>
             <ipxact:portMap>
               <ipxact:logicalPort>
-                <ipxact:name>fp32_chainin</ipxact:name>
+                <ipxact:name>fp32_adder_a</ipxact:name>
               </ipxact:logicalPort>
               <ipxact:physicalPort>
-                <ipxact:name>fp32_chainin</ipxact:name>
+                <ipxact:name>fp32_adder_a</ipxact:name>
               </ipxact:physicalPort>
             </ipxact:portMap>
           </ipxact:portMaps>
@@ -356,7 +356,7 @@ https://fpgasoftware.intel.com/eula.-->
         </ipxact:wire>
       </ipxact:port>
       <ipxact:port>
-        <ipxact:name>fp32_chainin</ipxact:name>
+        <ipxact:name>fp32_adder_a</ipxact:name>
         <ipxact:wire>
           <ipxact:direction>in</ipxact:direction>
           <ipxact:vectors>
@@ -455,7 +455,7 @@ https://fpgasoftware.intel.com/eula.-->
         <ipxact:parameter parameterId="use_chainin" type="string">
           <ipxact:name>use_chainin</ipxact:name>
           <ipxact:displayName>Enable fp32_chainin</ipxact:displayName>
-          <ipxact:value>true</ipxact:value>
+          <ipxact:value>false</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="enable_chainout" type="string">
           <ipxact:name>enable_chainout</ipxact:name>
@@ -505,7 +505,7 @@ https://fpgasoftware.intel.com/eula.-->
         <ipxact:parameter parameterId="adder_input_clken" type="string">
           <ipxact:name>adder_input_clken</ipxact:name>
           <ipxact:displayName>Enable 'adder_input' register</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
+          <ipxact:value>no_reg</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="adder_pl_clken" type="string">
           <ipxact:name>adder_pl_clken</ipxact:name>
@@ -520,7 +520,7 @@ https://fpgasoftware.intel.com/eula.-->
         <ipxact:parameter parameterId="fp32_adder_a_clken" type="string">
           <ipxact:name>fp32_adder_a_clken</ipxact:name>
           <ipxact:displayName>Enable for input 'fp32_adder_a'</ipxact:displayName>
-          <ipxact:value>no_reg</ipxact:value>
+          <ipxact:value>0</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="fp32_adder_b_clken" type="string">
           <ipxact:name>fp32_adder_b_clken</ipxact:name>
@@ -545,7 +545,7 @@ https://fpgasoftware.intel.com/eula.-->
         <ipxact:parameter parameterId="fp32_adder_a_chainin_2nd_pl_clken" type="string">
           <ipxact:name>fp32_adder_a_chainin_2nd_pl_clken</ipxact:name>
           <ipxact:displayName>Enable 'fp32_adder_a_chainin_2nd_pl' register</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
+          <ipxact:value>no_reg</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="output_clken" type="string">
           <ipxact:name>output_clken</ipxact:name>
@@ -654,10 +654,10 @@ https://fpgasoftware.intel.com/eula.-->
       <altera:interface_mapping altera:name="ena" altera:internal="agilex_native_floating_point_dsp_0.ena" altera:type="conduit" altera:dir="end">
         <altera:port_mapping altera:name="ena" altera:internal="ena"></altera:port_mapping>
       </altera:interface_mapping>
-      <altera:interface_mapping altera:name="fp32_adder_a" altera:internal="agilex_native_floating_point_dsp_0.fp32_adder_a"></altera:interface_mapping>
-      <altera:interface_mapping altera:name="fp32_chainin" altera:internal="agilex_native_floating_point_dsp_0.fp32_chainin" altera:type="conduit" altera:dir="end">
-        <altera:port_mapping altera:name="fp32_chainin" altera:internal="fp32_chainin"></altera:port_mapping>
+      <altera:interface_mapping altera:name="fp32_adder_a" altera:internal="agilex_native_floating_point_dsp_0.fp32_adder_a" altera:type="conduit" altera:dir="end">
+        <altera:port_mapping altera:name="fp32_adder_a" altera:internal="fp32_adder_a"></altera:port_mapping>
       </altera:interface_mapping>
+      <altera:interface_mapping altera:name="fp32_chainin" altera:internal="agilex_native_floating_point_dsp_0.fp32_chainin"></altera:interface_mapping>
       <altera:interface_mapping altera:name="fp32_chainout" altera:internal="agilex_native_floating_point_dsp_0.fp32_chainout"></altera:interface_mapping>
       <altera:interface_mapping altera:name="fp32_mult_a" altera:internal="agilex_native_floating_point_dsp_0.fp32_mult_a" altera:type="conduit" altera:dir="end">
         <altera:port_mapping altera:name="fp32_mult_a" altera:internal="fp32_mult_a"></altera:port_mapping>
