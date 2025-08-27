@@ -102,93 +102,157 @@ set_global_assignment -name IP_FILE $this_file_path/ip/main_clock/main_clock.ip
 set_global_assignment -name IP_FILE $this_file_path/ip/reset_ip/reset_release.ip
 set_global_assignment -name IP_FILE $this_file_path/ip/native_fp32/native_fp32.ip
 
-	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6A
-	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6B
-	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6C
-    set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6D
-	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6E
-	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6F
-	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6G
-	set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6H
-	set_global_assignment -name IOBANK_VCCIO 1.2V -section_id 3A_T
-
 	set_global_assignment -name OPTIMIZATION_MODE BALANCED
 	set_global_assignment -name POWER_APPLY_THERMAL_MARGIN ADDITIONAL
 	set_global_assignment -name FLOW_ENABLE_HYPER_RETIMER_FAST_FORWARD ON
 	set_global_assignment -name BOARD default
 	set_instance_assignment -name PARTITION_COLOUR 4289658812 -to testiAg3 -entity testiAg3
 
-	# IOBANK_6F
-	set_location_assignment PIN_BJ1 -to uart_rx -comment IOBANK_6F
-	# IOBANK_6G
-	set_location_assignment PIN_AK2 -to xclk -comment IOBANK_6G
-	# IOBANK_6C
-	set_location_assignment PIN_B11 -to output_inu_sdm_data -comment IOBANK_6C
-	# IOBANK_6C
-	set_location_assignment PIN_D3 -to dab_sdm_data -comment IOBANK_6C
-	# IOBANK_6H
-	set_location_assignment PIN_AC2 -to grid_inu_sdm_data -comment IOBANK_6H
-	# IOBANK_6H
-	set_location_assignment PIN_E2 -to dab_sdm_clock -comment IOBANK_6H
-	# IOBANK_6C
-	set_location_assignment PIN_B8 -to grid_inu_sdm_clock -comment IOBANK_6C
-	# IOBANK_6H
-	set_location_assignment PIN_N2 -to output_inu_sdm_clock -comment IOBANK_6H
-	# IOBANK_6C
-	set_location_assignment PIN_B19 -to uart_tx -comment IOBANK_6C
-	set_instance_assignment -name AUTO_GLOBAL_CLOCK ON -to * -entity testiAg3
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to grid_inu_sdm_data -entity testiAg3
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to xclk -entity testiAg3
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to output_inu_sdm_clock -entity testiAg3
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to output_inu_sdm_data -entity testiAg3
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to uart_rx -entity testiAg3
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to dab_sdm_clock -entity testiAg3
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to dab_sdm_data -entity testiAg3
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to uart_tx -entity testiAg3
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to grid_inu_sdm_clock -entity testiAg3
-	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to grid_inu_sdm_clock -entity testiAg3
-	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to uart_tx -entity testiAg3
-	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to dab_sdm_clock -entity testiAg3
-	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to output_inu_sdm_clock -entity testiAg3
-	# IOBANK_6A
-	set_location_assignment PIN_BN34 -to enet_led -comment IOBANK_6A
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to enet_led -entity testiAg3
-	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to enet_led -entity testiAg3
-	# IOBANK_6A
-	set_location_assignment PIN_BM34 -to enet_led1 -comment IOBANK_6A
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to enet_led1 -entity testiAg3
-	set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to enet_led1 -entity testiAg3
-	# IOBANK_6D
-	set_location_assignment PIN_H21 -to ads_7056_chip_select -comment IOBANK_6D
-	# IOBANK_6D
-	set_location_assignment PIN_D18 -to ads_7056_input_data -comment IOBANK_6D
-	# IOBANK_6D
-	set_location_assignment PIN_F18 -to ads_7056_clock -comment IOBANK_6D
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ad_mux1_io[2] -entity testiAg3
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ad_mux1_io[1] -entity testiAg3
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ad_mux1_io[0] -entity testiAg3
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ad_mux1_io -entity testiAg3
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ads_7056_clock -entity testiAg3
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ads_7056_chip_select -entity testiAg3
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ads_7056_input_data -entity testiAg3
-	set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ad_mux1_io[2] -entity testiAg3
-	set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ad_mux1_io[1] -entity testiAg3
-	set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ad_mux1_io[0] -entity testiAg3
-	set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ads_7056_clock -entity testiAg3
-	set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ads_7056_chip_select -entity testiAg3
-	# IOBANK_6H
-	set_location_assignment PIN_AF1 -to ad_mux2_io[0] -comment IOBANK_6H
-	# IOBANK_6H
-	set_location_assignment PIN_AG2 -to ad_mux2_io[1] -comment IOBANK_6H
-	# IOBANK_6H
-	set_location_assignment PIN_AF2 -to ad_mux2_io[2] -comment IOBANK_6H
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ad_mux2_io[2] -entity testiAg3
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ad_mux2_io[1] -entity testiAg3
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ad_mux2_io[0] -entity testiAg3
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ad_mux2_io -entity testiAg3
-	set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ad_mux2_io[2] -entity testiAg3
-	set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ad_mux2_io[1] -entity testiAg3
-	set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ad_mux2_io[0] -entity testiAg3
+set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6A
+set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6B
+set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6C
+set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6D
+set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6E
+set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6F
+set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6G
+set_global_assignment -name IOBANK_VCCIO 3.3V -section_id 6H
+set_global_assignment -name IOBANK_VCCIO 1.2V -section_id 3A_T
+set_global_assignment -name OPTIMIZATION_MODE BALANCED
+set_global_assignment -name POWER_APPLY_THERMAL_MARGIN ADDITIONAL
+set_global_assignment -name FLOW_ENABLE_HYPER_RETIMER_FAST_FORWARD ON
+set_global_assignment -name BOARD default
+set_instance_assignment -name PARTITION_COLOUR 4289658812 -to testiAg3 -entity testiAg3
+set_instance_assignment -name AUTO_GLOBAL_CLOCK ON -to * -entity testiAg3
+
+set_location_assignment PIN_BN34 -to enet_led                   -comment IOBANK_6A
+set_location_assignment PIN_BM34 -to enet_led1                  -comment IOBANK_6A
+set_location_assignment PIN_H21  -to ads_7056_chip_select       -comment IOBANK_6D
+set_location_assignment PIN_D18  -to ads_7056_input_data        -comment IOBANK_6D
+set_location_assignment PIN_F18  -to ads_7056_clock             -comment IOBANK_6D
+set_location_assignment PIN_AF1  -to ad_mux2_io[0]              -comment IOBANK_6H
+set_location_assignment PIN_AG2  -to ad_mux2_io[1]              -comment IOBANK_6H
+set_location_assignment PIN_AF2  -to ad_mux2_io[2]              -comment IOBANK_6H
+set_location_assignment PIN_R2   -to ad_mux1_io[0]              -comment IOBANK_6H
+set_location_assignment PIN_Y1   -to ad_mux1_io[1]              -comment IOBANK_6H
+set_location_assignment PIN_V2   -to ad_mux1_io[2]              -comment IOBANK_6H
+set_location_assignment PIN_N1   -to ads_7056_chip_select_pri   -comment IOBANK_6H
+set_location_assignment PIN_E2   -to ads_7056_clock_pri         -comment IOBANK_6H
+set_location_assignment PIN_M1   -to gate_power1_pwm            -comment IOBANK_6H
+set_location_assignment PIN_M2   -to gate_power2_pwm            -comment IOBANK_6H
+set_location_assignment PIN_A14  -to gate_power5_pwm            -comment IOBANK_6C
+set_location_assignment PIN_L1   -to gate_power3_pwm            -comment IOBANK_6H
+set_location_assignment PIN_B16  -to extra                      -comment IOBANK_6C
+set_location_assignment PIN_B5   -to gate_power6_pwm            -comment IOBANK_6C
+set_location_assignment PIN_B3   -to gate_power4_pwm            -comment IOBANK_6C
+set_location_assignment PIN_AA4  -to dab_primary_low            -comment IOBANK_6G
+set_location_assignment PIN_H7   -to dab_primary_hi             -comment IOBANK_6D
+set_location_assignment PIN_J2   -to grid_inu_leg1_hi           -comment IOBANK_6H
+set_location_assignment PIN_J1   -to grid_inu_leg1_low          -comment IOBANK_6H
+set_location_assignment PIN_F7   -to dab_secondary_hi           -comment IOBANK_6D
+set_location_assignment PIN_A8   -to dab_secondary_low          -comment IOBANK_6C
+set_location_assignment PIN_AC1  -to primary_bypass_relay       -comment IOBANK_6H
+set_location_assignment PIN_B14  -to secondary_bypass_relay     -comment IOBANK_6C
+set_location_assignment PIN_F3   -to output_inu_leg2_hi         -comment IOBANK_6C
+set_location_assignment PIN_B8   -to grid_inu_leg2_hi           -comment IOBANK_6C
+set_location_assignment PIN_A9   -to output_inu_leg1_hi         -comment IOBANK_6C
+set_location_assignment PIN_A11  -to output_inu_leg1_low        -comment IOBANK_6C
+set_location_assignment PIN_V1   -to grid_inu_leg2_low          -comment IOBANK_6H
+set_location_assignment PIN_F21  -to output_inu_leg2_low        -comment IOBANK_6D
+set_location_assignment PIN_D10  -to ads_7056_input_data_pri    -comment IOBANK_6D
+set_location_assignment PIN_BJ1  -to uart_rx                    -comment IOBANK_6F
+set_location_assignment PIN_AK2  -to xclk                       -comment IOBANK_6G
+set_location_assignment PIN_B11  -to output_inu_sdm_data        -comment IOBANK_6C
+set_location_assignment PIN_D3   -to dab_sdm_data               -comment IOBANK_6C
+set_location_assignment PIN_AC2  -to grid_inu_sdm_data          -comment IOBANK_6H
+set_location_assignment PIN_P4   -to dab_sdm_clock              -comment IOBANK_6G
+set_location_assignment PIN_C2   -to grid_inu_sdm_clock         -comment IOBANK_6C
+set_location_assignment PIN_N2   -to output_inu_sdm_clock       -comment IOBANK_6H
+set_location_assignment PIN_B19  -to uart_tx                    -comment IOBANK_6C
+
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to ads_7056_chip_select_pri -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to ads_7056_clock_pri       -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to ads_7056_input_data_pri  -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to dab_primary_hi           -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to dab_primary_low          -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to dab_secondary_hi         -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to dab_secondary_low        -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to extra                    -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to secondary_bypass_relay   -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to primary_bypass_relay     -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to output_inu_leg2_low      -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to output_inu_leg2_hi       -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to output_inu_leg1_low      -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to output_inu_leg1_hi       -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to grid_inu_leg2_low        -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to grid_inu_leg2_hi         -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to grid_inu_leg1_low        -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to grid_inu_leg1_hi         -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to gate_power6_pwm          -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to gate_power5_pwm          -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to gate_power4_pwm          -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to gate_power3_pwm          -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to gate_power2_pwm          -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to gate_power1_pwm          -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to grid_inu_sdm_data        -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to xclk                     -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to output_inu_sdm_clock     -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to output_inu_sdm_data      -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to uart_rx                  -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to dab_sdm_clock            -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to dab_sdm_data             -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to uart_tx                  -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to grid_inu_sdm_clock       -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to enet_led                 -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to enet_led1                -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to ad_mux1_io[2]            -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to ad_mux1_io[1]            -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to ad_mux1_io[0]            -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to ad_mux1_io               -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to ads_7056_clock           -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to ads_7056_chip_select     -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to ads_7056_input_data      -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to ad_mux2_io[2]            -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to ad_mux2_io[1]            -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to ad_mux2_io[0]            -entity testiAg3
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS"  -to ad_mux2_io               -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to secondary_bypass_relay   -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to primary_bypass_relay     -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to output_inu_leg2_low      -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to output_inu_leg2_hi       -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to output_inu_leg1_low      -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to output_inu_leg1_hi       -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to grid_inu_leg2_low        -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to grid_inu_leg2_hi         -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to grid_inu_leg1_low        -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to grid_inu_leg1_hi         -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to gate_power6_pwm          -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to gate_power5_pwm          -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to gate_power4_pwm          -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to gate_power3_pwm          -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to gate_power2_pwm          -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to gate_power1_pwm          -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to extra                    -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to dab_secondary_low        -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to dab_secondary_hi         -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to dab_primary_low          -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to dab_primary_hi           -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ads_7056_input_data_pri  -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ads_7056_clock_pri       -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ads_7056_chip_select_pri -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to grid_inu_sdm_clock       -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to uart_tx                  -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to dab_sdm_clock            -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to output_inu_sdm_clock     -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to enet_led                 -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 6MA -to enet_led1                -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ad_mux1_io[2]            -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ad_mux1_io[1]            -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ad_mux1_io[0]            -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ads_7056_clock           -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ads_7056_chip_select     -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ad_mux2_io[2]            -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ad_mux2_io[1]            -entity testiAg3
+set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ad_mux2_io[0]            -entity testiAg3
 	# Commit assignments
 	export_assignments
 
