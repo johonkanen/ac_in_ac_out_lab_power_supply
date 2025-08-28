@@ -125,11 +125,24 @@ architecture rtl of titanium_top is
     signal meas_ram_b_in  : meas_ram_a_in'subtype;
     signal meas_ram_b_out : meas_ram_a_out'subtype;
     --------------------
-    signal fp32_mult_a  : std_logic_vector(31 downto 0) := (others => 'X'); -- fp32_mult_a
-    signal fp32_mult_b  : std_logic_vector(31 downto 0) := (others => 'X'); -- fp32_mult_b
-    signal fp32_adder_a : std_logic_vector(31 downto 0) := (others => 'X'); -- fp32_chainin
+    use ieee.float_pkg.all;
+    signal fp32_mult_a  : std_logic_vector(31 downto 0) :=to_slv(to_float(-1.0, float32'high)); -- fp32_mult_a
+    signal fp32_mult_b  : std_logic_vector(31 downto 0) :=to_slv(to_float(1.0, float32'high)); -- fp32_mult_b
+    signal fp32_adder_a : std_logic_vector(31 downto 0) :=to_slv(to_float(-3.5, float32'high)); -- fp32_chainin
     signal ena          : std_logic_vector(2 downto 0)  := (others => '1'); -- ena
     signal fp32_result  : std_logic_vector(31 downto 0)                   ; -- fp32_result
+
+    type fp32_in_record is record
+        fp32_mult_a  : std_logic_vector(31 downto 0);
+        fp32_mult_b  : std_logic_vector(31 downto 0);
+        fp32_adder_a : std_logic_vector(31 downto 0);
+    end record;
+
+    -- procedure fmult(signal fp32_in : out fp32_in_record; mul_a : std_logic_vector; mul_b : std_logic_vector; add_a : std_logic_vector) is
+    -- begin
+    --     fp32_in <=(mul_a, mul_b, (others => '0');
+    -- end fmult;
+
 
     -- agilex 3 only, left as blackbox in efinix titanium
     -----------------------------------------------------
@@ -152,11 +165,21 @@ begin
 		port map (
             fp32_mult_a   => fp32_mult_a  -- fp32_mult_a.fp32_mult_a
             ,fp32_mult_b  => fp32_mult_b  -- fp32_mult_b.fp32_mult_b
-            ,fp32_adder_a  => fp32_adder_a  -- fp32_mult_b.fp32_mult_b
-            ,clk          => main_clock                -- clk.clk
-            ,ena          => "111"          -- ena.ena
+            ,fp32_adder_a => fp32_adder_a -- fp32_mult_b.fp32_mult_b
+            ,clk          => main_clock   -- clk.clk
+            ,ena          => "111"        -- ena.ena
             ,fp32_result  => fp32_result  -- fp32_result.fp32_result
 		);
+
+	-- u1 : component native_fp32
+	-- 	port map (
+	--            fp32_mult_a   => fp32_mult_a  -- fp32_mult_a.fp32_mult_a
+	--            ,fp32_mult_b  => fp32_mult_b  -- fp32_mult_b.fp32_mult_b
+	--            ,fp32_adder_a => fp32_adder_a -- fp32_mult_b.fp32_mult_b
+	--            ,clk          => main_clock   -- clk.clk
+	--            ,ena          => "111"        -- ena.ena
+	--            ,fp32_result  => fp32_result  -- fp32_result.fp32_result
+	-- 	);
     --------------------
 
     grid_inu_leg1_hi  <= '0';
@@ -258,8 +281,7 @@ begin
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 8 , 2**15 + get_cic_filter_output(dab_filter));
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 12 , report_state(main_state_machine));
 
-            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 100 , git_hash_pkg.git_hash(31 downto 16));
-            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 101 , git_hash_pkg.git_hash(15 downto 0));
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 100 , git_hash_pkg.git_hash);
 
             init_ram(meas_ram_b_in);
             if data_is_requested_from_address_range(bus_from_communications, 200, 209)

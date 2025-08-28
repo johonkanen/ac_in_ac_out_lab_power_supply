@@ -8,11 +8,11 @@ import struct
 # ---- 32-bit float <-> int ----
 def float_to_int32(f: float) -> int:
     """Reinterpret a 32-bit float as a 32-bit signed integer."""
-    return struct.unpack('!i', struct.pack('!f', f))[0]
+    return struct.unpack('!I', struct.pack('!f', f))[0]
 
 def int32_to_float(i: int) -> float:
     """Reinterpret a 32-bit signed integer as a 32-bit float."""
-    return struct.unpack('!f', struct.pack('!i', i))[0]
+    return struct.unpack('!f', struct.pack('!I', i))[0]
 ##--------------------------------
 
 abs_path = os.path.dirname(os.path.realpath(__file__))
