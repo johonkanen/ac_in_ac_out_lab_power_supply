@@ -80,7 +80,7 @@ architecture rtl of titanium_top is
     signal trigger_event : boolean;
     signal sampled_data : std_logic_vector(15 downto 0);
 
-    signal test_data : std_logic_vector(31 downto 0) :=x"abcdacdc";
+    signal test_data  : std_logic_vector(31 downto 0) :=x"0000acdc";
     signal test_data2 : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
     signal test_data3 : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
     signal test_data4 : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
@@ -243,9 +243,6 @@ begin
             generic map(start_precharge);
         ----------------------
 
-
-
-
     begin
         if rising_edge(main_clock) then
             init_bus(bus_from_top);
@@ -281,7 +278,7 @@ begin
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 8 , 2**15 + get_cic_filter_output(dab_filter));
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 12 , report_state(main_state_machine));
 
-            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 100 , git_hash_pkg.git_hash);
+            -- connect_read_only_data_to_address(bus_from_communications , bus_from_top , 100 , git_hash_pkg.git_hash);
 
             init_ram(meas_ram_b_in);
             if data_is_requested_from_address_range(bus_from_communications, 200, 209)
