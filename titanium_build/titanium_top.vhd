@@ -157,6 +157,26 @@ architecture rtl of titanium_top is
 		);
 	end component native_fp32;
     -----------------------------------------------------
+    
+    use work.float_typedefs_generic_pkg.all;
+    use work.normalizer_generic_pkg.all;
+    
+
+    function to_float32 (a : real) return float32 is
+    begin
+        return to_float(a, float32'high);
+    end to_float32;
+
+    constant float_zero : float_record :=(sign => '0', exponent => (7 downto 0 => x"00"), mantissa => (23 downto 0 => x"000000"));
+
+    constant init_normalizer : normalizer_record := (
+        normalizer_is_requested => "00"
+        ,normalized_data => (1 downto 0 => float_zero));
+
+    signal normalizer : init_normalizer'subtype := init_normalizer;
+    signal conv_result : float_zero'subtype := float_zero;
+    signal float32_conv_result : float32 := to_float32(0.0);
+
         
 begin
 
@@ -247,6 +267,8 @@ begin
         if rising_edge(main_clock) then
             init_bus(bus_from_top);
 
+            create_normalizer(normalizer);
+
             create_main_state_machine(main_state_machine
                  , start_requested    => start_requested
                  , precharge_ready    => precharge_delay_counter = integer(50.0e-3 * 120.0e6)
@@ -324,6 +346,15 @@ begin
             else
                 test_counter <= 0;
             end if;
+
+            if meas_ram_a_in.write_requested = '1' and meas_ram_a_in.address = 4 then
+                to_float(normalizer, to_integer(unsigned(meas_ram_a_in.data)), 12, float_zero);
+            end if;
+
+            conv_result         <= get_normalizer_result(normalizer);
+            float32_conv_result <= get_ieee_float32_result(normalizer);
+
+            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 55, to_slv(float32_conv_result));
 
         end if;
     end process;

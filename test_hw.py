@@ -15,6 +15,10 @@ def int32_to_float(i: int) -> float:
     return struct.unpack('!f', struct.pack('!I', i))[0]
 ##--------------------------------
 
+def to_float(a):
+    return [int32_to_float(x) for x in a]
+
+
 abs_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(abs_path + '/source/fpga_communication/fpga_uart_pc_software/')
 
