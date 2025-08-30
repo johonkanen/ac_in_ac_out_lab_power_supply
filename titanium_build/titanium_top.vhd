@@ -348,7 +348,7 @@ begin
             end if;
 
             if meas_ram_a_in.write_requested = '1' and meas_ram_a_in.address = 4 then
-                to_float(normalizer, to_integer(unsigned(meas_ram_a_in.data)), 12, float_zero);
+                to_float(normalizer, to_integer(unsigned(meas_ram_a_in.data)), 14, float_zero);
             end if;
 
             conv_result         <= get_normalizer_result(normalizer);
