@@ -126,9 +126,9 @@ architecture rtl of titanium_top is
     signal meas_ram_b_out : meas_ram_a_out'subtype;
     --------------------
     use ieee.float_pkg.all;
-    signal fp32_mult_a  : std_logic_vector(31 downto 0) :=to_slv(to_float(-1.0, float32'high)); -- fp32_mult_a
-    signal fp32_mult_b  : std_logic_vector(31 downto 0) :=to_slv(to_float(1.0, float32'high)); -- fp32_mult_b
-    signal fp32_adder_a : std_logic_vector(31 downto 0) :=to_slv(to_float(-3.5, float32'high)); -- fp32_chainin
+    signal fp32_mult_a  : std_logic_vector(31 downto 0) :=to_slv(to_float(0.0, float32'high)); -- fp32_mult_a
+    signal fp32_mult_b  : std_logic_vector(31 downto 0) :=to_slv(to_float(3.3, float32'high)); -- fp32_mult_b
+    signal fp32_adder_a : std_logic_vector(31 downto 0) :=to_slv(to_float(0.0, float32'high)); -- fp32_chainin
     signal ena          : std_logic_vector(2 downto 0)  := (others => '1'); -- ena
     signal fp32_result  : std_logic_vector(31 downto 0)                   ; -- fp32_result
 
@@ -183,7 +183,7 @@ begin
     --------------------
 	u0 : component native_fp32
 		port map (
-            fp32_mult_a   => fp32_mult_a  -- fp32_mult_a.fp32_mult_a
+            fp32_mult_a   => to_slv(float32_conv_result)  -- fp32_mult_a.fp32_mult_a
             ,fp32_mult_b  => fp32_mult_b  -- fp32_mult_b.fp32_mult_b
             ,fp32_adder_a => fp32_adder_a -- fp32_mult_b.fp32_mult_b
             ,clk          => main_clock   -- clk.clk
