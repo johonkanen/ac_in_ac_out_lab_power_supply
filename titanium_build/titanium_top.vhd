@@ -177,9 +177,9 @@ architecture rtl of titanium_top is
     signal mpya_out : mpya_ref.mpya_out'subtype := mpya_ref.mpya_out;
 
     use work.float_to_real_conversions_pkg.all;
-    constant float1 : hfloat_record := to_float(-84.5 , 8 , 24);
-    constant float2 : hfloat_record := to_float(3.3   , 8 , 24);
-    constant float3 : hfloat_record := to_float(0.1   , 8 , 24);
+    constant float1 : hfloat_record := to_hfloat(-84.5 , 8 , 24);
+    constant float2 : hfloat_record := to_hfloat(3.3   , 8 , 24);
+    constant float3 : hfloat_record := to_hfloat(0.1   , 8 , 24);
         
 begin
 
