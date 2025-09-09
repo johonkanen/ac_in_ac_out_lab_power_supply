@@ -97,9 +97,14 @@ set_global_assignment -name VHDL_FILE $this_file_path/../source/test_processor/u
 set_global_assignment -name VHDL_FILE $this_file_path/../source/main_state_machine/main_state_machine_pkg.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_fixed_point/adc_scaler/adc_scaler.vhd
 
+set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/denormalizer_generic_pkg.vhd
+set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/float_adder_generic_pkg.vhd
+set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/float_multiplier_generic_pkg.vhd
+set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/float_to_real_conversions_pkg.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/float_typedefs_generic_pkg.vhd
+set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/multiply_add_arch_hfloat.vhd
+set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/multiply_add_entity.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/normalizer_generic_pkg.vhd
-#set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/denormalizer_generic_pkg.vhd
 
 
 set_global_assignment -name IP_FILE $this_file_path/ip/main_clock/main_clock.ip

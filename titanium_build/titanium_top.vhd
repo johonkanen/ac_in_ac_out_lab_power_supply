@@ -177,9 +177,21 @@ architecture rtl of titanium_top is
     signal conv_result : float_zero'subtype := float_zero;
     signal float32_conv_result : float32 := to_float32(0.0);
 
+    use work.multiply_add_pkg.all;
+    constant mpya_ref : mpya_subtype_record := create_mpya_typeref(float_zero);
+
+    signal mpya_in  : mpya_ref.mpya_in'subtype  := mpya_ref.mpya_in;
+    signal mpya_out : mpya_ref.mpya_out'subtype := mpya_ref.mpya_out;
         
 begin
 
+    --------------------
+    dut : entity work.multiply_add
+    generic map(float_zero)
+    port map(main_clock
+        ,mpya_in
+        ,mpya_out);
+------------------------------------------------------------------------
     --------------------
 	u0 : component native_fp32
 		port map (
@@ -268,6 +280,7 @@ begin
             init_bus(bus_from_top);
 
             create_normalizer(normalizer);
+            init_multiply_add(mpya_in);
 
             create_main_state_machine(main_state_machine
                  , start_requested    => start_requested
