@@ -138,12 +138,6 @@ architecture rtl of titanium_top is
         fp32_adder_a : std_logic_vector(31 downto 0);
     end record;
 
-    -- procedure fmult(signal fp32_in : out fp32_in_record; mul_a : std_logic_vector; mul_b : std_logic_vector; add_a : std_logic_vector) is
-    -- begin
-    --     fp32_in <=(mul_a, mul_b, (others => '0');
-    -- end fmult;
-
-
     -- agilex 3 only, left as blackbox in efinix titanium
     -----------------------------------------------------
 	component native_fp32 is
@@ -160,39 +154,38 @@ architecture rtl of titanium_top is
     
     use work.float_typedefs_generic_pkg.all;
     use work.normalizer_generic_pkg.all;
-    
 
     function to_float32 (a : real) return float32 is
     begin
         return to_float(a, float32'high);
     end to_float32;
 
-    constant float_zero : float_record :=(sign => '0', exponent => (7 downto 0 => x"00"), mantissa => (23 downto 0 => x"000000"));
+    constant hfloat_zero : hfloat_record :=(sign => '0', exponent => (7 downto 0 => x"00"), mantissa => (23 downto 0 => x"000000"));
 
     constant init_normalizer : normalizer_record := (
         normalizer_is_requested => "00"
-        ,normalized_data => (1 downto 0 => float_zero));
+        ,normalized_data => (1 downto 0 => hfloat_zero));
 
     signal normalizer : init_normalizer'subtype := init_normalizer;
-    signal conv_result : float_zero'subtype := float_zero;
+    signal conv_result : hfloat_zero'subtype := hfloat_zero;
     signal float32_conv_result : float32 := to_float32(0.0);
 
     use work.multiply_add_pkg.all;
-    constant mpya_ref : mpya_subtype_record := create_mpya_typeref(float_zero);
+    constant mpya_ref : mpya_subtype_record := create_mpya_typeref(hfloat_zero);
 
     signal mpya_in  : mpya_ref.mpya_in'subtype  := mpya_ref.mpya_in;
     signal mpya_out : mpya_ref.mpya_out'subtype := mpya_ref.mpya_out;
 
     use work.float_to_real_conversions_pkg.all;
-    constant float1 : float_record := to_float(-84.5    , 8 , 24);
-    constant float2 : float_record := to_float(1.5      , 8 , 24);
-    constant float3 : float_record := to_float(84.5/2.0 , 8 , 24);
+    constant float1 : hfloat_record := to_float(-84.5 , 8 , 24);
+    constant float2 : hfloat_record := to_float(3.3   , 8 , 24);
+    constant float3 : hfloat_record := to_float(0.1   , 8 , 24);
         
 begin
 
     --------------------
     dut : entity work.multiply_add
-    generic map(float_zero)
+    generic map(hfloat_zero)
     port map(main_clock
         ,mpya_in
         ,mpya_out);
@@ -288,7 +281,7 @@ begin
             init_multiply_add(mpya_in);
 
             multiply_add(mpya_in 
-            ,to_std_logic(float1)
+            ,to_std_logic(conv_result)
             ,to_std_logic(float2)
             ,to_std_logic(float3));
 
@@ -309,7 +302,7 @@ begin
             connect_data_to_address(bus_from_communications , bus_from_top , 51 , fp32_mult_b );
             connect_data_to_address(bus_from_communications , bus_from_top , 52 , fp32_adder_a);
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 53 , fp32_result);
-            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 54 , to_slv(to_ieee_float32(to_float(get_mpya_result(mpya_out), float_zero))));
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 54 , to_slv(to_ieee_float32(to_float(get_mpya_result(mpya_out), hfloat_zero))));
 
 
             if write_is_requested_to_address(bus_from_communications, 10) and get_data(bus_from_communications) = 1 then
@@ -372,7 +365,7 @@ begin
             end if;
 
             if write_requested_to_address(meas_ram_a_in, address => 4) then
-                to_float(normalizer, to_integer(unsigned(meas_ram_a_in.data)), 14, float_zero);
+                convert_integer_to_hfloat(normalizer, to_integer(unsigned(meas_ram_a_in.data)), 14, hfloat_zero);
             end if;
 
             conv_result         <= get_normalizer_result(normalizer);
