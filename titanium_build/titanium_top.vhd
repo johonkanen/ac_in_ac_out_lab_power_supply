@@ -182,6 +182,11 @@ architecture rtl of titanium_top is
 
     signal mpya_in  : mpya_ref.mpya_in'subtype  := mpya_ref.mpya_in;
     signal mpya_out : mpya_ref.mpya_out'subtype := mpya_ref.mpya_out;
+
+    use work.float_to_real_conversions_pkg.all;
+    constant float1 : float_record := to_float(-84.5    , 8 , 24);
+    constant float2 : float_record := to_float(1.5      , 8 , 24);
+    constant float3 : float_record := to_float(84.5/2.0 , 8 , 24);
         
 begin
 
@@ -282,6 +287,11 @@ begin
             create_normalizer(normalizer);
             init_multiply_add(mpya_in);
 
+            multiply_add(mpya_in 
+            ,to_std_logic(float1)
+            ,to_std_logic(float2)
+            ,to_std_logic(float3));
+
             create_main_state_machine(main_state_machine
                  , start_requested    => start_requested
                  , precharge_ready    => precharge_delay_counter = integer(50.0e-3 * 120.0e6)
@@ -299,6 +309,7 @@ begin
             connect_data_to_address(bus_from_communications , bus_from_top , 51 , fp32_mult_b );
             connect_data_to_address(bus_from_communications , bus_from_top , 52 , fp32_adder_a);
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 53 , fp32_result);
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 54 , to_slv(to_ieee_float32(to_float(get_mpya_result(mpya_out), float_zero))));
 
 
             if write_is_requested_to_address(bus_from_communications, 10) and get_data(bus_from_communications) = 1 then
