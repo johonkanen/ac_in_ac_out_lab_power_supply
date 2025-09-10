@@ -154,13 +154,17 @@ architecture rtl of titanium_top is
     
     use work.float_typedefs_generic_pkg.all;
     use work.normalizer_generic_pkg.all;
+    use work.float_to_real_conversions_pkg.all;
 
     function to_float32 (a : real) return float32 is
     begin
         return to_float(a, float32'high);
     end to_float32;
 
-    constant hfloat_zero : hfloat_record :=(sign => '0', exponent => (7 downto 0 => x"00"), mantissa => (23 downto 0 => x"000000"));
+    function to_hfloat is new to_hfloat_generic 
+        generic map(exponent_length => 8, mantissa_length => 24);
+
+    constant hfloat_zero : hfloat_record := to_hfloat(0.0);
 
     constant init_normalizer : normalizer_record := (
         normalizer_is_requested => "00"
@@ -176,10 +180,9 @@ architecture rtl of titanium_top is
     signal mpya_in  : mpya_ref.mpya_in'subtype  := mpya_ref.mpya_in;
     signal mpya_out : mpya_ref.mpya_out'subtype := mpya_ref.mpya_out;
 
-    use work.float_to_real_conversions_pkg.all;
-    constant float1 : hfloat_record := to_hfloat(-84.5 , 8 , 24);
-    constant float2 : hfloat_record := to_hfloat(3.3   , 8 , 24);
-    constant float3 : hfloat_record := to_hfloat(0.1   , 8 , 24);
+    constant float1 : hfloat_record := to_hfloat(-84.5);
+    constant float2 : hfloat_record := to_hfloat(3.3);
+    constant float3 : hfloat_record := to_hfloat(0.0);
         
 begin
 
@@ -302,7 +305,7 @@ begin
             connect_data_to_address(bus_from_communications , bus_from_top , 51 , fp32_mult_b );
             connect_data_to_address(bus_from_communications , bus_from_top , 52 , fp32_adder_a);
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 53 , fp32_result);
-            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 54 , to_slv(to_ieee_float32(to_float(get_mpya_result(mpya_out), hfloat_zero))));
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 54 , to_slv(to_ieee_float32(to_hfloat(get_mpya_result(mpya_out), hfloat_zero))));
 
 
             if write_is_requested_to_address(bus_from_communications, 10) and get_data(bus_from_communications) = 1 then
