@@ -162,7 +162,7 @@ architecture rtl of titanium_top is
     end to_float32;
 
     function to_hfloat is new to_hfloat_generic 
-        generic map(exponent_length => 8, mantissa_length => 24);
+        generic map(exponent_length => 8, word_length => 32);
 
     constant hfloat_zero : hfloat_record := to_hfloat(0.0);
 
@@ -301,11 +301,11 @@ begin
             connect_data_to_address(bus_from_communications , bus_from_top , 1 , test_data);
             connect_data_to_address(bus_from_communications , bus_from_top , 4 , test_data2);
 
-            connect_data_to_address(bus_from_communications , bus_from_top , 50 , fp32_mult_a );
-            connect_data_to_address(bus_from_communications , bus_from_top , 51 , fp32_mult_b );
-            connect_data_to_address(bus_from_communications , bus_from_top , 52 , fp32_adder_a);
+            connect_data_to_address(bus_from_communications           , bus_from_top , 50 , fp32_mult_a );
+            connect_data_to_address(bus_from_communications           , bus_from_top , 51 , fp32_mult_b );
+            connect_data_to_address(bus_from_communications           , bus_from_top , 52 , fp32_adder_a);
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 53 , fp32_result);
-            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 54 , to_slv(to_ieee_float32(to_hfloat(get_mpya_result(mpya_out), hfloat_zero))));
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 54 , to_slv(to_ieee_float32(to_hfloat(get_mpya_result(mpya_out) , hfloat_zero))));
 
 
             if write_is_requested_to_address(bus_from_communications, 10) and get_data(bus_from_communications) = 1 then
@@ -315,10 +315,11 @@ begin
                 pwm.is_enabled <= false;
             end if;
 
-            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 6 , 2**15 + get_cic_filter_output(grid_inu_filter));
-            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 7 , 2**15 + get_cic_filter_output(output_inu_filter));
-            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 8 , 2**15 + get_cic_filter_output(dab_filter));
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 6  , 2**15 + get_cic_filter_output(grid_inu_filter));
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 7  , 2**15 + get_cic_filter_output(output_inu_filter));
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 8  , 2**15 + get_cic_filter_output(dab_filter));
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 12 , report_state(main_state_machine));
+
 
             -- connect_read_only_data_to_address(bus_from_communications , bus_from_top , 100 , git_hash_pkg.git_hash);
 
