@@ -13,7 +13,7 @@ entity uproc_test is
     );
 end entity uproc_test;
 
-architecture rtl of uproc_test is
+architecture v1 of uproc_test is
 
     constant instruction_length : natural := 32;
     constant word_length : natural := 40;
@@ -175,4 +175,4 @@ begin
     port map(clock, mproc_in, mproc_out, mc_read_in, mc_read_out, mc_output);
 -------------------------------------------------------------------------
 
-end rtl;
+end v1;

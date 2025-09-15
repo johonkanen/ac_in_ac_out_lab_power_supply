@@ -458,7 +458,7 @@ begin
         );
         
 ------------------------------------------------------------------------
-u_uproc_test : entity work.uproc_test
+u_uproc_test : entity work.uproc_test(v1)
 port map( 
     clock => main_clock
     ,bus_from_communications => bus_from_communications
