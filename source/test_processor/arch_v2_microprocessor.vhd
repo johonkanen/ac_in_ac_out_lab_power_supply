@@ -5,7 +5,7 @@ architecture v2 of uproc_test is
     use work.microinstruction_pkg.all;
     -- simulation specific signals ----
     constant instruction_length : natural := 32;
-    constant word_length        : natural := 40;
+    constant word_length        : natural := 33;
     constant used_radix         : natural := 20;
 
     --
@@ -139,9 +139,18 @@ begin
 
         use work.ram_connector_pkg.generic_connect_ram_write_to_address;
 
+        use ieee.float_pkg.all;
+
         function convert(data_in : std_logic_vector) return std_logic_vector is
+            variable retval : std_logic_vector(31 downto 0 );
+            variable hretval : hfloat_zero'subtype;
+            variable floatretval : float32;
         begin
-            return to_std_logic(to_hfloat(data_in , hfloat_ref))(39 downto 39-31);
+            hretval     := to_hfloat(data_in, hfloat_zero);
+            floatretval := to_ieee_float32(hretval);
+            retval      := to_slv(floatretval);
+
+            return retval;
         end convert;
 
         procedure connect_ram_write_to_address is new generic_connect_ram_write_to_address 
