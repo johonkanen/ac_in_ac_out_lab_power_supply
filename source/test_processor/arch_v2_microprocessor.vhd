@@ -129,20 +129,23 @@ architecture v2 of uproc_test is
 
 
         signal start_counter : natural range 0 to 127 := 0;
+        signal simvoltage : std_logic_vector(31 downto 0);
+        signal simcurrent : std_logic_vector(31 downto 0);
 
 
 begin 
 
     process(clock) is
 
+        use work.ram_connector_pkg.generic_connect_ram_write_to_address;
+
         function convert(data_in : std_logic_vector) return std_logic_vector is
         begin
-            -- return to_slv(to_ieee_float32(to_hfloat(data_in, hfloat_ref)));
-            return data_in;
+            return to_std_logic(to_hfloat(data_in , hfloat_ref))(39 downto 39-31);
         end convert;
 
-        use work.ram_connector_pkg.generic_connect_ram_write_to_address;
-        procedure connect_ram_write_to_address is new generic_connect_ram_write_to_address generic map(return_type => std_logic_vector, conv => convert);
+        procedure connect_ram_write_to_address is new generic_connect_ram_write_to_address 
+        generic map(return_type => std_logic_vector, conv => convert);
 
     begin
         if rising_edge(clock)
@@ -162,8 +165,21 @@ begin
                 calculate(mproc_in, 129);
             end if;
 
-            -- connect_ram_write_to_address(mc_output , inductor_current , simcurrent);
-            -- connect_ram_write_to_address(mc_output , cap_voltage      , simvoltage);
+            connect_ram_write_to_address(mc_output , inductor_current , simcurrent);
+            connect_ram_write_to_address(mc_output , cap_voltage      , simvoltage);
+
+            init_bus(bus_from_uproc);
+            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 600, simcurrent);
+            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 601, simvoltage);
+
+            if write_is_requested_to_address(bus_from_communications, 1000)
+            then
+                write_data_to_ram(mc_write_in, duty, to_hfloat(0.5));
+            end if;
+            if write_is_requested_to_address(bus_from_communications, 1001)
+            then
+                write_data_to_ram(mc_write_in, duty, to_hfloat(0.9));
+            end if;
 
         end if;
     end process;

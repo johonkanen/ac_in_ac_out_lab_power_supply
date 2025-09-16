@@ -73,6 +73,7 @@ architecture rtl of titanium_top is
 
     signal bus_from_top          : fpga_interconnect_record := init_fpga_interconnect;
     signal bus_from_uproc        : fpga_interconnect_record := init_fpga_interconnect;
+    signal bus_from_uproc2        : fpga_interconnect_record := init_fpga_interconnect;
     signal bus_from_signal_scope : fpga_interconnect_record := init_fpga_interconnect;
 
     signal bus_from_measurements : fpga_interconnect_record := init_fpga_interconnect;
@@ -442,6 +443,7 @@ begin
                                      and bus_from_signal_scope 
                                      and bus_from_measurements 
                                      and bus_from_uproc 
+                                     and bus_from_uproc2 
                                      ;
         end if; -- rising_edge
     end process;
@@ -463,6 +465,12 @@ port map(
     clock => main_clock
     ,bus_from_communications => bus_from_communications
     ,bus_from_uproc          => bus_from_uproc);
+------------------------------------------------------------------------
+u_uproc2_test : entity work.uproc_test(v2)
+port map( 
+    clock => main_clock
+    ,bus_from_communications => bus_from_communications
+    ,bus_from_uproc          => bus_from_uproc2);
 ------------------------------------------------------------------------
 
 end rtl;

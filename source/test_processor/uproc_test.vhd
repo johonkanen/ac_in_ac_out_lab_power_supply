@@ -9,7 +9,8 @@ entity uproc_test is
     port ( 
         clock : in std_logic 
         ; bus_from_communications : in fpga_interconnect_record
-        ; bus_from_uproc   : out fpga_interconnect_record
+        ; bus_from_uproc          : out fpga_interconnect_record
+        ; measurement             : in std_logic_vector(31 downto 0) := (others => '0')
     );
 end entity uproc_test;
 
