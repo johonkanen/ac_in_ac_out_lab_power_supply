@@ -9,7 +9,6 @@ context vunit_lib.vunit_context;
     use work.uart_tx_pkg.all;
     use work.uart_rx_pkg.all;
     use work.fpga_interconnect_pkg.all;
-    use work.uart_protocol_pkg.all;
 
 entity top_tb is
   generic (runner_cfg : string);
@@ -32,9 +31,9 @@ architecture vunit_simulation of top_tb is
     signal uart_rx_data_in  : uart_rx_data_input_group := (number_of_clocks_per_bit => 24);
     signal uart_rx_data_out : uart_rx_data_output_group;
 
-    signal uart_tx_data_in    : uart_tx_data_input_group := init_uart_tx(24);
-    signal uart_tx_data_out   : uart_tx_data_output_group;
-    signal uart_protocol : serial_communcation_record := init_serial_communcation;
+    signal uart_tx_data_in  : uart_tx_data_input_group   := init_uart_tx(24);
+    signal uart_tx_data_out : uart_tx_data_output_group;
+    signal uart_protocol    : serial_communcation_record := init_serial_communcation;
 
     signal number_of_registers_to_stream : integer range 0 to 2**23-1 := 0;
     signal stream_address : integer range 0 to 2**16-1 := 0;
@@ -52,7 +51,7 @@ architecture vunit_simulation of top_tb is
 
     constant g_clock_divider : integer := 24;
 
-    signal bus_to_communications : fpga_interconnect_record := init_fpga_interconnect;
+    signal bus_to_communications   : fpga_interconnect_record := init_fpga_interconnect;
     signal bus_from_communications : fpga_interconnect_record := init_fpga_interconnect;
 
     signal clock_120Mhz : std_logic;

@@ -83,7 +83,7 @@ architecture v2 of uproc_test is
         , duty             => to_hfloat(0.9)
         , inductor_current => to_hfloat(0.0)
         , cap_voltage      => to_hfloat(12.0)
-        , ind_res          => to_hfloat(0.4)
+        , ind_res          => to_hfloat(0.8)
         , load             => to_hfloat(0.0)
         , current_gain     => to_hfloat(sampletime*1.0/3.0e-6)
         , voltage_gain     => to_hfloat(sampletime*1.0/3.0e-6)
@@ -122,13 +122,13 @@ architecture v2 of uproc_test is
         , 130 => op(mpy_sub     , cap_current      , duty             , inductor_current , load)
         , 142 => op(neg_mpy_add , inductor_voltage , ind_res          , inductor_current , inductor_voltage)
         , 143 => op(mpy_add     , cap_voltage      , cap_current      , voltage_gain     , cap_voltage)
-        , 153 => op(jump        , 129)
         , 156 => op(mpy_add     , inductor_current , inductor_voltage , current_gain     , inductor_current)
+        , 157 => op(program_end)
 
         , others => op(nop));
 
 
-        signal start_counter : natural range 0 to 127 := 0;
+        signal start_counter : natural range 0 to 2**16-1 := 0;
         signal simvoltage : std_logic_vector(31 downto 0);
         signal simcurrent : std_logic_vector(31 downto 0);
 
@@ -163,7 +163,7 @@ begin
             init_mp_write(mc_write_in);
 
             start_counter <= start_counter + 1;
-            if start_counter > 50
+            if start_counter > 1000
             then
                 start_counter <= 0;
             end if;
@@ -183,11 +183,8 @@ begin
 
             if write_is_requested_to_address(bus_from_communications, 1000)
             then
-                write_data_to_ram(mc_write_in, duty, to_hfloat(0.5));
-            end if;
-            if write_is_requested_to_address(bus_from_communications, 1001)
-            then
-                write_data_to_ram(mc_write_in, duty, to_hfloat(0.9));
+                write_data_to_ram(mc_write_in, duty, 
+                to_std_logic_vector(float32_to_hfloat(get_slv_data(bus_from_communications),hfloat_ref)));
             end if;
 
         end if;

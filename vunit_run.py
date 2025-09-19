@@ -9,8 +9,6 @@ VU = VUnit.from_argv()
 
 top_lib = VU.add_library("top_lib")
 top_lib.add_source_files(ROOT / "titanium_build/titanium_top.vhd")
-top_lib.add_source_files(ROOT / "source/fpga_communication/uart_protocol_pkg.vhd")
-top_lib.add_source_files(ROOT / "source/fpga_communication/uart_protocol_pkg.vhd")
 top_lib.add_source_files(ROOT / "source/fpga_communication/fpga_interconnect_16bit_pkg.vhd")
 top_lib.add_source_files(ROOT / "source/fpga_communication/hVHDL_fpga_interconnect/fpga_interconnect_generic_pkg.vhd")
 top_lib.add_source_files(ROOT / "source/fpga_communication/serial_protocol_generic_pkg.vhd")
@@ -24,11 +22,11 @@ top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/vhdl2008/ra
 top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/vhdl2008/addsub.vhd")
 top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/vhdl2008/microprogram_sequencer.vhd")
 top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/vhdl2008/microprogram_processor.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/vhdl2008/microprogram_controller.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/vhdl2008/arch_float_mult_add.vhd")
 top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/source/hVHDL_memory_library/vhdl2008/mpram_w_configurable_records.vhd")
 top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/source/hVHDL_memory_library/vhdl2008/dp_ram_w_configurable_recrods.vhd")
 top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/source/hVHDL_memory_library/vhdl2008/arch_sim_dp_ram_w_configurable_records.vhd")
-
-top_lib.add_source_files(ROOT / "source/test_processor/uproc_test.vhd")
 
 top_lib.add_source_files(ROOT / "source/hVHDL_analog_to_digital_drivers/sigma_delta/sigma_delta_cic_filter_pkg.vhd")
 
@@ -53,7 +51,7 @@ top_lib.add_source_files(ROOT / "source/hVHDL_fixed_point/division/division_gene
 
 top_lib.add_source_files(ROOT / "source/measurements/measurements.vhd")
 
-top_lib.add_source_files(ROOT / "simulation/top_tb.vhd")
+# top_lib.add_source_files(ROOT / "simulation/top_tb.vhd")
 
 top_lib.add_source_files(ROOT / "source/hVHDL_fixed_point/adc_scaler/adc_scaler.vhd")
 top_lib.add_source_files(ROOT / "source/hVHDL_fixed_point/testbenches/adc_scaler/adc_scaler_tb.vhd")
@@ -92,6 +90,18 @@ top_lib.add_source_files(ROOT / "source/hVHDL_fixed_point/multiplier/multiplier_
 top_lib.add_source_files(ROOT / "source/hVHDL_fixed_point/pi_controller/pi_controller_generic_pkg.vhd")
 top_lib.add_source_files(ROOT / "source/hVHDL_fixed_point/real_to_fixed/real_to_fixed_pkg.vhd")
 
+top_lib.add_source_files(ROOT / "source/test_processor/uproc_test.vhd")
+top_lib.add_source_files(ROOT / "source/test_processor/arch_v2_microprocessor.vhd")
+
+top_lib.add_source_files(ROOT / "source/hVHDL_floating_point/vhdl2008/denormalizer_generic_pkg.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_floating_point/vhdl2008/float_adder_generic_pkg.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_floating_point/vhdl2008/float_multiplier_generic_pkg.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_floating_point/vhdl2008/float_to_real_conversions_pkg.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_floating_point/vhdl2008/float_typedefs_generic_pkg.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_floating_point/vhdl2008/multiply_add_arch_hfloat.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_floating_point/vhdl2008/multiply_add_entity.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_floating_point/vhdl2008/normalizer_generic_pkg.vhd")
+
 top_lib.add_source_files(ROOT / "simulation/sw_model_generic_pkg.vhd")
 top_lib.add_source_files(ROOT / "simulation/inu/half_bridge_tb.vhd")
 
@@ -100,6 +110,7 @@ top_lib.add_source_files(ROOT / "simulation/inu/grid_inverter_model_pkg.vhd")
 top_lib.add_source_files(ROOT / "simulation/inu/grid_inverter_model_tb.vhd")
 
 top_lib.add_source_files(ROOT / "simulation/inu/grid_inverter_control_rtl_tb.vhd")
+
 
 #--------------------------------------
 s7 = VU.add_library("s7")
