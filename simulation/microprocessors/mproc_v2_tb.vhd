@@ -13,7 +13,7 @@ end;
 architecture vunit_simulation of mrpoc_v2_tb is
 
     constant clock_period      : time    := 1 ns;
-    constant simtime_in_clocks : integer := 20000;
+    constant simtime_in_clocks : integer := 120000;
     
     signal simulator_clock     : std_logic := '0';
     signal simulation_counter  : natural   := 0;
@@ -31,6 +31,13 @@ architecture vunit_simulation of mrpoc_v2_tb is
 
     signal bus_from_communications : fpga_interconnect_record := init_fpga_interconnect;
     signal bus_from_uproc2 : fpga_interconnect_record := init_fpga_interconnect;
+
+
+    signal simcurrent : real := 0.0;
+    signal simvoltage : real := 0.0;
+    signal slv_current : std_logic_vector(31 downto 0) := (others => '0');
+
+    use ieee.float_pkg.all;
 
 begin
 
@@ -59,6 +66,29 @@ begin
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
+            init_bus(bus_from_communications);
+
+            CASE simulation_counter mod 4 is
+                -- WHEN 0 => request_data_from_address(bus_from_communications ,600);
+                WHEN 1 => request_data_from_address(bus_from_communications ,601);
+                WHEN others => -- do nothing
+            end CASE;
+
+            if simulation_counter > 50
+            then
+                if write_is_requested_to_address(bus_from_uproc2,0)
+                then
+                    slv_current <= get_slv_data(bus_from_uproc2);
+                    simcurrent  <= to_real(to_float(get_slv_data(bus_from_uproc2))) * 2.0;
+                end if;
+            end if;
+
+            CASE simulation_counter is
+                WHEN 200 => write_data_to_address(bus_from_communications,1000, to_slv(to_float(0.5*2.0)));
+                WHEN 40e3 => write_data_to_address(bus_from_communications,1000, to_slv(to_float(0.9*2.0)));
+                WHEN others => -- do nothing
+            end CASE;
+
         end if; -- rising_edge
     end process stimulus;	
 ------------------------------------------------------------------------

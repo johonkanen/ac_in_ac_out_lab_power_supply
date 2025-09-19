@@ -2,10 +2,19 @@
 
 from pathlib import Path
 from vunit import VUnit
+import argparse
 
-# ROOT
+# Parse extra arguments
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--dump-arrays",
+    action="store_true",
+    help="Enable dumping arrays in the NVC simulator"
+)
+args, vunit_args = parser.parse_known_args()
+
 ROOT = Path(__file__).resolve().parent
-VU = VUnit.from_argv()
+VU = VUnit.from_argv(vunit_args)
 
 top_lib = VU.add_library("top_lib")
 top_lib.add_source_files(ROOT / "titanium_build/titanium_top.vhd")
@@ -131,8 +140,7 @@ s7.add_source_files(ROOT / "source/vhdl_serial/source/spi_adc_generic/spi_adc_ty
 s7.add_source_files(ROOT / "source/vhdl_serial/source/clock_divider/clock_divider_generic_pkg.vhd")
 s7.add_source_files(ROOT / "source/vhdl_serial/source/max11115/max11115_generic_pkg.vhd")
 
-# s7.add_source_files(ROOT / "spartan7/measurements.vhd")
-
-# VU.set_sim_option("nvc.sim_flags", ["-w"])
+if args.dump_arrays:
+    VU.set_sim_option("nvc.sim_flags", ["-w", "--dump-arrays"])
 
 VU.main()
