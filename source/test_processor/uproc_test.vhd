@@ -6,6 +6,8 @@ library ieee;
     use work.fpga_interconnect_pkg.all;
 
 entity uproc_test is
+    generic ( g_word_length : natural := 40
+            );
     port ( 
         clock : in std_logic 
         ; bus_from_communications : in fpga_interconnect_record
@@ -17,7 +19,7 @@ end entity uproc_test;
 architecture v1 of uproc_test is
 
     constant instruction_length : natural := 32;
-    constant word_length : natural := 40;
+    constant word_length : natural := g_word_length;
     constant used_radix : natural := 29;
     
     use work.real_to_fixed_pkg.all;
@@ -27,8 +29,8 @@ architecture v1 of uproc_test is
     use work.microinstruction_pkg.all;
 
     use work.multi_port_ram_pkg.all;
-    constant ref_subtype : subtype_ref_record := create_ref_subtypes(readports => 3, datawidth => word_length, addresswidth => 10);
 
+    constant ref_subtype       : subtype_ref_record := create_ref_subtypes(readports => 3, datawidth => word_length, addresswidth => 10);
     constant instr_ref_subtype : subtype_ref_record := create_ref_subtypes(readports => 1, datawidth => 32, addresswidth => 10);
 
     signal mc_read_in  : ref_subtype.ram_read_in'subtype;

@@ -5,7 +5,7 @@ architecture v2 of uproc_test is
     use work.microinstruction_pkg.all;
     -- simulation specific signals ----
     constant instruction_length : natural := 32;
-    constant word_length        : natural := 33;
+    constant word_length        : natural := g_word_length;
     constant used_radix         : natural := 20;
 
     --
@@ -48,11 +48,6 @@ architecture v2 of uproc_test is
     use work.float_to_real_conversions_pkg.all;
     use work.float_typedefs_generic_pkg.all;
 
-    constant y    : natural := 50;
-    constant u    : natural := 60;
-    constant uext : natural := 120;
-    constant g    : natural := 70;
-
     constant load             : natural := 121;
     constant duty             : natural := 122;
     constant input_voltage    : natural := 123;
@@ -64,6 +59,8 @@ architecture v2 of uproc_test is
     constant voltage_gain     : natural := 27;
     constant inductor_voltage : natural := 29;
     constant cap_current      : natural := 31;
+
+    constant test1 : natural := 10;
 
     constant sampletime : real := 0.7e-6;
 
@@ -79,15 +76,19 @@ architecture v2 of uproc_test is
         ,  1 => to_hfloat(1.0)
         ,  2 => to_hfloat(2.0)
         ,  3 => to_hfloat(-3.0)
+        ,  10 => to_hfloat(0.0)
+        ,  11 => to_hfloat(0.0)
+        ,  12 => to_hfloat(0.0)
+        ,  13 => to_hfloat(0.0)
 
-        , duty             => to_hfloat(0.9)
+        , duty             => to_hfloat(0.8)
         , inductor_current => to_hfloat(0.0)
         , cap_voltage      => to_hfloat(12.0)
         , ind_res          => to_hfloat(0.8)
         , load             => to_hfloat(0.0)
         , current_gain     => to_hfloat(sampletime*1.0/3.0e-6)
         , voltage_gain     => to_hfloat(sampletime*1.0/3.0e-6)
-        , input_voltage    => to_hfloat(10.0)
+        , input_voltage    => to_hfloat(20.0)
         , inductor_voltage => to_hfloat(0.0)
 
         , 51   => to_hfloat(-2.0)
@@ -117,20 +118,23 @@ architecture v2 of uproc_test is
         -- i = i + didt*h/c
 
         -- lc filter
-        , 128 => op(set_rpt     , 1500)
         , 129 => op(neg_mpy_add , inductor_voltage , duty             , cap_voltage      , input_voltage)
         , 130 => op(mpy_sub     , cap_current      , duty             , inductor_current , load)
         , 142 => op(neg_mpy_add , inductor_voltage , ind_res          , inductor_current , inductor_voltage)
         , 143 => op(mpy_add     , cap_voltage      , cap_current      , voltage_gain     , cap_voltage)
-        , 156 => op(mpy_add     , inductor_current , inductor_voltage , current_gain     , inductor_current)
-        , 157 => op(program_end)
+        , 157 => op(mpy_add     , inductor_current , inductor_voltage , current_gain     , inductor_current)
+        , 158 => op(mpy_add     , test1, 11, 12, 13)
+        , 159 => op(program_end)
 
         , others => op(nop));
 
 
         signal start_counter : natural range 0 to 2**16-1 := 0;
-        signal simvoltage : std_logic_vector(31 downto 0);
-        signal simcurrent : std_logic_vector(31 downto 0);
+        signal simvoltage : std_logic_vector(31 downto 0) := (others => '0');
+        signal simcurrent : std_logic_vector(31 downto 0) := (others => '0');
+        signal testdata : std_logic_vector(31 downto 0) := (others => '0');
+
+        signal enable_calculation : std_logic_vector(31 downto 0) := (others => '0');
 
 
 begin 
@@ -163,27 +167,30 @@ begin
             init_mp_write(mc_write_in);
 
             start_counter <= start_counter + 1;
-            if start_counter > 1000
+            if start_counter > 100
             then
                 start_counter <= 0;
             end if;
 
             init_mproc(mproc_in);
-            if start_counter = 0
+            if start_counter = 0 and enable_calculation(0) = '1'
             then
                 calculate(mproc_in, 129);
             end if;
 
             connect_ram_write_to_address(mc_output , inductor_current , simcurrent);
             connect_ram_write_to_address(mc_output , cap_voltage      , simvoltage);
+            connect_ram_write_to_address(mc_output , test1            , testdata);
 
             init_bus(bus_from_uproc);
             connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 600, simcurrent);
             connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 601, simvoltage);
+            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 602, testdata);
+            connect_data_to_address(bus_from_communications, bus_from_uproc, 599, enable_calculation);
 
-            if write_is_requested_to_address(bus_from_communications, 1000)
+            if write_is_requested_to_address_range(bus_from_communications, 1000, 1127)
             then
-                write_data_to_ram(mc_write_in, duty, 
+                write_data_to_ram(mc_write_in, get_address(bus_from_communications) - 1000, 
                 to_std_logic_vector(float32_to_hfloat(get_slv_data(bus_from_communications),hfloat_ref)));
             end if;
 

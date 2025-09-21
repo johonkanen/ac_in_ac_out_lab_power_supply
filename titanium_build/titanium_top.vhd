@@ -205,17 +205,6 @@ begin
             ,fp32_result  => fp32_result  -- fp32_result.fp32_result
 		);
 
-	-- u1 : component native_fp32
-	-- 	port map (
-	--            fp32_mult_a   => fp32_mult_a  -- fp32_mult_a.fp32_mult_a
-	--            ,fp32_mult_b  => fp32_mult_b  -- fp32_mult_b.fp32_mult_b
-	--            ,fp32_adder_a => fp32_adder_a -- fp32_mult_b.fp32_mult_b
-	--            ,clk          => main_clock   -- clk.clk
-	--            ,ena          => "111"        -- ena.ena
-	--            ,fp32_result  => fp32_result  -- fp32_result.fp32_result
-	-- 	);
-    --------------------
-
     grid_inu_leg1_hi  <= '0';
     grid_inu_leg1_low <= '0';
     grid_inu_leg2_hi  <= '0';
@@ -467,6 +456,7 @@ port map(
     ,bus_from_uproc          => bus_from_uproc);
 ------------------------------------------------------------------------
 u_uproc2_test : entity work.uproc_test(v2)
+generic map(g_word_length => 33)
 port map( 
     clock => main_clock
     ,bus_from_communications => bus_from_communications

@@ -35,9 +35,12 @@ architecture vunit_simulation of mrpoc_v2_tb is
 
     signal simcurrent : real := 0.0;
     signal simvoltage : real := 0.0;
+    signal dingdong : real := 0.0;
     signal slv_current : std_logic_vector(31 downto 0) := (others => '0');
 
     use ieee.float_pkg.all;
+    signal request_counter : natural := 0;
+    signal capture_counter : natural := 0;
 
 begin
 
@@ -68,25 +71,55 @@ begin
             simulation_counter <= simulation_counter + 1;
             init_bus(bus_from_communications);
 
-            CASE simulation_counter mod 4 is
-                -- WHEN 0 => request_data_from_address(bus_from_communications ,600);
-                WHEN 1 => request_data_from_address(bus_from_communications ,601);
-                WHEN others => -- do nothing
-            end CASE;
-
-            if simulation_counter > 50
-            then
-                if write_is_requested_to_address(bus_from_uproc2,0)
-                then
-                    slv_current <= get_slv_data(bus_from_uproc2);
-                    simcurrent  <= to_real(to_float(get_slv_data(bus_from_uproc2))) * 2.0;
-                end if;
-            end if;
 
             CASE simulation_counter is
-                WHEN 200 => write_data_to_address(bus_from_communications,1000, to_slv(to_float(0.5*2.0)));
-                WHEN 40e3 => write_data_to_address(bus_from_communications,1000, to_slv(to_float(0.9*2.0)));
+                WHEN 13  => write_data_to_address(bus_from_communications , 1011 , to_slv(to_float(1.0)));
+                WHEN 14  => write_data_to_address(bus_from_communications , 1012 , to_slv(to_float(-2.0)));
+                WHEN 15  => write_data_to_address(bus_from_communications , 1013 , to_slv(to_float(3.0)));
+                WHEN 99  => write_data_to_address(bus_from_communications , 599 , x"0000_0001");
+                                    request_counter <= 0;
+                                    capture_counter <= 0;
+                WHEN 100  => write_data_to_address(bus_from_communications,1024, to_slv(to_float(0.6)));
+                                    request_counter <= 0;
+                                    capture_counter <= 0;
+                WHEN 200  => write_data_to_address(bus_from_communications,1122, to_slv(to_float(0.8)));
+                                    request_counter <= 0;
+                                    capture_counter <= 0;
+                WHEN 41e3 => write_data_to_address(bus_from_communications,1122, to_slv(to_float(0.7)));
+                                    request_counter <= 0;
+                                    capture_counter <= 0;
+                WHEN 50e3 => write_data_to_address(bus_from_communications,1121, to_slv(to_float(4.0)));
+                                    request_counter <= 0;
+                                    capture_counter <= 0;
                 WHEN others => -- do nothing
+                    if simulation_counter > 50
+                    then
+
+                        if request_counter < 5 then
+                            request_counter <= request_counter + 1;
+                        end if;
+
+                        CASE request_counter is
+                            WHEN 0 => request_data_from_address(bus_from_communications ,600);
+                                    capture_counter <= 0;
+                            WHEN 1 => request_data_from_address(bus_from_communications ,601);
+                            WHEN 2 => request_data_from_address(bus_from_communications ,602);
+                            WHEN others => -- do nothing
+                        end CASE;
+
+                        if write_is_requested_to_address(bus_from_uproc2, 0)
+                        then
+                            capture_counter <= capture_counter + 1;
+                            CASE capture_counter is
+                                WHEN 0 => simcurrent <= to_real(to_float(get_slv_data(bus_from_uproc2)));
+                                WHEN 1 => simvoltage <= to_real(to_float(get_slv_data(bus_from_uproc2)));
+                                WHEN 2 => dingdong   <= to_real(to_float(get_slv_data(bus_from_uproc2)));
+                                    request_counter <= 0;
+                                WHEN others => -- do nothing
+                            end CASE;
+                        end if;
+
+                    end if;
             end CASE;
 
         end if; -- rising_edge
@@ -94,6 +127,8 @@ begin
 ------------------------------------------------------------------------
 ------------------------------------------------------------------------
 u_uproc2_test : entity work.uproc_test(v2)
+generic map(g_word_length => word_length
+           )
 port map( 
     clock => simulator_clock
     ,bus_from_communications => bus_from_communications
