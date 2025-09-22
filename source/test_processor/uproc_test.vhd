@@ -143,12 +143,12 @@ begin
         if rising_edge(clock)
         then
             init_bus(bus_from_uproc);
-            connect_data_to_address(bus_from_communications , bus_from_uproc , 500 , ext_input(used_radix + 5 downto used_radix+5-15));
-            connect_data_to_address(bus_from_communications , bus_from_uproc , 501 , lc_load(used_radix + 5 downto used_radix+5-15));
-            connect_data_to_address(bus_from_communications , bus_from_uproc , 502 , lc_duty(used_radix + 5 downto used_radix+5-15));
-            connect_data_to_address(bus_from_communications , bus_from_uproc , 503 , lc_input_voltage(used_radix + 5 downto used_radix+5-15));
-            connect_data_to_address(bus_from_communications , bus_from_uproc , 504 , simcurrent(used_radix + 5 downto used_radix+5-15));
-            connect_data_to_address(bus_from_communications , bus_from_uproc , 505 , simvoltage(used_radix + 5 downto used_radix+5-15));
+            connect_data_to_address(bus_from_communications , bus_from_uproc , 500 , ext_input(used_radix + 5        downto used_radix+5-31));
+            connect_data_to_address(bus_from_communications , bus_from_uproc , 501 , lc_load(used_radix + 5          downto used_radix+5-31));
+            connect_data_to_address(bus_from_communications , bus_from_uproc , 502 , lc_duty(used_radix + 5          downto used_radix+5-31));
+            connect_data_to_address(bus_from_communications , bus_from_uproc , 503 , lc_input_voltage(used_radix + 5 downto used_radix+5-31));
+            connect_data_to_address(bus_from_communications , bus_from_uproc , 504 , simcurrent(used_radix + 5       downto used_radix+5-31));
+            connect_data_to_address(bus_from_communications , bus_from_uproc , 505 , simvoltage(used_radix + 5       downto used_radix+5-31));
 
             start_counter <= start_counter + 1;
             if start_counter > 50

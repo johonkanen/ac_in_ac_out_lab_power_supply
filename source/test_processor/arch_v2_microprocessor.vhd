@@ -32,7 +32,7 @@ architecture v2 of uproc_test is
     constant instruction_in_ref : instruction_in_record := (
         instr_ram_read_out => instr_ref_subtype.ram_read_out
         ,data_read_out     => ref_subtype.ram_read_out
-        ,instr_pipeline    => (0 to 20 => op(nop))
+        ,instr_pipeline    => (0 to 11 => op(nop))
         );
 
     constant instruction_out_ref : instruction_out_record := (
@@ -74,12 +74,13 @@ architecture v2 of uproc_test is
     constant program_data : work.dual_port_ram_pkg.ram_array(0 to ref_subtype.address_high)(ref_subtype.data'range) := (
            0 => to_hfloat(0.0)
         ,  1 => to_hfloat(1.0)
-        ,  2 => to_hfloat(2.0)
+        ,  2 => to_hfloat(0.0)
         ,  3 => to_hfloat(-3.0)
-        ,  10 => to_hfloat(0.0)
-        ,  11 => to_hfloat(0.0)
+        ,  test1 => to_hfloat(0.0)
+        ,  11 => to_hfloat(1.0)
         ,  12 => to_hfloat(0.0)
-        ,  13 => to_hfloat(0.0)
+        ,  13 => to_hfloat(0.01)
+        ,  14 => to_hfloat(0.01)
 
         , duty             => to_hfloat(0.8)
         , inductor_current => to_hfloat(0.0)
@@ -116,25 +117,51 @@ architecture v2 of uproc_test is
 
         -- u = u + dudt*h/c
         -- i = i + didt*h/c
+        -- ,24 => neg_mpy_sub, 
+
+        -- y = y + (u - y ) * g
+        -- temp1 = reg11*(-1.0) - y
+        -- temp2 = reg11*g + y
+        -- y =  1*0 + reg11
+        -- 
+        ,50 => op(neg_mpy_sub  , 13 , 11 , 1  , test1) -- u - y
+        ,63 => op(mpy_add      , 15 , 13 , 14 , test1) -- (u-y)*g + y
+        ,76 => op(mpy_add      , test1 , 1 , 2 , 15) -- (u-y)*g + y
+        ,77 => op(program_end)
 
         -- lc filter
+        ,100 => op(neg_mpy_sub , 13    , 11 , 1  , test1) -- u - y
+        ,111 => op(program_end)
+        ,113 => op(mpy_add     , test1 , 13 , 14 , test1) -- (u-y)*g + y
+        ,114 => op(program_end)
+
+        -- , 100 => op(neg_mpy_sub     , test1, 11, 12, 13)
+        -- , 101 => op(neg_mpy_sub     , 15, test1, 11, 11)
+        -- , 102 => op(mpy_sub     , test1, 11, 12, 13)
+
+        , 120 => op(program_end)
+
         , 129 => op(neg_mpy_add , inductor_voltage , duty             , cap_voltage      , input_voltage)
         , 130 => op(mpy_sub     , cap_current      , duty             , inductor_current , load)
         , 142 => op(neg_mpy_add , inductor_voltage , ind_res          , inductor_current , inductor_voltage)
         , 143 => op(mpy_add     , cap_voltage      , cap_current      , voltage_gain     , cap_voltage)
         , 157 => op(mpy_add     , inductor_current , inductor_voltage , current_gain     , inductor_current)
-        , 158 => op(mpy_add     , test1, 11, 12, 13)
         , 159 => op(program_end)
 
+        -- , 170 => op(mpy_add, 13, 14, 15, 16)
+        -- , 171 => op(program_end)
+        -- , 172 => op(mpy_add, 13, 13, 13 , 13)
+        --
         , others => op(nop));
 
 
-        signal start_counter : natural range 0 to 2**16-1 := 0;
-        signal simvoltage : std_logic_vector(31 downto 0) := (others => '0');
-        signal simcurrent : std_logic_vector(31 downto 0) := (others => '0');
-        signal testdata : std_logic_vector(31 downto 0) := (others => '0');
+        signal start_counter : natural range 0 to 2**16-1    := 0;
+        signal simvoltage    : std_logic_vector(31 downto 0) := (others => '0');
+        signal simcurrent    : std_logic_vector(31 downto 0) := (others => '0');
+        signal testdata      : std_logic_vector(31 downto 0) := (others => '0');
 
         signal enable_calculation : std_logic_vector(31 downto 0) := (others => '0');
+        signal start_address : std_logic_vector(31 downto 0) := std_logic_vector(to_unsigned(100,32));
 
 
 begin 
@@ -175,7 +202,7 @@ begin
             init_mproc(mproc_in);
             if start_counter = 0 and enable_calculation(0) = '1'
             then
-                calculate(mproc_in, 129);
+                calculate(mproc_in, to_integer(signed(start_address)));
             end if;
 
             connect_ram_write_to_address(mc_output , inductor_current , simcurrent);
@@ -187,6 +214,7 @@ begin
             connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 601, simvoltage);
             connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 602, testdata);
             connect_data_to_address(bus_from_communications, bus_from_uproc, 599, enable_calculation);
+            connect_data_to_address(bus_from_communications, bus_from_uproc, 598, start_address);
 
             if write_is_requested_to_address_range(bus_from_communications, 1000, 1127)
             then
