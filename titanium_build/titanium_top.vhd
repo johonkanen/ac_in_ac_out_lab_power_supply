@@ -5,54 +5,54 @@ library ieee;
 
 entity titanium_top is
     port (
-        main_clock : in std_logic;
-        pll_locked   : in std_logic;
+        main_clock : in std_logic
+        ;pll_locked : in std_logic
 
-        uart_rx      : in std_logic;
-        uart_tx      : out std_logic;
+        ;uart_rx      : in std_logic
+        ;uart_tx      : out std_logic
 
-        grid_inu_leg1_hi  : out std_logic;
-        grid_inu_leg1_low : out std_logic;
-        grid_inu_leg2_hi  : out std_logic;
-        grid_inu_leg2_low : out std_logic;
+        ;grid_inu_leg1_hi  : out std_logic
+        ;grid_inu_leg1_low : out std_logic
+        ;grid_inu_leg2_hi  : out std_logic
+        ;grid_inu_leg2_low : out std_logic
 
-        dab_primary_hi    : out std_logic;
-        dab_primary_low   : out std_logic;
-        dab_secondary_hi  : out std_logic;
-        dab_secondary_low : out std_logic;
+        ;dab_primary_hi    : out std_logic
+        ;dab_primary_low   : out std_logic
+        ;dab_secondary_hi  : out std_logic
+        ;dab_secondary_low : out std_logic
 
-        output_inu_leg1_hi  : out std_logic;
-        output_inu_leg1_low : out std_logic;
-        output_inu_leg2_hi  : out std_logic;
-        output_inu_leg2_low : out std_logic;
+        ;output_inu_leg1_hi  : out std_logic
+        ;output_inu_leg1_low : out std_logic
+        ;output_inu_leg2_hi  : out std_logic
+        ;output_inu_leg2_low : out std_logic
 
-        primary_bypass_relay   : out std_logic;
-        secondary_bypass_relay : out std_logic;
+        ;primary_bypass_relay   : out std_logic
+        ;secondary_bypass_relay : out std_logic
 
-        gate_power1_pwm : out std_logic;
-        gate_power2_pwm : out std_logic;
-        gate_power3_pwm : out std_logic;
-        gate_power4_pwm : out std_logic;
-        gate_power5_pwm : out std_logic;
-        gate_power6_pwm : out std_logic;
+        ;gate_power1_pwm : out std_logic
+        ;gate_power2_pwm : out std_logic
+        ;gate_power3_pwm : out std_logic
+        ;gate_power4_pwm : out std_logic
+        ;gate_power5_pwm : out std_logic
+        ;gate_power6_pwm : out std_logic
 
-        grid_inu_sdm_clock   : out std_logic;
-        output_inu_sdm_clock : out std_logic;
-        dab_sdm_clock        : out std_logic;
+        ;grid_inu_sdm_clock   : out std_logic
+        ;output_inu_sdm_clock : out std_logic
+        ;dab_sdm_clock        : out std_logic
 
-        ad_mux1_io           : out std_logic_vector(2 downto 0);
-        ads_7056_clock       : out std_logic;
-        ads_7056_chip_select : out std_logic;
-        ads_7056_input_data  : in std_logic;
+        ;ad_mux1_io           : out std_logic_vector(2 downto 0)
+        ;ads_7056_clock       : out std_logic
+        ;ads_7056_chip_select : out std_logic
+        ;ads_7056_input_data  : in std_logic
 
-        ad_mux2_io               : out std_logic_vector(2 downto 0);
-        ads_7056_clock_pri       : out std_logic;
-        ads_7056_chip_select_pri : out std_logic;
-        ads_7056_input_data_pri  : in std_logic;
+        ;ad_mux2_io               : out std_logic_vector(2 downto 0)
+        ;ads_7056_clock_pri       : out std_logic
+        ;ads_7056_chip_select_pri : out std_logic
+        ;ads_7056_input_data_pri  : in std_logic
 
-        grid_inu_sdm_data   : in std_logic;
-        output_inu_sdm_data : in std_logic;
-        dab_sdm_data        : in std_logic
+        ;grid_inu_sdm_data   : in std_logic
+        ;output_inu_sdm_data : in std_logic
+        ;dab_sdm_data        : in std_logic
 
         -- leds         : out std_logic_vector(3 downto 0)
     );
@@ -456,7 +456,7 @@ port map(
     ,bus_from_uproc          => bus_from_uproc);
 ------------------------------------------------------------------------
 u_uproc2_test : entity work.uproc_test(v2)
-generic map(g_word_length => 33)
+generic map(g_word_length => 40)
 port map( 
     clock => main_clock
     ,bus_from_communications => bus_from_communications

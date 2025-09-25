@@ -32,7 +32,7 @@ architecture v2 of uproc_test is
     constant instruction_in_ref : instruction_in_record := (
         instr_ram_read_out => instr_ref_subtype.ram_read_out
         ,data_read_out     => ref_subtype.ram_read_out
-        ,instr_pipeline    => (0 to 11 => op(nop))
+        ,instr_pipeline    => (0 to 12 => op(nop))
         );
 
     constant instruction_out_ref : instruction_out_record := (
@@ -61,6 +61,7 @@ architecture v2 of uproc_test is
     constant cap_current      : natural := 31;
 
     constant test1 : natural := 10;
+    constant test2 : natural := 30;
 
     constant sampletime : real := 0.7e-6;
 
@@ -81,6 +82,8 @@ architecture v2 of uproc_test is
         ,  12 => to_hfloat(0.0)
         ,  13 => to_hfloat(0.01)
         ,  14 => to_hfloat(0.01)
+        ,  31 => to_hfloat(-1.0)
+        ,  34 => to_hfloat(0.03)
 
         , duty             => to_hfloat(0.8)
         , inductor_current => to_hfloat(0.0)
@@ -104,43 +107,71 @@ architecture v2 of uproc_test is
     constant test_program : work.dual_port_ram_pkg.ram_array(0 to instr_ref_subtype.address_high)(instr_ref_subtype.data'range) := (
         0 => op(nop)
 
-        , 14 => op(mpy_add      , 5 , 51 , 51 , 51)
-        , 15 => op(mpy_sub      , 6 , 51 , 51 , 51)
-        , 16 => op(neg_mpy_add  , 7 , 51 , 51 , 51)
-        , 17 => op(neg_mpy_sub  , 8 , 51 , 51 , 51)
-        , 18 => op(mpy_add      , 9 , 55      , 53      , 54)
-        , 23 => op(program_end)
-
-        -- equation:
-        -- didt = input_voltage - duty*dc_link - i*rl
-        -- dudt = i*duty - iload
-
-        -- u = u + dudt*h/c
-        -- i = i + didt*h/c
         -- ,24 => neg_mpy_sub, 
 
         -- y = y + (u - y ) * g
         -- temp1 = reg11*(-1.0) - y
         -- temp2 = reg11*g + y
         -- y =  1*0 + reg11
-        -- 
-        ,50 => op(neg_mpy_sub  , 13 , 11 , 1  , test1) -- u - y
-        ,63 => op(mpy_add      , 15 , 13 , 14 , test1) -- (u-y)*g + y
-        ,76 => op(mpy_add      , test1 , 1 , 2 , 15) -- (u-y)*g + y
-        ,77 => op(program_end)
 
-        -- lc filter
+        ----
+        ,26 => op(neg_mpy_add  , 13 , test1 , 1  , 11) -- y - u
+        ,39 => op(mpy_add      , 15 , 13 , 14 , test1) -- (u-y)*g + y
+        ,52 => op(mpy_add      , test1 , 1 , 2 , 15) -- (u-y)*g + y
+
+        ,25 => op(neg_mpy_add  , 33 , test2 , 1  , 31) -- y - u
+        ,38 => op(mpy_add      , 35 , 33 , 34 , test2) -- (u-y)*g + y
+        ,51 => op(mpy_add      , test2 , 1 , 2 , 35) -- (u-y)*g + y
+
+        ,53 => op(program_end)
+        ----
+
         ,100 => op(neg_mpy_sub , 13    , 11 , 1  , test1) -- u - y
-        ,111 => op(program_end)
         ,113 => op(mpy_add     , test1 , 13 , 14 , test1) -- (u-y)*g + y
         ,114 => op(program_end)
+
+        ,115 => op(mpy_add    , test1, 1, test1 , test1)
+        ,116 => op(program_end)
+
+        , 200 => op(mpy_add      , test1 , 1 , 1 , 1)
+        , 214 => op(neg_mpy_sub  , test2 , 3 , 3 , 3)
+        , 215 => op(program_end)
+
+        , 216 => op(mpy_add      , test1 , 4 , 5 , 6)
+        , 217 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
+        , 218 => op(program_end)
+
+        , 219 => op(mpy_add      , test1 , 4 , 5 , 6)
+        , 221 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
+        , 222 => op(program_end)
+
+        , 223 => op(mpy_add      , test1 , 4 , 5 , 6)
+        , 225 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
+        , 226 => op(program_end)
+
+        , 227 => op(mpy_add      , test1 , 4 , 5 , 6)
+        , 230 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
+        , 231 => op(program_end)
+
+        , 232 => op(mpy_add      , test1 , 4 , 5 , 6)
+        , 236 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
+        , 237 => op(program_end)
+
+        , 238 => op(mpy_add      , test1 , 4 , 5 , 6)
+        , 260 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
+        , 290 => op(program_end)
 
         -- , 100 => op(neg_mpy_sub     , test1, 11, 12, 13)
         -- , 101 => op(neg_mpy_sub     , 15, test1, 11, 11)
         -- , 102 => op(mpy_sub     , test1, 11, 12, 13)
 
-        , 120 => op(program_end)
+        -- lc filter
+        -- equation:
+        -- didt = input_voltage - duty*dc_link - i*rl
+        -- dudt = i*duty - iload
 
+        -- u = u + dudt*h/c
+        -- i = i + didt*h/c
         , 129 => op(neg_mpy_add , inductor_voltage , duty             , cap_voltage      , input_voltage)
         , 130 => op(mpy_sub     , cap_current      , duty             , inductor_current , load)
         , 142 => op(neg_mpy_add , inductor_voltage , ind_res          , inductor_current , inductor_voltage)
@@ -159,9 +190,10 @@ architecture v2 of uproc_test is
         signal simvoltage    : std_logic_vector(31 downto 0) := (others => '0');
         signal simcurrent    : std_logic_vector(31 downto 0) := (others => '0');
         signal testdata      : std_logic_vector(31 downto 0) := (others => '0');
+        signal testdata2     : std_logic_vector(31 downto 0) := (others => '0');
 
         signal enable_calculation : std_logic_vector(31 downto 0) := (others => '0');
-        signal start_address : std_logic_vector(31 downto 0) := std_logic_vector(to_unsigned(100,32));
+        signal start_address : std_logic_vector(31 downto 0) := std_logic_vector(to_unsigned(25,32));
 
 
 begin 
@@ -208,11 +240,13 @@ begin
             connect_ram_write_to_address(mc_output , inductor_current , simcurrent);
             connect_ram_write_to_address(mc_output , cap_voltage      , simvoltage);
             connect_ram_write_to_address(mc_output , test1            , testdata);
+            connect_ram_write_to_address(mc_output , test2            , testdata2);
 
             init_bus(bus_from_uproc);
             connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 600, simcurrent);
             connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 601, simvoltage);
             connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 602, testdata);
+            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 603, testdata2);
             connect_data_to_address(bus_from_communications, bus_from_uproc, 599, enable_calculation);
             connect_data_to_address(bus_from_communications, bus_from_uproc, 598, start_address);
 
@@ -224,7 +258,7 @@ begin
 
         end if;
     end process;
--------------------------------------------------------------------------
+------------------------------------------------------------------------
 ------------------------------------------------------------------------
     u_microprogram_processor : entity work.microprogram_controller
     generic map(g_program => test_program, g_data => program_data, g_data_bit_width => word_length)

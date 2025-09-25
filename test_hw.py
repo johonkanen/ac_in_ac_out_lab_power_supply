@@ -1,6 +1,7 @@
 import os
 import sys
 from scipy.stats import linregress
+import time 
 
 ##--------------------------------
 import struct
@@ -89,3 +90,17 @@ def to_bridge_voltage(data):
 
 def to_pri_dc_voltage(data):
     return (data-pri_dc_offset)/pri_dc_gain
+
+
+def test_run(start_address , data):
+    start_stream(602,30e3) 
+    time.sleep(0.1)
+    setf(1034, 0.001)
+    setf(1031, -data) 
+    set(598, start_address) 
+    set(599,1)
+    pyplot.plot(to_float(get_stream(30e3))) 
+    pyplot.show()
+
+data = -1
+test_run(25, data)
