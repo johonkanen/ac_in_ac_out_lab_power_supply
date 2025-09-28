@@ -1,5 +1,21 @@
+-- library ieee;
+--     use ieee.std_logic_1164.all;
+--     use ieee.numeric_std.all;
+--
+--     use work.fpga_interconnect_pkg.all;
+--
+-- entity uproc_test is
+--     generic ( g_word_length : natural := 40
+--             );
+--     port ( 
+--         clock : in std_logic 
+--         ; bus_from_communications : in fpga_interconnect_record
+--         ; bus_from_uproc          : out fpga_interconnect_record
+--         ; measurement             : in std_logic_vector(31 downto 0) := (others => '0')
+--     );
+-- end entity uproc_test;
 
-architecture v2 of uproc_test is
+architecture v3 of uproc_test is
 
     use work.microprogram_processor_pkg.all;
     use work.microinstruction_pkg.all;
@@ -278,7 +294,7 @@ begin
     ,instruction_in  => addsub_in
     ,instruction_out => addsub_out);
 ------------------------------------------------------------------------
-    u_float_mult_add : entity work.instruction(float_mult_add)
+    u_float_mult_add : entity work.instruction(fixed_mult_add)
     generic map(radix => 20)
     port map(clock 
     ,addsub_in

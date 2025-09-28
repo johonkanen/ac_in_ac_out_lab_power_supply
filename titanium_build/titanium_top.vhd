@@ -369,7 +369,6 @@ begin
 
         end if;
     end process;
-
 ------------------------------------------------------------------------
     u_meas_ram : entity work.dual_port_ram
     generic map(meas_ram_subtype)
@@ -428,15 +427,15 @@ begin
     begin
         if rising_edge(main_clock)
         then
-            bus_to_communications <= bus_from_top 
-                                     and bus_from_signal_scope 
-                                     and bus_from_measurements 
-                                     and bus_from_uproc 
-                                     and bus_from_uproc2 
-                                     ;
+            bus_to_communications <= 
+                bus_from_top 
+                 and bus_from_signal_scope 
+                 and bus_from_measurements 
+                 and bus_from_uproc 
+                 and bus_from_uproc2 
+                 ;
         end if; -- rising_edge
     end process;
-
 ------------------------------------------------------------------------
     u_fpga_communications : entity work.fpga_communications
     generic map(fpga_interconnect_pkg => work.fpga_interconnect_pkg, g_clock_divider => 24)
