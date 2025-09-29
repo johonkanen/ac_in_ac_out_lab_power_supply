@@ -91,12 +91,14 @@ set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_microprogr
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_microprogram_processor/vhdl2008/microprogram_processor.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_microprogram_processor/vhdl2008/microprogram_controller.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_microprogram_processor/vhdl2008/arch_float_mult_add.vhd
+set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_microprogram_processor/vhdl2008/arch_fixed_mult_add.vhd
 
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_microprogram_processor/source/hVHDL_memory_library/vhdl2008/mpram_w_configurable_records.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_microprogram_processor/source/hVHDL_memory_library/vhdl2008/dp_ram_w_configurable_recrods.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_microprogram_processor/source/hVHDL_memory_library/vhdl2008/arch_rtl_dp_ram_w_configurable_records.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/test_processor/uproc_test.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/test_processor/arch_v2_microprocessor.vhd
+set_global_assignment -name VHDL_FILE $this_file_path/../source/test_processor/arch_v3_microprocessor.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/main_state_machine/main_state_machine_pkg.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_fixed_point/adc_scaler/adc_scaler.vhd
 
