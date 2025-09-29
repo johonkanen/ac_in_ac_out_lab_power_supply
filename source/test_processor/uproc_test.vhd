@@ -62,23 +62,20 @@ architecture v1 of uproc_test is
     signal addsub_out : instruction_out_ref'subtype := instruction_out_ref;
 
     ----
-    constant y    : natural := 50;
-    constant u    : natural := 60;
     constant uext : natural := 120;
-    constant g    : natural := 70;
 
     constant load             : natural := 121;
     constant duty             : natural := 122;
     constant input_voltage    : natural := 123;
 
-    constant inductor_current : natural := 22;
-    constant cap_voltage      : natural := 23;
-    constant ind_res          : natural := 24;
-    constant current_gain     : natural := 26;
-    constant voltage_gain     : natural := 27;
-    constant inductor_voltage : natural := 29;
-    constant rxi              : natural := 30;
-    constant cap_current      : natural := 31;
+    constant inductor_current : natural := 74;
+    constant cap_voltage      : natural := 75;
+    constant ind_res          : natural := 76;
+    constant current_gain     : natural := 77;
+    constant voltage_gain     : natural := 78;
+    constant inductor_voltage : natural := 79;
+    constant rxi              : natural := 80;
+    constant cap_current      : natural := 81;
 
     constant sampletime : real := 1.0e-6;
 
@@ -87,6 +84,11 @@ architecture v1 of uproc_test is
         ,  1 => to_fixed(1.0)
         ,  2 => to_fixed(2.0)
         ,  3 => to_fixed(-3.0)
+
+        ,  23 => to_fixed(0.1)
+        ,  33 => to_fixed(0.01)
+        ,  43 => to_fixed(0.001)
+        ,  53 => to_fixed(0.0001)
 
         , duty             => to_fixed(0.5)
         , inductor_current => to_fixed(0.0)
@@ -109,10 +111,10 @@ architecture v1 of uproc_test is
         , 10 => op(mpy_sub,9, 2, 2, 1)
         , 13 => op(program_end)
 
-        , 20 => op(lp_filter , 20 , 21 , 22 , 23)
-        , 21 => op(lp_filter , 30 , 31 , 32 , 33)
-        , 22 => op(lp_filter , 40 , 41 , 42 , 43)
-        , 23 => op(lp_filter , 50 , 51 , 52 , 53)
+        , 20 => op(lp_filter , 20 , 21 , 20 , 23)
+        , 21 => op(lp_filter , 30 , 21 , 30 , 33)
+        , 22 => op(lp_filter , 40 , 21 , 40 , 43)
+        , 23 => op(lp_filter , 50 , 21 , 50 , 53)
 
         -- lc filter
         , 129 => op(neg_mpy_add , inductor_voltage , duty             , cap_voltage      , input_voltage)
@@ -140,6 +142,11 @@ architecture v1 of uproc_test is
     signal simcurrent : std_logic_vector(word_length-1 downto 0) := to_fixed(0.0);
     signal simvoltage : std_logic_vector(word_length-1 downto 0) := to_fixed(0.0);
     signal start_address : std_logic_vector(31 downto 0) := std_logic_vector(to_unsigned(129,32));
+
+    signal test1 : std_logic_vector(word_length-1 downto 0) := to_fixed(0.0);
+    signal test2 : std_logic_vector(word_length-1 downto 0) := to_fixed(0.0);
+    signal test3 : std_logic_vector(word_length-1 downto 0) := to_fixed(0.0);
+    signal test4 : std_logic_vector(word_length-1 downto 0) := to_fixed(0.0);
 
 begin 
 
@@ -171,6 +178,11 @@ begin
             connect_data_to_address(bus_from_communications , bus_from_uproc , 505 , simvoltage      /*( used_radix + 5       downto used_radix+5-31    )*/);
             connect_data_to_address(bus_from_communications , bus_from_uproc , 398 , start_address);
 
+            connect_data_to_address(bus_from_communications , bus_from_uproc , 20 , test1);
+            connect_data_to_address(bus_from_communications , bus_from_uproc , 30 , test2);
+            connect_data_to_address(bus_from_communications , bus_from_uproc , 40 , test3);
+            connect_data_to_address(bus_from_communications , bus_from_uproc , 50 , test3);
+
             start_counter <= start_counter + 1;
             if start_counter > 100
             then
@@ -192,6 +204,10 @@ begin
             end if;
             connect_ram_write_to_address(mc_output , inductor_current , simcurrent);
             connect_ram_write_to_address(mc_output , cap_voltage      , simvoltage);
+            connect_ram_write_to_address(mc_output , 20 , test1);
+            connect_ram_write_to_address(mc_output , 30 , test2);
+            connect_ram_write_to_address(mc_output , 40 , test3);
+            connect_ram_write_to_address(mc_output , 50 , test3);
 
         end if;
     end process;

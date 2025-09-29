@@ -431,7 +431,7 @@ begin
                 bus_from_top 
                  and bus_from_signal_scope 
                  and bus_from_measurements 
-                 and bus_from_uproc 
+                 -- and bus_from_uproc 
                  and bus_from_uproc2 
                  ;
         end if; -- rising_edge
@@ -448,14 +448,15 @@ begin
         );
         
 ------------------------------------------------------------------------
-u_uproc_test : entity work.uproc_test(v1)
+u_uproc_test : entity work.uproc_test(v3)
+generic map(g_word_length => 32)
 port map( 
     clock => main_clock
     ,bus_from_communications => bus_from_communications
     ,bus_from_uproc          => bus_from_uproc);
 ------------------------------------------------------------------------
 u_uproc2_test : entity work.uproc_test(v2)
-generic map(g_word_length => 40)
+generic map(g_word_length => 32)
 port map( 
     clock => main_clock
     ,bus_from_communications => bus_from_communications

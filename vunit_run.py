@@ -33,6 +33,7 @@ top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/vhdl2008/mi
 top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/vhdl2008/microprogram_processor.vhd")
 top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/vhdl2008/microprogram_controller.vhd")
 top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/vhdl2008/arch_float_mult_add.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/vhdl2008/arch_fixed_mult_add.vhd")
 top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/source/hVHDL_memory_library/vhdl2008/mpram_w_configurable_records.vhd")
 top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/source/hVHDL_memory_library/vhdl2008/dp_ram_w_configurable_recrods.vhd")
 top_lib.add_source_files(ROOT / "source/hVHDL_microprogram_processor/source/hVHDL_memory_library/vhdl2008/arch_sim_dp_ram_w_configurable_records.vhd")
@@ -103,6 +104,7 @@ top_lib.add_source_files(ROOT / "source/hVHDL_fixed_point/real_to_fixed/real_to_
 
 top_lib.add_source_files(ROOT / "source/test_processor/uproc_test.vhd")
 top_lib.add_source_files(ROOT / "source/test_processor/arch_v2_microprocessor.vhd")
+top_lib.add_source_files(ROOT / "source/test_processor/arch_v3_microprocessor.vhd")
 
 top_lib.add_source_files(ROOT / "source/hVHDL_floating_point/vhdl2008/denormalizer_generic_pkg.vhd")
 top_lib.add_source_files(ROOT / "source/hVHDL_floating_point/vhdl2008/float_adder_generic_pkg.vhd")
