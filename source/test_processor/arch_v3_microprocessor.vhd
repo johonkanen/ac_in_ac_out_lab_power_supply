@@ -224,16 +224,12 @@ begin
 
         use work.ram_connector_pkg.generic_connect_ram_write_to_address;
 
-        use ieee.float_pkg.all;
-
         function convert(data_in : std_logic_vector) return std_logic_vector is
-            variable retval : std_logic_vector(31 downto 0 );
-            variable hretval : hfloat_zero'subtype;
-            variable floatretval : float32;
+            variable retval : std_logic_vector(31 downto 0);
         begin
-            hretval     := to_hfloat(data_in, hfloat_zero);
-            floatretval := to_ieee_float32(hretval);
-            retval      := to_slv(floatretval);
+            for i in retval'range loop
+                retval(i) := data_in(i);
+            end loop;
 
             return retval;
         end convert;
@@ -266,17 +262,17 @@ begin
             connect_ram_write_to_address(mc_output , test3            , testdata3);
 
             init_bus(bus_from_uproc);
-            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 600, simcurrent);
-            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 601, simvoltage);
-            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 602, testdata);
-            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 603, testdata2);
-            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 604, testdata3);
+            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 500, simcurrent);
+            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 501, simvoltage);
+            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 502, testdata);
+            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 503, testdata2);
+            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 504, testdata3);
             connect_data_to_address(bus_from_communications, bus_from_uproc, 599, enable_calculation);
             connect_data_to_address(bus_from_communications, bus_from_uproc, 598, start_address);
 
-            if write_is_requested_to_address_range(bus_from_communications, 1000, 1127)
+            if write_is_requested_to_address_range(bus_from_communications, 2000, 2127)
             then
-                write_data_to_ram(mc_write_in, get_address(bus_from_communications) - 1000, 
+                write_data_to_ram(mc_write_in, get_address(bus_from_communications) - 2000, 
                 to_std_logic_vector(float32_to_hfloat(get_slv_data(bus_from_communications),hfloat_ref)));
             end if;
 

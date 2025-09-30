@@ -77,7 +77,7 @@ begin
                 WHEN 13  => write_data_to_address(bus_from_communications , 1011 , to_slv(to_float(1.0)));
                 WHEN 14  => write_data_to_address(bus_from_communications , 1012 , to_slv(to_float(2.0)));
                 WHEN 15  => write_data_to_address(bus_from_communications , 1013 , to_slv(to_float(4.0)));
-                WHEN 16  => write_data_to_address(bus_from_communications , 598 , std_logic_vector(to_unsigned(25,32)));
+                WHEN 16  => write_data_to_address(bus_from_communications , 598 , std_logic_vector(to_unsigned(330,32)));
                 WHEN 99  => write_data_to_address(bus_from_communications , 599 , x"0000_0001");
                 --                     request_counter <= 0;
                 --                     capture_counter <= 0;

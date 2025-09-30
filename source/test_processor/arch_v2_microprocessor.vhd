@@ -85,8 +85,14 @@ architecture v2 of uproc_test is
         ,  14 => to_hfloat(0.01)
         ,  31 => to_hfloat(-1.0)
         ,  34 => to_hfloat(0.03)
-        , 9 => to_hfloat(1.0)
-        , 6 => to_hfloat(2.0)
+        , 4 => to_hfloat(4.0)
+        , 5 => to_hfloat(5.0)
+        , 6 => to_hfloat(6.0)
+        , 7 => to_hfloat(7.0)
+        , 8 => to_hfloat(8.0)
+        , 9 => to_hfloat(9.0)
+        , 41 => to_hfloat(1.0)
+        , 42 => to_hfloat(2.0)
         , 43 => to_hfloat(3.0)
 
         , duty             => to_hfloat(0.8)
@@ -121,11 +127,11 @@ architecture v2 of uproc_test is
         ,39 => op(mpy_add     , 35    , 33    , 34 , test2) -- (u-y)*g + y
         ,52 => op(mpy_add     , test2 , 1     , 2  , 35)    -- (u-y)*g + y
 
-        ,26 => op(neg_mpy_add , 13    , test1 , 1  , 11)    -- y - u
-        ,40 => op(mpy_add     , 15    , 13    , 14 , test1) -- (u-y)*g + y
-        ,53 => op(mpy_add     , test1 , 1     , 2  , 15)    -- (u-y)*g + y
+        ,27 => op(neg_mpy_add , 13    , test1 , 1  , 11)    -- y - u
+        ,41 => op(mpy_add     , 15    , 13    , 14 , test1) -- (u-y)*g + y
+        ,54 => op(mpy_add     , test1 , 1     , 2  , 15)    -- (u-y)*g + y
 
-        ,54 => op(program_end)
+        ,55 => op(program_end)
         ----
 
         ,100 => op(neg_mpy_sub , 13    , 11 , 1  , test1) -- u - y
@@ -168,10 +174,14 @@ architecture v2 of uproc_test is
         , 326 => op(neg_mpy_add  , test3 , 41 , 42 , 43)
         , 327 => op(program_end)
 
-        , 330 => op(mpy_add      , test1 , 4 , 5 , 6)
-        , 331 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
-        , 332 => op(neg_mpy_add  , test3 , 41 , 42 , 43)
-        , 350 => op(program_end)
+        , 330 => op(mpy_add , test1 , 4  , 5  , 6)
+        , 331 => op(mpy_add , test2 , 7  , 8  , 9)
+        , 332 => op(mpy_add , test3 , 41 , 42 , 43)
+
+        , 367 => op(mpy_add , test1 , 2 , 2 , 2)
+        , 368 => op(mpy_add , test2 , 2 , 2 , 2)
+        , 369 => op(mpy_add , test3 , 2 , 2 , 2)
+        , 370 => op(program_end)
 
 
         -- lc filter
