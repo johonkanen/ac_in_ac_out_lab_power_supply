@@ -448,14 +448,16 @@ begin
         );
 ------------------------------------------------------------------------
 u_uproc_test : entity work.uproc_test(v3)
-generic map(g_word_length => 32)
+generic map(g_word_length => 32
+            ,g_used_radix => 24
+        )
 port map( 
     clock => main_clock
     ,bus_from_communications => bus_from_communications
     ,bus_from_uproc          => bus_from_uproc);
 ------------------------------------------------------------------------
 u_uproc2_test : entity work.uproc_test(v2)
-generic map(g_word_length => 40)
+generic map(g_word_length => 33)
 port map( 
     clock => main_clock
     ,bus_from_communications => bus_from_communications

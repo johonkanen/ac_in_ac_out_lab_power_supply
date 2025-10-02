@@ -144,26 +144,6 @@ architecture v3 of uproc_test is
 
         ,54 => op(program_end)
         ----
-
-        ,100 => op(neg_mpy_sub , 13    , 11 , 1  , test1) -- u - y
-        ,117 => op(mpy_add     , test1 , 13 , 14 , test1) -- (u-y)*g + y
-        ,118 => op(program_end)
-
-        , 238 => op(mpy_add      , test1 , 4 , 5 , 6)
-        , 260 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
-        , 290 => op(program_end)
-
-        , 300 => op(mpy_add      , test1 , 4 , 5 , 6)
-        , 313 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
-        , 326 => op(neg_mpy_add  , test3 , 41 , 42 , 43)
-        , 327 => op(program_end)
-
-        , 330 => op(mpy_add      , test1 , 4 , 5 , 6)
-        , 331 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
-        , 332 => op(neg_mpy_add  , test3 , 41 , 42 , 43)
-        , 350 => op(program_end)
-
-
         -- lc filter
         -- equation:
         -- didt = input_voltage - duty*dc_link - i*rl
@@ -209,7 +189,7 @@ begin
             variable retval : std_logic_vector(31 downto 0);
         begin
             for i in retval'range loop
-                retval(i) := data_in(i);
+                retval(i) := data_in(31-i);
             end loop;
 
             return retval;
@@ -224,18 +204,20 @@ begin
             init_mproc(mproc_in);
             init_mp_write(mc_write_in);
             init_bus(bus_from_uproc);
+            connect_data_to_address(bus_from_communications, bus_from_uproc, 398, start_address);
+            connect_data_to_address(bus_from_communications, bus_from_uproc, 399, enable_calculation);
+
             connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 500, simcurrent);
             connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 501, simvoltage);
             connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 502, testdata);
             connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 503, testdata2);
             connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 504, testdata3);
-            connect_data_to_address(bus_from_communications, bus_from_uproc, 398, start_address);
-            connect_data_to_address(bus_from_communications, bus_from_uproc, 399, enable_calculation);
 
             if write_is_requested_to_address_range(bus_from_communications, 2000, 2127)
             then
-                write_data_to_ram(mc_write_in, get_address(bus_from_communications) - 2000, 
-                to_std_logic_vector(float32_to_hfloat(get_slv_data(bus_from_communications),hfloat_ref)));
+                write_data_to_ram(mc_write_in
+                , get_address(bus_from_communications) - 2000
+                , get_slv_data(bus_from_communications));
             end if;
             ---------------------------
 
