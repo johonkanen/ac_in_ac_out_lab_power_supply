@@ -72,6 +72,7 @@ top_lib.add_source_files(ROOT / "simulation/main_state_machine/main_state_machin
 top_lib.add_source_files(ROOT / "simulation/ad_interface/psu_measurements_tb.vhd")
 
 top_lib.add_source_files(ROOT / "simulation/microprocessors/mproc_v2_tb.vhd")
+top_lib.add_source_files(ROOT / "simulation/microprocessors/mproc_v3_tb.vhd")
 
 aux = VU.add_library("auxiliary_pwm")
 aux.add_source_files(ROOT / "source/aux_pwm/aux_pwm_pkg.vhd")

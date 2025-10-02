@@ -88,38 +88,39 @@ architecture v3 of uproc_test is
         ,mantissa => (word_length-2-8 downto 0 => (word_length-2-8 downto 0 => '0')));
 
     function to_hfloat is new to_hfloat_slv_generic generic map(8,word_length);
+    function to_fixed is new work.real_to_fixed_pkg.generic_to_fixed generic map(word_length => 32, used_radix => 24);
 
     constant program_data : work.dual_port_ram_pkg.ram_array(0 to ref_subtype.address_high)(ref_subtype.data'range) := (
-           0 => to_hfloat(0.0)
-        ,  1 => to_hfloat(1.0)
-        ,  2 => to_hfloat(0.0)
-        ,  3 => to_hfloat(-3.0)
-        ,  test1 => to_hfloat(0.0)
-        ,  11 => to_hfloat(1.0)
-        ,  12 => to_hfloat(0.0)
-        ,  13 => to_hfloat(0.01)
-        ,  14 => to_hfloat(0.01)
-        ,  31 => to_hfloat(-1.0)
-        ,  34 => to_hfloat(0.03)
-        , 9 => to_hfloat(1.0)
-        , 6 => to_hfloat(2.0)
-        , 43 => to_hfloat(3.0)
+           0 => to_fixed(0.0)
+        ,  1 => to_fixed(1.0)
+        ,  2 => to_fixed(0.0)
+        ,  3 => to_fixed(-3.0)
+        ,  test1 => to_fixed(0.0)
+        ,  11 => to_fixed(1.0)
+        ,  12 => to_fixed(0.0)
+        ,  13 => to_fixed(0.01)
+        ,  14 => to_fixed(0.01)
+        ,  31 => to_fixed(-1.0)
+        ,  34 => to_fixed(0.03)
+        , 9 => to_fixed(1.0)
+        , 6 => to_fixed(2.0)
+        , 43 => to_fixed(3.0)
 
-        , duty             => to_hfloat(0.8)
-        , inductor_current => to_hfloat(0.0)
-        , cap_voltage      => to_hfloat(12.0)
-        , ind_res          => to_hfloat(0.8)
-        , load             => to_hfloat(0.0)
-        , current_gain     => to_hfloat(sampletime*1.0/3.0e-6)
-        , voltage_gain     => to_hfloat(sampletime*1.0/3.0e-6)
-        , input_voltage    => to_hfloat(20.0)
-        , inductor_voltage => to_hfloat(0.0)
+        , duty             => to_fixed(0.8)
+        , inductor_current => to_fixed(0.0)
+        , cap_voltage      => to_fixed(12.0)
+        , ind_res          => to_fixed(0.8)
+        , load             => to_fixed(0.0)
+        , current_gain     => to_fixed(sampletime*1.0/3.0e-6)
+        , voltage_gain     => to_fixed(sampletime*1.0/3.0e-6)
+        , input_voltage    => to_fixed(20.0)
+        , inductor_voltage => to_fixed(0.0)
 
-        , 51   => to_hfloat(-2.0)
-        , 52   => to_hfloat(0.1235)
-        , 53   => to_hfloat(2.0)
-        , 54   => to_hfloat(10.0e6)
-        , 55   => to_hfloat(1.0)
+        , 51   => to_fixed(-2.0)
+        , 52   => to_fixed(0.1235)
+        , 53   => to_fixed(2.0)
+        , 54   => to_fixed(10.0e6)
+        , 55   => to_fixed(1.0)
 
         , others => (others => '0')
     );
@@ -217,6 +218,13 @@ architecture v3 of uproc_test is
         signal enable_calculation : std_logic_vector(31 downto 0) := (others => '0');
         signal start_address : std_logic_vector(31 downto 0) := std_logic_vector(to_unsigned(25,32));
 
+        use work.denormalizer_generic_pkg.all;
+        constant denorm_typeref : denormalizer_record := denormalizer_typeref(floatref => hfloat_ref);
+        signal to_fix_converter : denorm_typeref'subtype := denorm_typeref;
+
+        use work.normalizer_generic_pkg.all;
+        constant norm_typeref : normalizer_record := normalizer_typeref(floatref => hfloat_ref);
+        signal to_fixed_converter : norm_typeref'subtype := norm_typeref;
 
 begin 
 
@@ -224,7 +232,7 @@ begin
 
         use work.ram_connector_pkg.generic_connect_ram_write_to_address;
 
-        function convert(data_in : std_logic_vector) return std_logic_vector is
+        impure function convert(data_in : std_logic_vector) return std_logic_vector is
             variable retval : std_logic_vector(31 downto 0);
         begin
             for i in retval'range loop
@@ -242,6 +250,21 @@ begin
         then
             init_mproc(mproc_in);
             init_mp_write(mc_write_in);
+            init_bus(bus_from_uproc);
+            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 500, simcurrent);
+            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 501, simvoltage);
+            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 502, testdata);
+            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 503, testdata2);
+            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 504, testdata3);
+            connect_data_to_address(bus_from_communications, bus_from_uproc, 398, start_address);
+            connect_data_to_address(bus_from_communications, bus_from_uproc, 399, enable_calculation);
+
+            if write_is_requested_to_address_range(bus_from_communications, 2000, 2127)
+            then
+                write_data_to_ram(mc_write_in, get_address(bus_from_communications) - 2000, 
+                to_std_logic_vector(float32_to_hfloat(get_slv_data(bus_from_communications),hfloat_ref)));
+            end if;
+            ---------------------------
 
             start_counter <= start_counter + 1;
             if start_counter > 100
@@ -261,20 +284,6 @@ begin
             connect_ram_write_to_address(mc_output , test2            , testdata2);
             connect_ram_write_to_address(mc_output , test3            , testdata3);
 
-            init_bus(bus_from_uproc);
-            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 500, simcurrent);
-            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 501, simvoltage);
-            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 502, testdata);
-            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 503, testdata2);
-            connect_read_only_data_to_address(bus_from_communications, bus_from_uproc, 504, testdata3);
-            connect_data_to_address(bus_from_communications, bus_from_uproc, 599, enable_calculation);
-            connect_data_to_address(bus_from_communications, bus_from_uproc, 598, start_address);
-
-            if write_is_requested_to_address_range(bus_from_communications, 2000, 2127)
-            then
-                write_data_to_ram(mc_write_in, get_address(bus_from_communications) - 2000, 
-                to_std_logic_vector(float32_to_hfloat(get_slv_data(bus_from_communications),hfloat_ref)));
-            end if;
 
         end if;
     end process;

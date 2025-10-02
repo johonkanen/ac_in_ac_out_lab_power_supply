@@ -103,4 +103,4 @@ def test_run(start_address , data):
     pyplot.show()
 
 data = -1
-test_run(25, data)
+test_run(100, data)

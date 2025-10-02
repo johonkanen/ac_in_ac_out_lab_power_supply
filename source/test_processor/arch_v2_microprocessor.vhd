@@ -84,7 +84,7 @@ architecture v2 of uproc_test is
         ,  13 => to_hfloat(0.01)
         ,  14 => to_hfloat(0.01)
         ,  31 => to_hfloat(-1.0)
-        ,  34 => to_hfloat(0.03)
+        ,  34 => to_hfloat(0.005)
         , 4 => to_hfloat(4.0)
         , 5 => to_hfloat(5.0)
         , 6 => to_hfloat(6.0)
@@ -94,6 +94,7 @@ architecture v2 of uproc_test is
         , 41 => to_hfloat(1.0)
         , 42 => to_hfloat(2.0)
         , 43 => to_hfloat(3.0)
+        , 44 => to_hfloat(0.001)
 
         , duty             => to_hfloat(0.8)
         , inductor_current => to_hfloat(0.0)
@@ -134,36 +135,15 @@ architecture v2 of uproc_test is
         ,55 => op(program_end)
         ----
 
-        ,100 => op(neg_mpy_sub , 13    , 11 , 1  , test1) -- u - y
-        ,117 => op(mpy_add     , test1 , 13 , 14 , test1) -- (u-y)*g + y
+        ,100 => op(neg_mpy_add , 13    , test1 , 1  , 11) -- u - y
+        ,113 => op(mpy_add     , test1 , 13 , 14 , test1) -- (u-y)*g + y
         ,118 => op(program_end)
 
-        -- ,115 => op(mpy_add    , test1, 1, test1 , test1)
-        -- ,116 => op(program_end)
-        --
-        -- , 200 => op(mpy_add      , test1 , 1 , 1 , 1)
-        -- , 214 => op(neg_mpy_sub  , test2 , 3 , 3 , 3)
-        -- , 215 => op(program_end)
-        --
-        -- , 216 => op(mpy_add      , test1 , 4 , 5 , 6)
-        -- , 217 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
-        -- , 218 => op(program_end)
-        --
-        -- , 219 => op(mpy_add      , test1 , 4 , 5 , 6)
-        -- , 221 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
-        -- , 222 => op(program_end)
-        --
-        -- , 223 => op(mpy_add      , test1 , 4 , 5 , 6)
-        -- , 225 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
-        -- , 226 => op(program_end)
-        --
-        -- , 227 => op(mpy_add      , test1 , 4 , 5 , 6)
-        -- , 230 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
-        -- , 231 => op(program_end)
-        --
-        -- , 232 => op(mpy_add      , test1 , 4 , 5 , 6)
-        -- , 236 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
-        -- , 237 => op(program_end)
+        ,101 => op(neg_mpy_add , 33    , test2 , 1  , 31) -- u - y
+        ,114 => op(mpy_add     , test2 , 33 , 34 , test2) -- (u-y)*g + y
+
+        ,102 => op(neg_mpy_add , 43    , test3 , 1  , 41) -- u - y
+        ,115 => op(mpy_add     , test3 , 43 , 44 , test3) -- (u-y)*g + y
 
         , 238 => op(mpy_add      , test1 , 4 , 5 , 6)
         , 260 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
@@ -193,9 +173,9 @@ architecture v2 of uproc_test is
         -- i = i + didt*h/c
         , 129 => op(neg_mpy_add , inductor_voltage , duty             , cap_voltage      , input_voltage)
         , 130 => op(mpy_sub     , cap_current      , duty             , inductor_current , load)
-        , 142 => op(neg_mpy_add , inductor_voltage , ind_res          , inductor_current , inductor_voltage)
-        , 143 => op(mpy_add     , cap_voltage      , cap_current      , voltage_gain     , cap_voltage)
-        , 157 => op(mpy_add     , inductor_current , inductor_voltage , current_gain     , inductor_current)
+        , 143 => op(neg_mpy_add , inductor_voltage , ind_res          , inductor_current , inductor_voltage)
+        , 144 => op(mpy_add     , cap_voltage      , cap_current      , voltage_gain     , cap_voltage)
+        , 158 => op(mpy_add     , inductor_current , inductor_voltage , current_gain     , inductor_current)
         , 159 => op(program_end)
 
         , others => op(nop));
@@ -242,7 +222,7 @@ begin
             init_mp_write(mc_write_in);
 
             start_counter <= start_counter + 1;
-            if start_counter > 100
+            if start_counter > 1000
             then
                 start_counter <= 0;
             end if;

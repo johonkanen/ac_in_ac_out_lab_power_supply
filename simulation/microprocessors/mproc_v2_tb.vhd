@@ -57,16 +57,6 @@ begin
     simulator_clock <= not simulator_clock after clock_period/2.0;
 ------------------------------------------------------------------------
     stimulus : process(simulator_clock)
-
-        -- function convert(data_in : std_logic_vector) return real is
-        -- begin
-        --     return to_real(to_hfloat(data_in, hfloat_ref));
-        -- end convert;
-        --
-        -- use work.ram_connector_pkg.generic_connect_ram_write_to_address;
-        -- procedure connect_ram_write_to_address is new generic_connect_ram_write_to_address generic map(return_type => real, conv => convert);
-
-
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
@@ -77,22 +67,8 @@ begin
                 WHEN 13  => write_data_to_address(bus_from_communications , 1011 , to_slv(to_float(1.0)));
                 WHEN 14  => write_data_to_address(bus_from_communications , 1012 , to_slv(to_float(2.0)));
                 WHEN 15  => write_data_to_address(bus_from_communications , 1013 , to_slv(to_float(4.0)));
-                WHEN 16  => write_data_to_address(bus_from_communications , 598 , std_logic_vector(to_unsigned(330,32)));
+                WHEN 16  => write_data_to_address(bus_from_communications , 598 , std_logic_vector(to_unsigned(100,32)));
                 WHEN 99  => write_data_to_address(bus_from_communications , 599 , x"0000_0001");
-                --                     request_counter <= 0;
-                --                     capture_counter <= 0;
-                -- WHEN 101  => write_data_to_address(bus_from_communications,1024, to_slv(to_float(0.6)));
-                --                     request_counter <= 0;
-                --                     capture_counter <= 0;
-                -- WHEN 200  => write_data_to_address(bus_from_communications,1122, to_slv(to_float(0.8)));
-                --                     request_counter <= 0;
-                --                     capture_counter <= 0;
-                -- WHEN 41e3 => write_data_to_address(bus_from_communications,1122, to_slv(to_float(0.7)));
-                --                     request_counter <= 0;
-                --                     capture_counter <= 0;
-                -- WHEN 50e3 => write_data_to_address(bus_from_communications,1121, to_slv(to_float(4.0)));
-                --                     request_counter <= 0;
-                --                     capture_counter <= 0;
                 WHEN others => -- do nothing
                     if simulation_counter > 50
                     then
