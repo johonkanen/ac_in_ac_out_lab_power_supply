@@ -149,33 +149,6 @@ architecture v3 of uproc_test is
         ,117 => op(mpy_add     , test1 , 13 , 14 , test1) -- (u-y)*g + y
         ,118 => op(program_end)
 
-        -- ,115 => op(mpy_add    , test1, 1, test1 , test1)
-        -- ,116 => op(program_end)
-        --
-        -- , 200 => op(mpy_add      , test1 , 1 , 1 , 1)
-        -- , 214 => op(neg_mpy_sub  , test2 , 3 , 3 , 3)
-        -- , 215 => op(program_end)
-        --
-        -- , 216 => op(mpy_add      , test1 , 4 , 5 , 6)
-        -- , 217 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
-        -- , 218 => op(program_end)
-        --
-        -- , 219 => op(mpy_add      , test1 , 4 , 5 , 6)
-        -- , 221 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
-        -- , 222 => op(program_end)
-        --
-        -- , 223 => op(mpy_add      , test1 , 4 , 5 , 6)
-        -- , 225 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
-        -- , 226 => op(program_end)
-        --
-        -- , 227 => op(mpy_add      , test1 , 4 , 5 , 6)
-        -- , 230 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
-        -- , 231 => op(program_end)
-        --
-        -- , 232 => op(mpy_add      , test1 , 4 , 5 , 6)
-        -- , 236 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
-        -- , 237 => op(program_end)
-
         , 238 => op(mpy_add      , test1 , 4 , 5 , 6)
         , 260 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
         , 290 => op(program_end)
@@ -300,7 +273,7 @@ begin
     ,instruction_out => addsub_out);
 ------------------------------------------------------------------------
     u_float_mult_add : entity work.instruction(fixed_mult_add)
-    generic map(radix => 20)
+    generic map(radix => g_used_radix)
     port map(clock 
     ,addsub_in
     ,addsub_out);
