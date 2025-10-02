@@ -88,7 +88,7 @@ architecture v3 of uproc_test is
         ,mantissa => (word_length-2-8 downto 0 => (word_length-2-8 downto 0 => '0')));
 
     function to_hfloat is new to_hfloat_slv_generic generic map(8,word_length);
-    function to_fixed is new work.real_to_fixed_pkg.generic_to_fixed generic map(word_length => 32, used_radix => 24);
+    function to_fixed is new work.real_to_fixed_pkg.generic_to_fixed generic map(word_length => 32, used_radix => g_used_radix);
 
     constant program_data : work.dual_port_ram_pkg.ram_array(0 to ref_subtype.address_high)(ref_subtype.data'range) := (
            0 => to_fixed(0.0)
