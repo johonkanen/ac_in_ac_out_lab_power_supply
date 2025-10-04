@@ -137,32 +137,13 @@ architecture v2 of uproc_test is
 
         ,100 => op(neg_mpy_add , 13    , test1 , 1  , 11) -- u - y
         ,113 => op(mpy_add     , test1 , 13 , 14 , test1) -- (u-y)*g + y
-        ,118 => op(program_end)
 
         ,101 => op(neg_mpy_add , 33    , test2 , 1  , 31) -- u - y
         ,114 => op(mpy_add     , test2 , 33 , 34 , test2) -- (u-y)*g + y
 
         ,102 => op(neg_mpy_add , 43    , test3 , 1  , 41) -- u - y
         ,115 => op(mpy_add     , test3 , 43 , 44 , test3) -- (u-y)*g + y
-
-        , 238 => op(mpy_add      , test1 , 4 , 5 , 6)
-        , 260 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
-        , 290 => op(program_end)
-
-        , 300 => op(mpy_add      , test1 , 4 , 5 , 6)
-        , 313 => op(neg_mpy_sub  , test2 , 7 , 8 , 9)
-        , 326 => op(neg_mpy_add  , test3 , 41 , 42 , 43)
-        , 327 => op(program_end)
-
-        , 330 => op(mpy_add , test1 , 4  , 5  , 6)
-        , 331 => op(mpy_add , test2 , 7  , 8  , 9)
-        , 332 => op(mpy_add , test3 , 41 , 42 , 43)
-
-        , 367 => op(mpy_add , test1 , 2 , 2 , 2)
-        , 368 => op(mpy_add , test2 , 2 , 2 , 2)
-        , 369 => op(mpy_add , test3 , 2 , 2 , 2)
-        , 370 => op(program_end)
-
+        ,118 => op(program_end)
 
         -- lc filter
         -- equation:

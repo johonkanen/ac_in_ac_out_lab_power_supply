@@ -74,6 +74,7 @@ architecture rtl of titanium_top is
     signal bus_from_top          : fpga_interconnect_record := init_fpga_interconnect;
     signal bus_from_uproc        : fpga_interconnect_record := init_fpga_interconnect;
     signal bus_from_uproc2        : fpga_interconnect_record := init_fpga_interconnect;
+    signal bus_from_uproc3        : fpga_interconnect_record := init_fpga_interconnect;
     signal bus_from_signal_scope : fpga_interconnect_record := init_fpga_interconnect;
 
     signal bus_from_measurements : fpga_interconnect_record := init_fpga_interconnect;
@@ -433,6 +434,7 @@ begin
                  and bus_from_measurements 
                  and bus_from_uproc 
                  and bus_from_uproc2 
+                 and bus_from_uproc3 
                  ;
         end if; -- rising_edge
     end process;
@@ -447,7 +449,7 @@ begin
             ,bus_from_communications => bus_from_communications
         );
 ------------------------------------------------------------------------
-u_uproc_test : entity work.uproc_test(v3)
+u_fixed_uproc : entity work.uproc_test(v3)
 generic map(g_word_length => 32
             ,g_used_radix => 24
         )
@@ -456,12 +458,19 @@ port map(
     ,bus_from_communications => bus_from_communications
     ,bus_from_uproc          => bus_from_uproc);
 ------------------------------------------------------------------------
-u_uproc2_test : entity work.uproc_test(v2)
+u_hfloat_uproc : entity work.uproc_test(v2)
 generic map(g_word_length => 33)
 port map( 
     clock => main_clock
     ,bus_from_communications => bus_from_communications
     ,bus_from_uproc          => bus_from_uproc2);
+------------------------------------------------------------------------
+-- u_nativefloat_uproc : entity work.uproc_test(v2)
+-- generic map(g_word_length => 33)
+-- port map( 
+--     clock => main_clock
+--     ,bus_from_communications => bus_from_communications
+--     ,bus_from_uproc          => bus_from_uproc2);
 ------------------------------------------------------------------------
 
 end rtl;
