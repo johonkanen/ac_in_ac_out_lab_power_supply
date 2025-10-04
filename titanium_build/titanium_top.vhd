@@ -131,23 +131,7 @@ architecture rtl of titanium_top is
     signal fp32_mult_a  : std_logic_vector(31 downto 0) :=to_slv(to_float(0.0, float32'high)); -- fp32_mult_a
     signal fp32_mult_b  : std_logic_vector(31 downto 0) :=to_slv(to_float(3.3, float32'high)); -- fp32_mult_b
     signal fp32_adder_a : std_logic_vector(31 downto 0) :=to_slv(to_float(0.0, float32'high)); -- fp32_chainin
-    signal ena          : std_logic_vector(2 downto 0)  := (others => '1'); -- ena
-    signal fp32_result  : std_logic_vector(31 downto 0)                   ; -- fp32_result
-
-    -- agilex 3 only, left as blackbox in efinix titanium
     -----------------------------------------------------
-	component native_fp32 is
-		port (
-			fp32_mult_a  : in  std_logic_vector(31 downto 0) := (others => 'X'); -- fp32_mult_a
-			fp32_mult_b  : in  std_logic_vector(31 downto 0) := (others => 'X'); -- fp32_mult_b
-			fp32_adder_a : in  std_logic_vector(31 downto 0) := (others => 'X'); -- fp32_adder_a
-			clk          : in  std_logic                     := 'X';             -- clk
-			ena          : in  std_logic_vector(2 downto 0)  := (others => 'X'); -- ena
-			fp32_result  : out std_logic_vector(31 downto 0)                     -- fp32_result
-		);
-	end component native_fp32;
-    -----------------------------------------------------
-    
     use work.float_typedefs_generic_pkg.all;
     use work.normalizer_generic_pkg.all;
     use work.float_to_real_conversions_pkg.all;
@@ -199,16 +183,6 @@ begin
         ,agilex_mpya_in
         ,agilex_mpya_out);
     --------------------
-	-- u0 : component native_fp32
-	-- 	port map (
-	--            fp32_mult_a   => to_slv(float32_conv_result)  -- fp32_mult_a.fp32_mult_a
-	--            ,fp32_mult_b  => fp32_mult_b  -- fp32_mult_b.fp32_mult_b
-	--            ,fp32_adder_a => fp32_adder_a -- fp32_mult_b.fp32_mult_b
-	--            ,clk          => main_clock   -- clk.clk
-	--            ,ena          => "111"        -- ena.ena
-	--            ,fp32_result  => fp32_result  -- fp32_result.fp32_result
-	-- 	);
-
     grid_inu_leg1_hi  <= '0';
     grid_inu_leg1_low <= '0';
     grid_inu_leg2_hi  <= '0';
