@@ -107,9 +107,11 @@ set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_p
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/float_multiplier_generic_pkg.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/float_to_real_conversions_pkg.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/float_typedefs_generic_pkg.vhd
-set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/multiply_add_arch_hfloat.vhd
-set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/multiply_add_entity.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/normalizer_generic_pkg.vhd
+
+set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/multiply_add_entity.vhd
+set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/multiply_add_arch_hfloat.vhd
+set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/altera/multiply_add_arch_agilex.vhd
 
 
 set_global_assignment -name IP_FILE $this_file_path/ip/main_clock/main_clock.ip

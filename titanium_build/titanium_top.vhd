@@ -134,12 +134,6 @@ architecture rtl of titanium_top is
     signal ena          : std_logic_vector(2 downto 0)  := (others => '1'); -- ena
     signal fp32_result  : std_logic_vector(31 downto 0)                   ; -- fp32_result
 
-    type fp32_in_record is record
-        fp32_mult_a  : std_logic_vector(31 downto 0);
-        fp32_mult_b  : std_logic_vector(31 downto 0);
-        fp32_adder_a : std_logic_vector(31 downto 0);
-    end record;
-
     -- agilex 3 only, left as blackbox in efinix titanium
     -----------------------------------------------------
 	component native_fp32 is
@@ -185,11 +179,15 @@ architecture rtl of titanium_top is
     constant float1 : hfloat_record := to_hfloat(-84.5);
     constant float2 : hfloat_record := to_hfloat(3.3);
     constant float3 : hfloat_record := to_hfloat(0.0);
+
+    constant agilex_mpya_ref : mpya_subtype_record := create_mpya_typeref;
+    signal agilex_mpya_in  : agilex_mpya_ref.mpya_in'subtype  := agilex_mpya_ref.mpya_in;
+    signal agilex_mpya_out : agilex_mpya_ref.mpya_out'subtype := agilex_mpya_ref.mpya_out;
         
 begin
 
     --------------------
-    dut : entity work.multiply_add
+    dut : entity work.multiply_add(hfloat)
     generic map(hfloat_zero)
     port map(main_clock
         ,mpya_in
@@ -459,14 +457,14 @@ port map(
     ,bus_from_uproc          => bus_from_uproc);
 ------------------------------------------------------------------------
 u_hfloat_uproc : entity work.uproc_test(v2)
-generic map(g_word_length => 33)
+generic map(g_word_length => 35)
 port map( 
     clock => main_clock
     ,bus_from_communications => bus_from_communications
     ,bus_from_uproc          => bus_from_uproc2);
 ------------------------------------------------------------------------
 -- u_nativefloat_uproc : entity work.uproc_test(v2)
--- generic map(g_word_length => 33)
+-- generic map(g_word_length => 32)
 -- port map( 
 --     clock => main_clock
 --     ,bus_from_communications => bus_from_communications
