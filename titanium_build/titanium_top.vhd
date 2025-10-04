@@ -193,16 +193,21 @@ begin
         ,mpya_in
         ,mpya_out);
 ------------------------------------------------------------------------
+    dut_ag : entity work.multiply_add(agilex)
+    port map(
+        main_clock
+        ,agilex_mpya_in
+        ,agilex_mpya_out);
     --------------------
-	u0 : component native_fp32
-		port map (
-            fp32_mult_a   => to_slv(float32_conv_result)  -- fp32_mult_a.fp32_mult_a
-            ,fp32_mult_b  => fp32_mult_b  -- fp32_mult_b.fp32_mult_b
-            ,fp32_adder_a => fp32_adder_a -- fp32_mult_b.fp32_mult_b
-            ,clk          => main_clock   -- clk.clk
-            ,ena          => "111"        -- ena.ena
-            ,fp32_result  => fp32_result  -- fp32_result.fp32_result
-		);
+	-- u0 : component native_fp32
+	-- 	port map (
+	--            fp32_mult_a   => to_slv(float32_conv_result)  -- fp32_mult_a.fp32_mult_a
+	--            ,fp32_mult_b  => fp32_mult_b  -- fp32_mult_b.fp32_mult_b
+	--            ,fp32_adder_a => fp32_adder_a -- fp32_mult_b.fp32_mult_b
+	--            ,clk          => main_clock   -- clk.clk
+	--            ,ena          => "111"        -- ena.ena
+	--            ,fp32_result  => fp32_result  -- fp32_result.fp32_result
+	-- 	);
 
     grid_inu_leg1_hi  <= '0';
     grid_inu_leg1_low <= '0';
@@ -271,11 +276,17 @@ begin
 
             create_normalizer(normalizer);
             init_multiply_add(mpya_in);
+            init_multiply_add(agilex_mpya_in);
 
             multiply_add(mpya_in 
             ,to_std_logic(conv_result)
             ,to_std_logic(float2)
             ,to_std_logic(float3));
+
+            multiply_add(agilex_mpya_in 
+            ,to_slv(float32_conv_result)
+            ,to_slv(fp32_mult_b )
+            ,to_slv(fp32_adder_a));
 
             create_main_state_machine(main_state_machine
                  , start_requested    => start_requested
@@ -293,7 +304,7 @@ begin
             connect_data_to_address(bus_from_communications           , bus_from_top , 50 , fp32_mult_a );
             connect_data_to_address(bus_from_communications           , bus_from_top , 51 , fp32_mult_b );
             connect_data_to_address(bus_from_communications           , bus_from_top , 52 , fp32_adder_a);
-            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 53 , fp32_result);
+            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 53 , get_mpya_result(agilex_mpya_out));
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 54 , to_slv(to_ieee_float32(to_hfloat(get_mpya_result(mpya_out) , hfloat_zero))));
 
 
@@ -308,9 +319,6 @@ begin
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 7  , 2**15 + get_cic_filter_output(output_inu_filter));
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 8  , 2**15 + get_cic_filter_output(dab_filter));
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 12 , report_state(main_state_machine));
-
-
-            -- connect_read_only_data_to_address(bus_from_communications , bus_from_top , 100 , git_hash_pkg.git_hash);
 
             init_ram(meas_ram_b_in);
             if data_is_requested_from_address_range(bus_from_communications, 200, 209)
@@ -380,10 +388,10 @@ begin
     , meas_ram_b_out);
 
     -- TODO, make a subroutine for this
-    meas_ram_a_in <=(address => to_unsigned(adc_scaler_out.out_address,4)
+    meas_ram_a_in <=(address           => to_unsigned(adc_scaler_out.out_address,4)
                     ,read_is_requested => '0'
-                    ,data => std_logic_vector(adc_scaler_out.data_out)
-                    ,write_requested => adc_scaler_out.is_ready);
+                    ,data              => std_logic_vector(adc_scaler_out.data_out)
+                    ,write_requested   => adc_scaler_out.is_ready);
 
 ------------------------------------------------------------------------
     u_measurements : entity work.measurements
@@ -395,7 +403,7 @@ begin
         , ads_7056_clock_pri       => ads_7056_clock_pri
         , ads_7056_input_data_pri  => ads_7056_input_data_pri
 
-        , ad_mux2_io => ad_mux2_io
+        , ad_mux2_io           => ad_mux2_io
         , ads_7056_chip_select => ads_7056_chip_select
         , ads_7056_clock       => ads_7056_clock
         , ads_7056_input_data  => ads_7056_input_data
