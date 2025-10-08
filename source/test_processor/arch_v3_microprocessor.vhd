@@ -254,7 +254,7 @@ begin
     ,instruction_in  => addsub_in
     ,instruction_out => addsub_out);
 ------------------------------------------------------------------------
-    u_float_mult_add : entity work.instruction(fixed_mult_add)
+    u_fixed_mult_add : entity work.instruction(fixed_mult_add)
     generic map(radix => g_used_radix)
     port map(clock 
     ,addsub_in
