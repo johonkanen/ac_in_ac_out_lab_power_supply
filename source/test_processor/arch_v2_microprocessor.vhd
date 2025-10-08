@@ -250,7 +250,7 @@ begin
     ,instruction_out => addsub_out);
 ------------------------------------------------------------------------
     u_float_mult_add : entity work.instruction(float_mult_add)
-    generic map(radix => 20)
+    generic map(g_option => "hfloat")
     port map(clock 
     ,addsub_in
     ,addsub_out);

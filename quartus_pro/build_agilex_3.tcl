@@ -99,6 +99,7 @@ set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_microprogr
 set_global_assignment -name VHDL_FILE $this_file_path/../source/test_processor/uproc_test.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/test_processor/arch_v2_microprocessor.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/test_processor/arch_v3_microprocessor.vhd
+set_global_assignment -name VHDL_FILE $this_file_path/../source/test_processor/arch_v4_microprocessor.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/main_state_machine/main_state_machine_pkg.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_fixed_point/adc_scaler/adc_scaler.vhd
 

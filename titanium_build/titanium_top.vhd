@@ -429,7 +429,14 @@ begin
             ,bus_from_communications => bus_from_communications
         );
 ------------------------------------------------------------------------
-u_fixed_uproc : entity work.uproc_test(v3)
+u_uproc_hfloat : entity work.uproc_test(v2)
+generic map(g_word_length => 35)
+port map( 
+    clock => main_clock
+    ,bus_from_communications => bus_from_communications
+    ,bus_from_uproc          => bus_from_uproc2);
+------------------------------------------------------------------------
+u_uproc_fixed : entity work.uproc_test(v3)
 generic map(g_word_length => 32
             ,g_used_radix => 24
         )
@@ -438,19 +445,11 @@ port map(
     ,bus_from_communications => bus_from_communications
     ,bus_from_uproc          => bus_from_uproc);
 ------------------------------------------------------------------------
-u_hfloat_uproc : entity work.uproc_test(v2)
-generic map(g_word_length => 35)
+u_uproc_nativefloat : entity work.uproc_test(v4)
+generic map(g_word_length => 32)
 port map( 
     clock => main_clock
     ,bus_from_communications => bus_from_communications
-    ,bus_from_uproc          => bus_from_uproc2);
+    ,bus_from_uproc          => bus_from_uproc3);
 ------------------------------------------------------------------------
--- u_nativefloat_uproc : entity work.uproc_test(v2)
--- generic map(g_word_length => 32)
--- port map( 
---     clock => main_clock
---     ,bus_from_communications => bus_from_communications
---     ,bus_from_uproc          => bus_from_uproc2);
-------------------------------------------------------------------------
-
 end rtl;
