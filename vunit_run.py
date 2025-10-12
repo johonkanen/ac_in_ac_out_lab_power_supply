@@ -106,6 +106,7 @@ top_lib.add_source_files(ROOT / "source/hVHDL_fixed_point/real_to_fixed/real_to_
 top_lib.add_source_files(ROOT / "source/test_processor/uproc_test.vhd")
 top_lib.add_source_files(ROOT / "source/test_processor/arch_v2_microprocessor.vhd")
 top_lib.add_source_files(ROOT / "source/test_processor/arch_v3_microprocessor.vhd")
+top_lib.add_source_files(ROOT / "source/test_processor/arch_v4_microprocessor.vhd")
 
 top_lib.add_source_files(ROOT / "source/hVHDL_floating_point/vhdl2008/denormalizer_generic_pkg.vhd")
 top_lib.add_source_files(ROOT / "source/hVHDL_floating_point/vhdl2008/float_adder_generic_pkg.vhd")
@@ -113,6 +114,7 @@ top_lib.add_source_files(ROOT / "source/hVHDL_floating_point/vhdl2008/float_mult
 top_lib.add_source_files(ROOT / "source/hVHDL_floating_point/vhdl2008/float_to_real_conversions_pkg.vhd")
 top_lib.add_source_files(ROOT / "source/hVHDL_floating_point/vhdl2008/float_typedefs_generic_pkg.vhd")
 top_lib.add_source_files(ROOT / "source/hVHDL_floating_point/vhdl2008/multiply_add_arch_hfloat.vhd")
+top_lib.add_source_files(ROOT / "source/hVHDL_floating_point/vhdl2008/altera/multiply_add_arch_agilex.vhd")
 top_lib.add_source_files(ROOT / "source/hVHDL_floating_point/vhdl2008/multiply_add_entity.vhd")
 top_lib.add_source_files(ROOT / "source/hVHDL_floating_point/vhdl2008/normalizer_generic_pkg.vhd")
 

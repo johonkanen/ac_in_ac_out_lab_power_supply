@@ -82,12 +82,6 @@ architecture v3 of uproc_test is
 
     constant sampletime : real := 0.7e-6;
 
-    constant hfloat_ref : hfloat_record :=(
-        sign => '0'
-        ,exponent => (7 downto 0 => x"00")
-        ,mantissa => (word_length-2-8 downto 0 => (word_length-2-8 downto 0 => '0')));
-
-    function to_hfloat is new to_hfloat_slv_generic generic map(8,word_length);
     function to_fixed is new work.real_to_fixed_pkg.generic_to_fixed generic map(word_length => 32, used_radix => g_used_radix);
 
     constant program_data : work.dual_port_ram_pkg.ram_array(0 to ref_subtype.address_high)(ref_subtype.data'range) := (
@@ -143,6 +137,16 @@ architecture v3 of uproc_test is
         ,53 => op(mpy_add     , test1 , 1     , 2  , 15)    -- (u-y)*g + y
 
         ,54 => op(program_end)
+
+        ,100 => op(neg_mpy_add , 13    , test1 , 1  , 11) -- u - y
+        ,113 => op(mpy_add     , test1 , 13 , 14 , test1) -- (u-y)*g + y
+
+        ,101 => op(neg_mpy_add , 33    , test2 , 1  , 31) -- u - y
+        ,114 => op(mpy_add     , test2 , 33 , 34 , test2) -- (u-y)*g + y
+
+        ,102 => op(neg_mpy_add , 43    , test3 , 1  , 41) -- u - y
+        ,115 => op(mpy_add     , test3 , 43 , 44 , test3) -- (u-y)*g + y
+        ,118 => op(program_end)
         ----
         -- lc filter
         -- equation:
@@ -170,14 +174,6 @@ architecture v3 of uproc_test is
 
         signal enable_calculation : std_logic_vector(31 downto 0) := (others => '0');
         signal start_address : std_logic_vector(31 downto 0) := std_logic_vector(to_unsigned(25,32));
-
-        use work.denormalizer_generic_pkg.all;
-        constant denorm_typeref : denormalizer_record := denormalizer_typeref(floatref => hfloat_ref);
-        signal to_fix_converter : denorm_typeref'subtype := denorm_typeref;
-
-        use work.normalizer_generic_pkg.all;
-        constant norm_typeref : normalizer_record := normalizer_typeref(floatref => hfloat_ref);
-        signal to_fixed_converter : norm_typeref'subtype := norm_typeref;
 
 begin 
 
@@ -222,7 +218,7 @@ begin
             ---------------------------
 
             start_counter <= start_counter + 1;
-            if start_counter > 100
+            if start_counter > 1000
             then
                 start_counter <= 0;
             end if;
