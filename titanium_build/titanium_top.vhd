@@ -171,7 +171,7 @@ architecture rtl of titanium_top is
 begin
 
     --------------------
-    dut : entity work.multiply_add(hfloat)
+    dut : entity work.multiply_add(fast_hfloat)
     generic map(hfloat_zero)
     port map(main_clock
         ,mpya_in

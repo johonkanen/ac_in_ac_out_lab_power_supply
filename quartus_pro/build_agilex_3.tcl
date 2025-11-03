@@ -112,6 +112,7 @@ set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_p
 
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/multiply_add_entity.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/multiply_add_arch_hfloat.vhd
+set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/multiply_add_arch_fast_hfloat.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/altera/multiply_add_arch_agilex.vhd
 
 
@@ -270,7 +271,13 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ads_7056_chip_select 
 set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ad_mux2_io[2]            -entity testiAg3
 set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ad_mux2_io[1]            -entity testiAg3
 set_instance_assignment -name CURRENT_STRENGTH_NEW 3MA -to ad_mux2_io[0]            -entity testiAg3
-	# Commit assignments
-	export_assignments
+#
+# Commit assignments
+export_assignments
 
-execute_flow -compile
+# execute_flow -compile
+# compile from command line using 
+# quartus_pro/bin64/quartus_syn.exe <project>.qpf
+# quartus_pro/bin64/quartus_fit.exe <project>.qpf
+# quartus_pro/bin64/quartus_asm.exe <project>.qpf
+# quartus_pro/bin64/quartus_sta.exe <project>.qpf
