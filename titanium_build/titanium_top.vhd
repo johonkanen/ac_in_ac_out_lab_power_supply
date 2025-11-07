@@ -6,6 +6,7 @@ library ieee;
 entity titanium_top is
     port (
         main_clock : in std_logic
+       ;main_clock_x2 : in std_logic
         ;pll_locked : in std_logic
 
         ;uart_rx      : in std_logic
@@ -89,9 +90,9 @@ architecture rtl of titanium_top is
 
     signal aux_pwm : aux_pwm_record := init_aux_period_and_duty(period => 500, duty_cycle => 220);
 
-    signal grid_inu_filter : cic_filter_record := init_cic_filter;
-    signal output_inu_filter : cic_filter_record := init_cic_filter;
-    signal dab_filter : cic_filter_record := init_cic_filter;
+    -- signal grid_inu_filter : cic_filter_record := init_cic_filter;
+    -- signal output_inu_filter : cic_filter_record := init_cic_filter;
+    -- signal dab_filter : cic_filter_record := init_cic_filter;
     signal sdm_counter : natural range 0 to 15 := 0;
 
     signal pwm : pwm_record := init_pwm;
@@ -167,9 +168,40 @@ architecture rtl of titanium_top is
     constant agilex_mpya_ref : mpya_subtype_record := create_mpya_typeref;
     signal agilex_mpya_in  : agilex_mpya_ref.mpya_in'subtype  := agilex_mpya_ref.mpya_in;
     signal agilex_mpya_out : agilex_mpya_ref.mpya_out'subtype := agilex_mpya_ref.mpya_out;
+
+
+    signal fast_pwm_counter : natural range 0 to 2**15-1 := 0;
+    signal slow_pwm_counter : natural range 0 to 2**15-1 := 0;
         
 begin
 
+  /*  process(main_clock_x2)
+    begin
+        if rising_edge(main_clock_x2)
+        then
+            if fast_pwm_counter < 1199
+            then
+                fast_pwm_counter <= fast_pwm_counter + 1;
+            else
+                fast_pwm_counter <= 0;
+            end if;
+
+            if fast_pwm_counter = 0
+            then
+                if slow_pwm_counter < 999
+                then
+                    slow_pwm_counter <= slow_pwm_counter + 1;
+                else
+                    slow_pwm_counter <= 0;
+                end if;
+            end if;
+
+            if fast_pwm_counter = 1199 and slow_pwm_counter = 999 then
+            end if;
+
+        end if;
+    end process;
+*/
     --------------------
     dut : entity work.multiply_add(fast_hfloat)
     generic map(hfloat_zero)
@@ -183,7 +215,7 @@ begin
         ,agilex_mpya_in
         ,agilex_mpya_out);
     --------------------
-    grid_inu_leg1_hi  <= '0';
+    -- grid_inu_leg1_hi  <= '0';
     grid_inu_leg1_low <= '0';
     grid_inu_leg2_hi  <= '0';
     -- grid_inu_leg2_low <= '0';
@@ -289,9 +321,9 @@ begin
                 pwm.is_enabled <= false;
             end if;
 
-            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 6  , 2**15 + get_cic_filter_output(grid_inu_filter));
-            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 7  , 2**15 + get_cic_filter_output(output_inu_filter));
-            connect_read_only_data_to_address(bus_from_communications , bus_from_top , 8  , 2**15 + get_cic_filter_output(dab_filter));
+            -- connect_read_only_data_to_address(bus_from_communications , bus_from_top , 6  , 2**15 + get_cic_filter_output(grid_inu_filter));
+            -- connect_read_only_data_to_address(bus_from_communications , bus_from_top , 7  , 2**15 + get_cic_filter_output(output_inu_filter));
+            -- connect_read_only_data_to_address(bus_from_communications , bus_from_top , 8  , 2**15 + get_cic_filter_output(dab_filter));
             connect_read_only_data_to_address(bus_from_communications , bus_from_top , 12 , report_state(main_state_machine));
 
             init_ram(meas_ram_b_in);
@@ -318,9 +350,9 @@ begin
                 sdm_counter <= sdm_counter + 1;
             else
                 sdm_counter <= 0;
-                calculate_cic_filter(grid_inu_filter   , grid_inu_sdm_data);
-                calculate_cic_filter(output_inu_filter , output_inu_sdm_data);
-                calculate_cic_filter(dab_filter        , dab_sdm_data);
+                -- calculate_cic_filter(grid_inu_filter   , grid_inu_sdm_data);
+                -- calculate_cic_filter(output_inu_filter , output_inu_sdm_data);
+                -- calculate_cic_filter(dab_filter        , dab_sdm_data);
             end if;
 
             if sdm_counter > 5/2 then

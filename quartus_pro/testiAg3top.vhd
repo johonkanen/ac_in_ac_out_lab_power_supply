@@ -61,6 +61,7 @@ architecture rtl of testiAg3 is
         refclk    : in  std_logic := '0'  -- refclk.clk,   The reference clock source that drives the I/O PLL.
         ;rst      : in  std_logic := '0' -- reset.reset, The asynchronous reset port for the output clocks. Drive this port high to reset all output clocks to the value of 0.
         ;outclk_0 : out std_logic        -- outclk0.clk,   Output clock Channel 0 from I/O PLL.
+		  ;outclk_1 : out std_logic        -- outclk0.clk,   Output clock Channel 0 from I/O PLL.
 	);
 	end component;
 
@@ -70,14 +71,15 @@ architecture rtl of testiAg3 is
     );
     end component reset_release;
 
-	signal core_clock : std_logic;
+	 signal core_clock : std_logic;
+	 signal core_clock_x2 : std_logic;
     signal init_done : std_logic;
     signal led_state : std_logic := '0';
     signal blink_counter : natural range 0 to 60e6 := 0;
 	 
 begin
 	u_main_clock : main_clock
-	port map(refclk => xclk,outclk_0 => core_clock);
+	port map(refclk => xclk,outclk_0 => core_clock, outclk_1 => core_clock_x2);
 
     u0 : component reset_release
         port map (
@@ -134,6 +136,7 @@ begin
     u_titanium_top : entity work.titanium_top
     port map (
         main_clock                => core_clock
+		  ,main_clock_x2				 => core_clock_x2
         ,pll_locked               => init_done
         ,uart_rx                  => uart_rx
         ,uart_tx                  => uart_tx

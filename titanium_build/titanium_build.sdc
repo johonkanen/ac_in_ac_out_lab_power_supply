@@ -4,10 +4,10 @@
 # WARNING: Any manual changes made to this file will be lost when generating constraints.
 
 # Efinity Interface Designer SDC
-# Version: 2024.2.294.1.19
-# Date: 2025-01-01 21:59
+# Version: 2025.1.110.5.9
+# Date: 2025-11-07 07:18
 
-# Copyright (C) 2013 - 2024 Efinix Inc. All rights reserved.
+# Copyright (C) 2013 - 2025 Efinix Inc. All rights reserved.
 
 # Device: Ti60F225
 # Project: titanium_build
@@ -17,6 +17,7 @@
 #################
 create_clock -period 10.000 -name main_pll_CLKOUT0 [get_ports {main_pll_CLKOUT0}]
 create_clock -period 8.333 -name main_clock [get_ports {main_clock}]
+create_clock -period 4.167 -name main_clock_x2 [get_ports {main_clock_x2}]
 
 # GPIO Constraints
 ####################
@@ -110,3 +111,5 @@ set_input_delay -clock main_clock -reference_pin [get_ports {main_clock~CLKOUT~6
 # set_clock_latency -source -hold <board_min + 0.552> [get_ports {main_pll_CLKOUT0}]
 # set_clock_latency -source -setup <board_max + 0.828> [get_ports {main_clock}]
 # set_clock_latency -source -hold <board_min + 0.552> [get_ports {main_clock}]
+# set_clock_latency -source -setup <board_max + 0.828> [get_ports {main_clock_x2}]
+# set_clock_latency -source -hold <board_min + 0.552> [get_ports {main_clock_x2}]
