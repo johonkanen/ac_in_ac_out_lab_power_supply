@@ -112,6 +112,7 @@ set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_p
 
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/multiply_add_entity.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/multiply_add_arch_hfloat.vhd
+set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/fast_hfloat_pkg.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/multiply_add_arch_fast_hfloat.vhd
 set_global_assignment -name VHDL_FILE $this_file_path/../source/hVHDL_floating_point/vhdl2008/altera/multiply_add_arch_agilex.vhd
 

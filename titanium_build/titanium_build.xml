@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<efx:project name="titanium_build" description="" last_change="1762492809" sw_version="2025.1.110.5.9" last_run_state="pass" last_run_flow="bitstream" config_result_in_sync="sync" design_ood="sync" place_ood="sync" route_ood="sync" xmlns:efx="http://www.efinixinc.com/enf_proj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/enf_proj enf_proj.xsd">
+<efx:project name="titanium_build" description="" last_change="1764307191" sw_version="2025.2.288" last_run_state="pass" last_run_flow="bitstream" config_result_in_sync="sync" design_ood="sync" place_ood="sync" route_ood="sync" xmlns:efx="http://www.efinixinc.com/enf_proj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/enf_proj enf_proj.xsd">
     <efx:device_info>
         <efx:family name="Titanium"/>
         <efx:device name="Ti60F225"/>
@@ -59,6 +59,7 @@
         <efx:design_file name="../source/hVHDL_floating_point/vhdl2008/altera/multiply_add_arch_agilex.vhd" version="default" library="default"/>
         <efx:design_file name="../source/test_processor/arch_v4_microprocessor.vhd" version="default" library="default"/>
         <efx:design_file name="../source/hVHDL_floating_point/vhdl2008/multiply_add_arch_fast_hfloat.vhd" version="default" library="default"/>
+        <efx:design_file name="../source/hVHDL_floating_point/vhdl2008/fast_hfloat_pkg.vhd" version="default" library="default"/>
         <efx:top_vhdl_arch name="rtl"/>
     </efx:design_info>
     <efx:constraint_info>
@@ -67,6 +68,7 @@
     </efx:constraint_info>
     <efx:sim_info/>
     <efx:misc_info/>
+    <efx:ooc_info/>
     <efx:ip_info/>
     <efx:synthesis tool_name="efx_map">
         <efx:param name="work_dir" value="work_syn" value_type="e_string"/>
@@ -108,11 +110,12 @@
         <efx:param name="pack-luts-to-comb4" value="0" value_type="e_option"/>
         <efx:param name="max-bit-blast-mem-size" value="10240" value_type="e_integer"/>
         <efx:param name="enable-mark-debug" value="1" value_type="e_option"/>
+        <efx:param name="suppress_info_msgs" value="off" value_type="e_bool"/>
+        <efx:param name="suppress_warning_msgs" value="off" value_type="e_bool"/>
     </efx:synthesis>
     <efx:place_and_route tool_name="efx_pnr">
         <efx:param name="work_dir" value="work_pnr" value_type="e_string"/>
         <efx:param name="verbose" value="off" value_type="e_bool"/>
-        <efx:param name="load_delaym" value="on" value_type="e_bool"/>
         <efx:param name="optimization_level" value="TIMING_2" value_type="e_option"/>
         <efx:param name="seed" value="1" value_type="e_integer"/>
         <efx:param name="placer_effort_level" value="3" value_type="e_option"/>
@@ -120,6 +123,8 @@
         <efx:param name="print_critical_path" value="10" value_type="e_integer"/>
         <efx:param name="classic_flow" value="off" value_type="e_noarg"/>
         <efx:param name="beneficial_skew" value="off" value_type="e_option"/>
+        <efx:param name="suppress_info_msgs" value="off" value_type="e_bool"/>
+        <efx:param name="suppress_warning_msgs" value="off" value_type="e_bool"/>
     </efx:place_and_route>
     <efx:bitstream_generation tool_name="efx_pgm">
         <efx:param name="mode" value="active" value_type="e_option"/>
@@ -148,7 +153,6 @@
     </efx:debugger>
     <efx:security>
         <efx:param name="randomize_iv_value" value="on" value_type="e_bool"/>
-        <efx:param name="iv_value" value="" value_type="e_string"/>
         <efx:param name="enable_bitstream_encrypt" value="off" value_type="e_bool"/>
         <efx:param name="enable_bitstream_auth" value="off" value_type="e_bool"/>
         <efx:param name="encryption_key_file" value="NONE" value_type="e_string"/>
